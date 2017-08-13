@@ -1,0 +1,26 @@
+{
+  "name": "sudoku",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "ts-loader": "^2.3.2"
+  },
+  "devDependencies": {
+    "jasmine": "^2.7.0",
+    "ts-loader": "^2.3.2"
+  },
+  "scripts": {
+    "test": "jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasminenoack/sudoku.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasminenoack/sudoku/issues"
+  },
+  "homepage": "https://github.com/jasminenoack/sudoku#readme"
+}
