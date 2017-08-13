@@ -7,7 +7,7 @@ describe('sudoku board', () => {
         sudoku = new Sudoku();
     })
 
-    describe('steps', () => {
+    xdescribe('steps', () => {
         // check a number in a column
         xit('column', () => { })
 
@@ -42,14 +42,47 @@ describe('sudoku board', () => {
                 expect(sudoku.nextSection()).toEqual(0)
                 expect(sudoku.section).toEqual(0)
             })
+
+            it('can have different numbers of sections', () => {
+                sudoku.numbers = 6
+                sudoku.section = 4
+                expect(sudoku.section).toEqual(4)
+                expect(sudoku.nextSection()).toEqual(5)
+                expect(sudoku.section).toEqual(5)
+                expect(sudoku.nextSection()).toEqual(0)
+                expect(sudoku.section).toEqual(0)
+            })
         })
 
-        xit('active type', () => { })
+        describe('active type', () => { 
+            it('has an active type', () => {
+                expect(sudoku.type).toEqual('row')
+            })
+
+            it('has cycles through types', () => {
+                expect(sudoku.type).toEqual('row')
+                expect(sudoku.nextType()).toEqual('column')
+                expect(sudoku.type).toEqual('column')
+                expect(sudoku.nextType()).toEqual('square')
+                expect(sudoku.type).toEqual('square')
+                expect(sudoku.nextType()).toEqual('row')
+            })
+
+            it('can take a different pattern of types', () => {
+                sudoku.typePattern = ['column', 'row', 'square']
+                expect(sudoku.type).toEqual('row')
+                expect(sudoku.nextType()).toEqual('square')
+                expect(sudoku.type).toEqual('square')
+                expect(sudoku.nextType()).toEqual('column')
+                expect(sudoku.type).toEqual('column')
+                expect(sudoku.nextType()).toEqual('row')
+            })
+        })
 
         xit('active number', () => { })
     })
 
-    describe('spot', () => {
+    xdescribe('spot', () => {
         xit('knows if a spot is given', () => { })
 
         xit('knows if a spot is empty', () => { })
@@ -57,7 +90,7 @@ describe('sudoku board', () => {
         xit('knows if a spot is filled by logic', () => { })
     })
 
-    describe('settings', () => {
+    xdescribe('settings', () => {
         xit('knows how many numbers', () => { })
 
         xit('follows step pattern', () => { })
@@ -67,7 +100,7 @@ describe('sudoku board', () => {
         xit('has a grid', () => {})
     })
 
-    describe('process', () => {
+    xdescribe('process', () => {
         xit('moves through steps', () => { })
 
         xit('knows if stuck', () => { })
