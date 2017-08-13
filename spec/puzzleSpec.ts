@@ -20,10 +20,9 @@ describe('sudoku board', () => {
 
     describe('utils', () => {
         // knows what numbers are complete
-        xit('finished numbers', () => { })
-
-        // knows the current step type
-        xit('step type', () => { })
+        it('has a place to track finished numbers', () => { 
+            expect(sudoku.finishedNumbers).toEqual([])
+        })
 
         describe('active section', () => { 
             it('starts with section 0 active', () => {
@@ -79,7 +78,33 @@ describe('sudoku board', () => {
             })
         })
 
-        xit('active number', () => { })
+        describe('active number', () => { 
+            it('current active number', () => {
+                expect(sudoku.activeNumber).toEqual(0)
+            })
+
+            it('moves to the next number', () => {
+                expect(sudoku.activeNumber).toEqual(0)
+                expect(sudoku.nextActiveNumber()).toEqual(1)
+                expect(sudoku.activeNumber).toEqual(1)
+            })
+
+            it('resets numbers', () => {
+                sudoku.activeNumber = 8
+                expect(sudoku.activeNumber).toEqual(8)
+                expect(sudoku.nextActiveNumber()).toEqual(0)
+                expect(sudoku.activeNumber).toEqual(0)
+            })
+
+            it('skips finished numbers', () => {
+                expect(sudoku.activeNumber).toEqual(0)
+                sudoku.finishedNumbers = [1, 2]
+                expect(sudoku.nextActiveNumber()).toEqual(3)
+                expect(sudoku.activeNumber).toEqual(3)
+                expect(sudoku.nextActiveNumber()).toEqual(4)
+                expect(sudoku.activeNumber).toEqual(4)
+            })
+        })
     })
 
     xdescribe('spot', () => {
