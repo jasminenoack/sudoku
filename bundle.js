@@ -70,24 +70,15 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var sudoku_1 = __webpack_require__(1);
-console.log(sudoku_1.Sudoku);
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-console.log("HELLO WORLD");
-var Sudoku = (function () {
-    function Sudoku() {
+var GameUtils = (function () {
+    function GameUtils() {
     }
-    return Sudoku;
+    GameUtils.drawBoard = function (id) {
+        if (id === void 0) { id = "board"; }
+    };
+    return GameUtils;
 }());
-exports.Sudoku = Sudoku;
+window.gameUtils = GameUtils;
 
 
 /***/ })

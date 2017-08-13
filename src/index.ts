@@ -1,3 +1,9 @@
 import {Sudoku} from './sudoku';
 
-console.log(Sudoku)
+class GameUtils {
+    public static drawBoard (id = "board") {
+
+    }
+}
+
+(window as any).gameUtils = GameUtils

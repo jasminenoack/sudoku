@@ -4,8 +4,7 @@ module.exports = {
         filename: "bundle.js"
     },
     resolve: {
-        // Add '.ts' and '.tsx' as a resolvable extension.
-        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+        extensions: [".ts"]
     },
     module: {
         loaders: [
