@@ -1,3 +1,5 @@
+import { easyPuzzle1 } from './puzzles'
+
 type sectionType = 'row' | 'column' | 'square'
 
 export class Sudoku {
@@ -7,6 +9,10 @@ export class Sudoku {
     public typePattern: sectionType[] = ['row', 'column', 'square']
     public activeNumber: number = 0
     public finishedNumbers: number[] = []
+
+    constructor(public grid: number[] = easyPuzzle1) {
+        this.numbers = Math.sqrt(grid.length)
+    }
 
     nextSection (): number {
         this.section = (this.section + 1) % this.numbers

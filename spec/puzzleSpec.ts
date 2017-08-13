@@ -1,4 +1,5 @@
-import {Sudoku} from '../src/sudoku'; 
+import {Sudoku} from '../src/sudoku'
+import { easyPuzzle1, easyPuzzle2, sixBySix1} from '../src/puzzles'
 import {} from 'jasmine';
 
 describe('sudoku board', () => {
@@ -7,15 +8,23 @@ describe('sudoku board', () => {
         sudoku = new Sudoku();
     })
 
-    xdescribe('steps', () => {
+    describe('steps', () => {
         // check a number in a column
-        xit('column', () => { })
+        describe('column', () => { 
+            xit('marks a processing step for a particular column')
+
+            xit('marks the active column')
+
+            xit('marks the comparison points')
+
+            xit('marks the impossible squares')
+        })
 
         // check a number in a row
-        xit('row', () => { })
+        xdescribe('row', () => { })
 
         // check a number in a square
-        xit('square', () => { })
+        xdescribe('square', () => { })
     }) 
 
     describe('utils', () => {
@@ -108,32 +117,47 @@ describe('sudoku board', () => {
     })
 
     xdescribe('spot', () => {
-        xit('knows if a spot is given', () => { })
+        xdescribe('knows if a spot is given', () => { })
 
-        xit('knows if a spot is empty', () => { })
+        xdescribe('knows if a spot is empty', () => { })
 
-        xit('knows if a spot is filled by logic', () => { })
+        xdescribe('knows if a spot is filled by logic', () => { })
     })
 
-    xdescribe('settings', () => {
-        xit('knows how many numbers', () => { })
+    describe('settings', () => {
+        xdescribe('knows how many numbers', () => { })
 
-        xit('follows step pattern', () => { })
+        xdescribe('follows step pattern', () => { })
 
-        xit('knows square size', () => { })
+        xdescribe('knows square size', () => { })
 
-        xit('has a grid', () => {})
+        it('has a grid', () => {
+            expect(sudoku.grid).toEqual(easyPuzzle1)
+            expect(sudoku.numbers).toEqual(9)
+        })
+
+        it('can set a different grid', () => {
+            const sudoku = new Sudoku(easyPuzzle2)
+            expect(sudoku.grid).toEqual(easyPuzzle2)
+            expect(sudoku.numbers).toEqual(9)
+        })
+
+        it('can set a grid of a different size', () => {
+            const sudoku = new Sudoku(sixBySix1)
+            expect(sudoku.grid).toEqual(sixBySix1)
+            expect(sudoku.numbers).toEqual(6)
+        })
     })
 
     xdescribe('process', () => {
-        xit('moves through steps', () => { })
+        xdescribe('moves through steps', () => { })
 
-        xit('knows if stuck', () => { })
+        xdescribe('knows if stuck', () => { })
 
-        xit('knows what to do at the end of a section')
+        xdescribe('knows what to do at the end of a section', () => { })
 
-        xit('knows what to do at the end of a type')
+        xdescribe('knows what to do at the end of a type', () => { })
 
-        xit('knows what to do at the end of a number')
+        xdescribe('knows what to do at the end of a number', () => { })
     })
 })
