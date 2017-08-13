@@ -1,8 +1,8 @@
-import {Sudoku} from '../src/sudoku.ts'; 
+import {Sudoku} from '../src/sudoku'; 
 import {} from 'jasmine';
 
 describe('sudoku board', () => {
-    let sudoku;
+    let sudoku: Sudoku;
     beforeEach(() => {
         sudoku = new Sudoku();
     })

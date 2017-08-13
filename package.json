@@ -9,13 +9,15 @@
     "ts-loader": "^2.3.2"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.5.53",
     "jasmine": "^2.7.0",
     "jasmine-core": "^2.7.0",
+    "jasmine-ts": "^0.2.1",
     "ts-loader": "^2.3.2",
     "typescript": "^2.4.2"
   },
   "scripts": {
-    "test": "babel-node spec/run.js"
+    "test": "jasmine-ts \"spec/**/*.ts\""
   },
   "repository": {
     "type": "git",
