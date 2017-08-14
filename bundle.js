@@ -87,12 +87,10 @@ var GameUtils = (function () {
         var row = this.createRow();
         grid.forEach(function (number, index) {
             var el = _this.createSpot(index);
-            // if (number === 0) {
-            // } else {
-            //     console.log(number)
-            // }
+            if (number !== 0) {
+                el.innerText = number + '';
+            }
             row.appendChild(el);
-            console.log((index + 1), sudoku.numbers);
             if ((index + 1) % sudoku.numbers === 0) {
                 boardEl.appendChild(row);
                 row = _this.createRow();

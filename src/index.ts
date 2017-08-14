@@ -14,13 +14,10 @@ class GameUtils {
         let row = this.createRow()
         grid.forEach((number, index) => {
             const el = this.createSpot(index)
-            // if (number === 0) {
-
-            // } else {
-            //     console.log(number)
-            // }
+            if (number !== 0) {
+                el.innerText = number + ''
+            }
             row.appendChild(el)
-            console.log((index + 1), sudoku.numbers)
             if ((index + 1) % sudoku.numbers === 0) {
                 boardEl.appendChild(row)
                 row = this.createRow()
