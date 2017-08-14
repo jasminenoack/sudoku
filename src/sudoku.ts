@@ -10,6 +10,7 @@ export class Sudoku {
     public activeNumber: number = 1
     public finishedNumbers: number[] = []
     public givens: boolean[] = []
+    public squareWidth: number = 3
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
@@ -72,6 +73,42 @@ export class Sudoku {
         return (index - column) % this.numbers === 0
     }
 
+    squareIndexes(square: number) {
+        const square1 = (Math.floor(square / 3) * 27) + (square % 3 * 3)
+        const square2 = square1 + 9
+        const square3 = square2 + 9
+        const indexes = []
+        for (let i = 0; i < 3; i++) {
+            indexes.push(square1 + i)
+            indexes.push(square2 + i)
+            indexes.push(square3 + i)
+        }
+        return indexes
+    }
+
+    rowIndexes(row: number) {
+        let low = row * this.numbers
+        let high = low + this.numbers - 1
+        const indexes = []
+        for (let i = low; i <= high; i++) {
+            indexes.push(i)
+        }
+        return indexes
+    }
+
+    columnIndexes(column: number) {
+        const indexes = []
+        for (let i = column; i < 81; i += this.numbers) {
+            indexes.push(i)
+        }
+        return indexes
+    }
+
+    private inSquare(index: number, square: number): boolean {
+        const indexes = this.squareIndexes(square)
+        return indexes.indexOf(index) !== -1
+    }
+
     inActiveSection(index: number): boolean {
         if (this.type === "row") {
             if (this.inRow(index, this.section)) {
@@ -79,6 +116,10 @@ export class Sudoku {
             }
         } else if (this.type === "column") {
             if (this.inColumn(index, this.section)) {
+                return true
+            }
+        } else if (this.type === "square") {
+            if (this.inSquare(index, this.section)) {
                 return true
             }
         }

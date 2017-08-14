@@ -181,6 +181,7 @@ var Sudoku = (function () {
         this.activeNumber = 1;
         this.finishedNumbers = [];
         this.givens = [];
+        this.squareWidth = 3;
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
     }
@@ -234,6 +235,38 @@ var Sudoku = (function () {
     Sudoku.prototype.inColumn = function (index, column) {
         return (index - column) % this.numbers === 0;
     };
+    Sudoku.prototype.squareIndexes = function (square) {
+        var square1 = (Math.floor(square / 3) * 27) + (square % 3 * 3);
+        var square2 = square1 + 9;
+        var square3 = square2 + 9;
+        var indexes = [];
+        for (var i = 0; i < 3; i++) {
+            indexes.push(square1 + i);
+            indexes.push(square2 + i);
+            indexes.push(square3 + i);
+        }
+        return indexes;
+    };
+    Sudoku.prototype.rowIndexes = function (row) {
+        var low = row * this.numbers;
+        var high = low + this.numbers - 1;
+        var indexes = [];
+        for (var i = low; i <= high; i++) {
+            indexes.push(i);
+        }
+        return indexes;
+    };
+    Sudoku.prototype.columnIndexes = function (column) {
+        var indexes = [];
+        for (var i = column; i < 81; i += this.numbers) {
+            indexes.push(i);
+        }
+        return indexes;
+    };
+    Sudoku.prototype.inSquare = function (index, square) {
+        var indexes = this.squareIndexes(square);
+        return indexes.indexOf(index) !== -1;
+    };
     Sudoku.prototype.inActiveSection = function (index) {
         if (this.type === "row") {
             if (this.inRow(index, this.section)) {
@@ -242,6 +275,11 @@ var Sudoku = (function () {
         }
         else if (this.type === "column") {
             if (this.inColumn(index, this.section)) {
+                return true;
+            }
+        }
+        else if (this.type === "square") {
+            if (this.inSquare(index, this.section)) {
                 return true;
             }
         }
