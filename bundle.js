@@ -76,7 +76,6 @@ var interval;
 var boards = {
     "easy1": puzzles_1.easyPuzzle1,
     "easy2": puzzles_1.easyPuzzle2,
-    "six1": puzzles_1.sixBySix1
 };
 var GameUtils = (function () {
     function GameUtils() {

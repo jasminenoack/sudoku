@@ -6,7 +6,6 @@ let interval: any
 const boards: {[key: string]: number[]} = {
     "easy1": easyPuzzle1,
     "easy2": easyPuzzle2,
-    "six1": sixBySix1
 }
 
 class GameUtils {
