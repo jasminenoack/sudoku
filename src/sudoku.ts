@@ -61,4 +61,15 @@ export class Sudoku {
         this.activeNumber = number + 1
         return this.activeNumber
     }
+
+    inActiveSection(index: number): boolean {
+        if (this.type === "row") {
+            let low = this.section * 9
+            let high = low + 8 
+            if (index >= low && index <= high) {
+                return true
+            }
+        }
+        return false
+    }
 }

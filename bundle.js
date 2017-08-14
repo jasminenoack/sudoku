@@ -226,6 +226,16 @@ var Sudoku = (function () {
         this.activeNumber = number + 1;
         return this.activeNumber;
     };
+    Sudoku.prototype.inActiveSection = function (index) {
+        if (this.type === "row") {
+            var low = this.section * 9;
+            var high = low + 8;
+            if (index >= low && index <= high) {
+                return true;
+            }
+        }
+        return false;
+    };
     return Sudoku;
 }());
 exports.Sudoku = Sudoku;
