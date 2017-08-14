@@ -89,25 +89,25 @@ describe('sudoku board', () => {
 
         describe('active number', () => { 
             it('current active number', () => {
-                expect(sudoku.activeNumber).toEqual(0)
+                expect(sudoku.activeNumber).toEqual(1)
             })
 
             it('moves to the next number', () => {
-                expect(sudoku.activeNumber).toEqual(0)
+                expect(sudoku.activeNumber).toEqual(1)
+                expect(sudoku.nextActiveNumber()).toEqual(2)
+                expect(sudoku.activeNumber).toEqual(2)
+            })
+
+            it('resets numbers', () => {
+                sudoku.activeNumber = 9
+                expect(sudoku.activeNumber).toEqual(9)
                 expect(sudoku.nextActiveNumber()).toEqual(1)
                 expect(sudoku.activeNumber).toEqual(1)
             })
 
-            it('resets numbers', () => {
-                sudoku.activeNumber = 8
-                expect(sudoku.activeNumber).toEqual(8)
-                expect(sudoku.nextActiveNumber()).toEqual(0)
-                expect(sudoku.activeNumber).toEqual(0)
-            })
-
             it('skips finished numbers', () => {
-                expect(sudoku.activeNumber).toEqual(0)
-                sudoku.finishedNumbers = [1, 2]
+                expect(sudoku.activeNumber).toEqual(1)
+                sudoku.finishedNumbers = [2]
                 expect(sudoku.nextActiveNumber()).toEqual(3)
                 expect(sudoku.activeNumber).toEqual(3)
                 expect(sudoku.nextActiveNumber()).toEqual(4)
@@ -132,6 +132,14 @@ describe('sudoku board', () => {
                 }
             })
         })
+
+        it('knows if spot is part of current analysis', () => {
+            // section 0, row, number 1
+        })
+
+        xit('knows if spot is current number being analyzed')
+
+        xit('knows if spot is impossible')
 
         xdescribe('knows if a spot is empty', () => { })
 

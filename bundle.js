@@ -178,7 +178,7 @@ var Sudoku = (function () {
         this.numbers = 9;
         this.type = 'row';
         this.typePattern = ['row', 'column', 'square'];
-        this.activeNumber = 0;
+        this.activeNumber = 1;
         this.finishedNumbers = [];
         this.givens = [];
         this.numbers = Math.sqrt(grid.length);
@@ -215,13 +215,15 @@ var Sudoku = (function () {
         return this.type;
     };
     Sudoku.prototype.nextActiveNumber = function () {
-        this.activeNumber = (this.activeNumber + 1) % this.numbers;
+        var number = this.activeNumber - 1;
+        number = (number + 1) % this.numbers;
         if (this.finishedNumbers.length === this.numbers) {
             return;
         }
-        while (this.finishedNumbers.indexOf(this.activeNumber) !== -1) {
-            this.activeNumber = (this.activeNumber + 1) % this.numbers;
+        while (this.finishedNumbers.indexOf(number + 1) !== -1) {
+            number = (number + 1) % this.numbers;
         }
+        this.activeNumber = number + 1;
         return this.activeNumber;
     };
     return Sudoku;

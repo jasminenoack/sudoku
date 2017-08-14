@@ -7,7 +7,7 @@ export class Sudoku {
     public numbers: number = 9
     public type: sectionType = 'row'
     public typePattern: sectionType[] = ['row', 'column', 'square']
-    public activeNumber: number = 0
+    public activeNumber: number = 1
     public finishedNumbers: number[] = []
     public givens: boolean[] = []
 
@@ -50,13 +50,15 @@ export class Sudoku {
     }
 
     nextActiveNumber(): number {
-        this.activeNumber = (this.activeNumber + 1) % this.numbers
+        let number = this.activeNumber - 1
+        number = (number + 1) % this.numbers
         if (this.finishedNumbers.length === this.numbers) {
             return
         }
-        while (this.finishedNumbers.indexOf(this.activeNumber) !== -1) {
-            this.activeNumber = (this.activeNumber + 1) % this.numbers
+        while (this.finishedNumbers.indexOf(number + 1) !== -1) {
+            number = (number + 1) % this.numbers
         }
+        this.activeNumber = number + 1
         return this.activeNumber
     }
 }
