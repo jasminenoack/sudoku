@@ -11,10 +11,27 @@ export class Sudoku {
     public finishedNumbers: number[] = []
     public givens: boolean[] = []
     public squareWidth: number = 3
+    public optionSpots: number[] = []
+    public stepType: string = "setUp"
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
         this.setGivens()
+        this.setUpNewSection()
+    }
+
+    setUpNewSection() {
+        const indexes = this.getIndexes()
+        this.optionSpots = []
+        indexes.forEach((index) => {
+            if(!this.value(index)) {
+                this.optionSpots.push(index)
+            }
+        })
+    }
+
+    isOption(index: number) {
+        return this.optionSpots.indexOf(index) !== -1
     }
 
     private setGivens() {
@@ -73,6 +90,18 @@ export class Sudoku {
         return (index - column) % this.numbers === 0
     }
 
+    getIndexes(type?: sectionType, section?: number) {
+        const sectionType = type !== undefined ? type : this.type
+        const sectionNumber = section !== undefined ? section : this.section
+        if (sectionType === "row") {
+            return this.rowIndexes(sectionNumber)
+        } else if (sectionType === "column") {
+            return this.columnIndexes(sectionNumber)
+        } else if (sectionType === "square") {
+            return this.squareIndexes(sectionNumber)
+        }
+    }
+
     squareIndexes(square: number) {
         const square1 = (Math.floor(square / 3) * 27) + (square % 3 * 3)
         const square2 = square1 + 9
@@ -126,7 +155,28 @@ export class Sudoku {
         return false
     }
 
+    valuesInSection(type: sectionType, section: number) {
+        const indexes = this.getIndexes(type, section)
+        let values: number[] = []
+        indexes.forEach((index) => {
+            if (this.value(index)) {
+                values.push(this.value(index))
+            }
+        })
+        return values
+    }
+
+    check(type: sectionType, section: number, number: number) {
+        const values = this.valuesInSection(type, section)
+        return values.indexOf(number) !== -1
+    }
+
     currentStepString() {
-        return `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}`
+        if (this.stepType == "setUp") {
+            return `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}`
+        }
+        else {
+            return ''
+        }
     }
 }

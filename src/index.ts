@@ -47,6 +47,9 @@ class GameUtils {
         if (sudoku.value(index) === sudoku.activeNumber) {
             el.classList.add('active-number')
         }
+        if (sudoku.isOption(index)) {
+            el.classList.add('option')
+        }
         return el
     }
 

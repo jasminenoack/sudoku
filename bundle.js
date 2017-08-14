@@ -120,6 +120,9 @@ var GameUtils = (function () {
         if (sudoku.value(index) === sudoku.activeNumber) {
             el.classList.add('active-number');
         }
+        if (sudoku.isOption(index)) {
+            el.classList.add('option');
+        }
         return el;
     };
     GameUtils.createRow = function () {
@@ -192,9 +195,25 @@ var Sudoku = (function () {
         this.finishedNumbers = [];
         this.givens = [];
         this.squareWidth = 3;
+        this.optionSpots = [];
+        this.stepType = "setUp";
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
+        this.setUpNewSection();
     }
+    Sudoku.prototype.setUpNewSection = function () {
+        var _this = this;
+        var indexes = this.getIndexes();
+        this.optionSpots = [];
+        indexes.forEach(function (index) {
+            if (!_this.value(index)) {
+                _this.optionSpots.push(index);
+            }
+        });
+    };
+    Sudoku.prototype.isOption = function (index) {
+        return this.optionSpots.indexOf(index) !== -1;
+    };
     Sudoku.prototype.setGivens = function () {
         var _this = this;
         this.grid.forEach(function (number) {
@@ -244,6 +263,19 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.inColumn = function (index, column) {
         return (index - column) % this.numbers === 0;
+    };
+    Sudoku.prototype.getIndexes = function (type, section) {
+        var sectionType = type !== undefined ? type : this.type;
+        var sectionNumber = section !== undefined ? section : this.section;
+        if (sectionType === "row") {
+            return this.rowIndexes(sectionNumber);
+        }
+        else if (sectionType === "column") {
+            return this.columnIndexes(sectionNumber);
+        }
+        else if (sectionType === "square") {
+            return this.squareIndexes(sectionNumber);
+        }
     };
     Sudoku.prototype.squareIndexes = function (square) {
         var square1 = (Math.floor(square / 3) * 27) + (square % 3 * 3);
@@ -295,8 +327,28 @@ var Sudoku = (function () {
         }
         return false;
     };
+    Sudoku.prototype.valuesInSection = function (type, section) {
+        var _this = this;
+        var indexes = this.getIndexes(type, section);
+        var values = [];
+        indexes.forEach(function (index) {
+            if (_this.value(index)) {
+                values.push(_this.value(index));
+            }
+        });
+        return values;
+    };
+    Sudoku.prototype.check = function (type, section, number) {
+        var values = this.valuesInSection(type, section);
+        return values.indexOf(number) !== -1;
+    };
     Sudoku.prototype.currentStepString = function () {
-        return "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section;
+        if (this.stepType == "setUp") {
+            return "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section;
+        }
+        else {
+            return '';
+        }
     };
     return Sudoku;
 }());

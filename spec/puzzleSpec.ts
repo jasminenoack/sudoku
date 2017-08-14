@@ -8,25 +8,6 @@ describe('sudoku board', () => {
         sudoku = new Sudoku();
     })
 
-    describe('steps', () => {
-        // check a number in a column
-        describe('column', () => { 
-            xit('marks a processing step for a particular column')
-
-            xit('marks the active column')
-
-            xit('marks the comparison points')
-
-            xit('marks the impossible squares')
-        })
-
-        // check a number in a row
-        xdescribe('row', () => { })
-
-        // check a number in a square
-        xdescribe('square', () => { })
-    }) 
-
     describe('utils', () => {
         // knows what numbers are complete
         it('has a place to track finished numbers', () => { 
@@ -211,6 +192,16 @@ describe('sudoku board', () => {
                     )
                 })
             })
+        })
+
+        it('gets a list of empty spots in current section', () => {
+            expect(sudoku.optionSpots).toEqual([3, 4, 6, 7])
+        })
+
+        it('knows if spot is empty', () => {
+            expect(sudoku.isOption(3)).toBeTruthy()
+            expect(sudoku.isOption(7)).toBeTruthy()
+            expect(sudoku.isOption(1)).toBeFalsy()
         })
     })
 
@@ -421,23 +412,9 @@ describe('sudoku board', () => {
                 })
             })
         })
-
-        xit('knows if spot is current number being analyzed')
-
-        xit('knows if spot is impossible')
-
-        xdescribe('knows if a spot is empty', () => { })
-
-        xdescribe('knows if a spot is filled by logic', () => { })
     })
 
     describe('settings', () => {
-        xdescribe('knows how many numbers', () => { })
-
-        xdescribe('follows step pattern', () => { })
-
-        xdescribe('knows square size', () => { })
-
         it('has a grid', () => {
             expect(sudoku.grid).toEqual(easyPuzzle1)
             expect(sudoku.numbers).toEqual(9)
@@ -456,15 +433,83 @@ describe('sudoku board', () => {
         })
     })
 
-    xdescribe('process', () => {
-        xdescribe('moves through steps', () => { })
+    describe('check for number', () => {
+        it('check in row', () => {
+            expect(sudoku.check('row', 0, 7)).toBeTruthy()
+            expect(sudoku.check('row', 1, 7)).toBeFalsy()
+            expect(sudoku.check('row', 2, 7)).toBeTruthy()
 
-        xdescribe('knows if stuck', () => { })
+            expect(sudoku.check('row', 3, 7)).toBeFalsy()
+            expect(sudoku.check('row', 4, 7)).toBeTruthy()
+            expect(sudoku.check('row', 5, 7)).toBeFalsy()
 
-        xdescribe('knows what to do at the end of a section', () => { })
+            expect(sudoku.check('row', 6, 7)).toBeTruthy()
+            expect(sudoku.check('row', 7, 7)).toBeFalsy()
+            expect(sudoku.check('row', 8, 7)).toBeTruthy()
 
-        xdescribe('knows what to do at the end of a type', () => { })
+            expect(sudoku.check('row', 0, 3)).toBeTruthy()
+            expect(sudoku.check('row', 1, 3)).toBeFalsy()
+            expect(sudoku.check('row', 2, 3)).toBeFalsy()
 
-        xdescribe('knows what to do at the end of a number', () => { })
+            expect(sudoku.check('row', 3, 3)).toBeTruthy()
+            expect(sudoku.check('row', 4, 3)).toBeFalsy()
+            expect(sudoku.check('row', 5, 3)).toBeTruthy()
+
+            expect(sudoku.check('row', 6, 3)).toBeTruthy()
+            expect(sudoku.check('row', 7, 3)).toBeFalsy()
+            expect(sudoku.check('row', 8, 3)).toBeTruthy()
+        })
+
+        it('check in square', () => {
+            expect(sudoku.check('square', 0, 7)).toBeTruthy()
+            expect(sudoku.check('square', 1, 7)).toBeTruthy()
+            expect(sudoku.check('square', 2, 7)).toBeFalsy()
+
+            expect(sudoku.check('square', 3, 7)).toBeTruthy()
+            expect(sudoku.check('square', 4, 7)).toBeFalsy()
+            expect(sudoku.check('square', 5, 7)).toBeFalsy()
+
+            expect(sudoku.check('square', 6, 7)).toBeTruthy()
+            expect(sudoku.check('square', 7, 7)).toBeFalsy()
+            expect(sudoku.check('square', 8, 7)).toBeTruthy()
+
+            expect(sudoku.check('square', 0, 3)).toBeTruthy()
+            expect(sudoku.check('square', 1, 3)).toBeFalsy()
+            expect(sudoku.check('square', 2, 3)).toBeFalsy()
+
+            expect(sudoku.check('square', 3, 3)).toBeTruthy()
+            expect(sudoku.check('square', 4, 3)).toBeFalsy()
+            expect(sudoku.check('square', 5, 3)).toBeTruthy()
+
+            expect(sudoku.check('square', 6, 3)).toBeFalsy()
+            expect(sudoku.check('square', 7, 3)).toBeTruthy()
+            expect(sudoku.check('square', 8, 3)).toBeTruthy()
+        })
+
+        it('check in column', () => {
+            expect(sudoku.check('column', 0, 7)).toBeTruthy()
+            expect(sudoku.check('column', 1, 7)).toBeTruthy()
+            expect(sudoku.check('column', 2, 7)).toBeTruthy()
+
+            expect(sudoku.check('column', 3, 7)).toBeFalsy()
+            expect(sudoku.check('column', 4, 7)).toBeTruthy()
+            expect(sudoku.check('column', 5, 7)).toBeFalsy()
+
+            expect(sudoku.check('column', 6, 7)).toBeFalsy()
+            expect(sudoku.check('column', 7, 7)).toBeTruthy()
+            expect(sudoku.check('column', 8, 7)).toBeFalsy()
+
+            expect(sudoku.check('column', 0, 3)).toBeTruthy()
+            expect(sudoku.check('column', 1, 3)).toBeTruthy()
+            expect(sudoku.check('column', 2, 3)).toBeFalsy()
+
+            expect(sudoku.check('column', 3, 3)).toBeTruthy()
+            expect(sudoku.check('column', 4, 3)).toBeFalsy()
+            expect(sudoku.check('column', 5, 3)).toBeFalsy()
+
+            expect(sudoku.check('column', 6, 3)).toBeTruthy()
+            expect(sudoku.check('column', 7, 3)).toBeTruthy()
+            expect(sudoku.check('column', 8, 3)).toBeFalsy()
+        })
     })
 })
