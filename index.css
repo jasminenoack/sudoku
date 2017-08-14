@@ -60,3 +60,11 @@ div#board {
 .option {
     background: mediumseagreen;
 }
+
+.being-compared {
+    background: violet;
+}
+
+.current-node {
+    background: YellowGreen;
+}

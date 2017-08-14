@@ -12,9 +12,14 @@ export class Sudoku {
     public givens: boolean[] = []
     public squareWidth: number = 3
     public optionSpots: {[key: number]: string[]} = {}
+    public excludes: string[] = []
+    public possibleSpots: number[] = []
+
+    // nodes for what is currently being run
     public stepType: string = "setUp"
-    // track strings explaining exclusions
-    public excluded: string[] = []
+    public currentNode: number = null
+    public comparisonType: string = null
+
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
@@ -22,8 +27,62 @@ export class Sudoku {
         this.setUpNewSection()
     }
 
+    takeStep() {
+        // if we are in a setup step
+        // the next step should be to start a comparison
+        if (this.stepType === "setUp") {
+            this.startComparison()
+        } else if (this.stepType === "startComp") {
+            this.endComparison()
+        } else if (this.stepType === "endComp") {
+            this.chooseNext()
+        }
+    }
+
+    chooseNext() {
+        this.stepType = "setUp"
+        if (!this.optionSpots[this.currentNode].length) {
+            delete this.optionSpots[this.currentNode]
+            this.possibleSpots.push(this.currentNode)
+        }
+    }
+
+    endComparison () {
+        this.stepType = "endComp"
+        let sectionIndex = this.findSectionIndex(this.comparisonType as sectionType, this.currentNode)
+        let values = this.valuesInSection(this.comparisonType as sectionType, sectionIndex)
+
+        if (values.indexOf(this.activeNumber) !== -1) {
+            this.excludes.push(`The ${this.comparisonType} excluded ${this.activeNumber} from spot ${this.currentNode}.`)
+            delete this.optionSpots[this.currentNode]
+            this.stepType = "setUp"
+        } else {
+            this.excludes.push(`The ${this.comparisonType} did not exclude ${this.activeNumber} from spot ${this.currentNode}.`)
+        }
+    }
+
+    startComparison () {
+        this.stepType = "startComp"
+        this.currentNode = +Object.keys(this.optionSpots)[0]
+        this.comparisonType = this.optionSpots[this.currentNode].shift()
+    }
+
+    isBeingCompared(index: number) {
+        if (!this.currentNode || !this.comparisonType) {
+            return false
+        }
+        let sectionIndex = this.findSectionIndex(this.comparisonType as sectionType, this.currentNode)
+        let indexes = this.getIndexes(this.comparisonType as sectionType, sectionIndex)
+        return indexes.indexOf(index) !== -1
+    }
+
     setUpNewSection() {
         // todo when goes over setions/next number etc 
+        this.stepType = "setUp"
+        this.currentNode = null
+        this.comparisonType = null
+        this.excludes = []
+        this.possibleSpots = []
         let indexes = this.getIndexes()
         let values = this.valuesInSection(this.type, this.section)
 
@@ -33,17 +92,19 @@ export class Sudoku {
             values = this.valuesInSection(this.type, this.section)
         }
 
-        this.excluded = []
         this.optionSpots = {}
+        let pattern = this.typePattern.slice()
+        let indexToRemove = pattern.indexOf(this.type)
+        pattern.splice(indexToRemove, 1)
         indexes.forEach((index) => {
             if(!this.value(index)) {
-                this.optionSpots[index] = this.typePattern.slice()
+                this.optionSpots[index] = pattern.slice()
             }
         })
     }
 
     isOption(index: number) {
-        return Object.keys(this.optionSpots).indexOf(index + '') !== -1
+        return Object.keys(this.optionSpots).indexOf(index + '') !== -1 || this.possibleSpots.indexOf(index) !== -1
     }
 
     private setGivens() {
@@ -192,12 +253,18 @@ export class Sudoku {
     }
 
     currentStepString() {
-        if (this.stepType == "setUp") {
-            return `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}`
+        let string = ''
+        if (this.activeNumber !== null && this.type && this.section !== null) {
+            string += `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}. `
         }
-        else {
-            return ''
+        if (this.currentNode !== null && this.comparisonType && this.stepType === "startComp") {
+            const sectionIndex = this.findSectionIndex(this.comparisonType as sectionType, this.currentNode)
+            string += `Comparing ${this.comparisonType} ${sectionIndex} with node ${this.currentNode}. `
         }
+        if (this.stepType === "endComp") {
+            string += this.excludes.join(' ')
+        }
+        return string
     }
 
     findSectionIndex(type: sectionType, index: number): number {

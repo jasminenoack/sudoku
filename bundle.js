@@ -86,10 +86,8 @@ var GameUtils = (function () {
         var grid = sudoku.grid;
         var row = this.createRow();
         grid.forEach(function (number, index) {
-            var el = _this.createSpot(index, sudoku);
-            if (number !== 0) {
-                el.innerText = number + '';
-            }
+            var el = document.createElement('div');
+            _this.updateSpot(el, index, sudoku);
             row.appendChild(el);
             if ((index + 1) % sudoku.numbers === 0) {
                 boardEl.appendChild(row);
@@ -97,31 +95,57 @@ var GameUtils = (function () {
             }
         });
         var stepEl = document.getElementById("step");
-        var el = document.createElement('div');
-        el.innerText = sudoku.currentStepString();
-        stepEl.appendChild(el);
+        stepEl.innerText = sudoku.currentStepString();
     };
     GameUtils.setUp = function (id, boardChoice) {
         if (id === void 0) { id = "board"; }
         if (boardChoice === void 0) { boardChoice = "easy1"; }
         var grid = boards[boardChoice];
         var sudoku = new sudoku_1.Sudoku(grid);
+        this.sudoku = sudoku;
         this.drawBoard(id, sudoku);
     };
-    GameUtils.createSpot = function (index, sudoku) {
-        var el = document.createElement('div');
+    GameUtils.updateSpot = function (el, index, sudoku) {
         el.classList.add('spot');
         if (sudoku.isGiven(index)) {
             el.classList.add('given');
         }
+        else {
+            el.classList.remove('given');
+        }
         if (sudoku.inActiveSection(index)) {
             el.classList.add('active-section');
+        }
+        else {
+            el.classList.remove('active-section');
         }
         if (sudoku.value(index) === sudoku.activeNumber) {
             el.classList.add('active-number');
         }
+        else {
+            el.classList.remove('active-number');
+        }
         if (sudoku.isOption(index)) {
             el.classList.add('option');
+        }
+        else {
+            el.classList.remove('option');
+        }
+        if (sudoku.currentNode === index) {
+            el.classList.add('current-node');
+        }
+        else {
+            el.classList.remove('current-node');
+        }
+        if (sudoku.isBeingCompared(index)) {
+            el.classList.add('being-compared');
+        }
+        else {
+            el.classList.remove('being-compared');
+        }
+        var number = sudoku.value(index);
+        if (number) {
+            el.innerText = number + '';
         }
         return el;
     };
@@ -131,8 +155,27 @@ var GameUtils = (function () {
         row.classList.add('clear');
         return row;
     };
+    GameUtils.step = function () {
+        var _this = this;
+        this.sudoku.takeStep();
+        var boardEl = document.getElementById("board");
+        var spots = document.getElementsByClassName('spot');
+        var sudoku = this.sudoku;
+        var grid = sudoku.grid;
+        var row = this.createRow();
+        grid.forEach(function (number, index) {
+            var el = spots[index];
+            _this.updateSpot(el, index, sudoku);
+        });
+        var stepEl = document.getElementById("step");
+        stepEl.innerText = sudoku.currentStepString();
+    };
     return GameUtils;
 }());
+var step = document.getElementById('take-step');
+step.addEventListener('click', function () {
+    GameUtils.step();
+});
 window.gameUtils = GameUtils;
 
 
@@ -196,16 +239,70 @@ var Sudoku = (function () {
         this.givens = [];
         this.squareWidth = 3;
         this.optionSpots = {};
+        this.excludes = [];
+        this.possibleSpots = [];
+        // nodes for what is currently being run
         this.stepType = "setUp";
-        // track strings explaining exclusions
-        this.excluded = [];
+        this.currentNode = null;
+        this.comparisonType = null;
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
         this.setUpNewSection();
     }
+    Sudoku.prototype.takeStep = function () {
+        // if we are in a setup step
+        // the next step should be to start a comparison
+        if (this.stepType === "setUp") {
+            this.startComparison();
+        }
+        else if (this.stepType === "startComp") {
+            this.endComparison();
+        }
+        else if (this.stepType === "endComp") {
+            this.chooseNext();
+        }
+    };
+    Sudoku.prototype.chooseNext = function () {
+        this.stepType = "setUp";
+        if (!this.optionSpots[this.currentNode].length) {
+            delete this.optionSpots[this.currentNode];
+            this.possibleSpots.push(this.currentNode);
+        }
+    };
+    Sudoku.prototype.endComparison = function () {
+        this.stepType = "endComp";
+        var sectionIndex = this.findSectionIndex(this.comparisonType, this.currentNode);
+        var values = this.valuesInSection(this.comparisonType, sectionIndex);
+        if (values.indexOf(this.activeNumber) !== -1) {
+            this.excludes.push("The " + this.comparisonType + " excluded " + this.activeNumber + " from spot " + this.currentNode + ".");
+            delete this.optionSpots[this.currentNode];
+            this.stepType = "setUp";
+        }
+        else {
+            this.excludes.push("The " + this.comparisonType + " did not exclude " + this.activeNumber + " from spot " + this.currentNode + ".");
+        }
+    };
+    Sudoku.prototype.startComparison = function () {
+        this.stepType = "startComp";
+        this.currentNode = +Object.keys(this.optionSpots)[0];
+        this.comparisonType = this.optionSpots[this.currentNode].shift();
+    };
+    Sudoku.prototype.isBeingCompared = function (index) {
+        if (!this.currentNode || !this.comparisonType) {
+            return false;
+        }
+        var sectionIndex = this.findSectionIndex(this.comparisonType, this.currentNode);
+        var indexes = this.getIndexes(this.comparisonType, sectionIndex);
+        return indexes.indexOf(index) !== -1;
+    };
     Sudoku.prototype.setUpNewSection = function () {
         var _this = this;
         // todo when goes over setions/next number etc 
+        this.stepType = "setUp";
+        this.currentNode = null;
+        this.comparisonType = null;
+        this.excludes = [];
+        this.possibleSpots = [];
         var indexes = this.getIndexes();
         var values = this.valuesInSection(this.type, this.section);
         while (values.length === this.numbers || values.indexOf(this.activeNumber) !== -1) {
@@ -213,16 +310,18 @@ var Sudoku = (function () {
             indexes = this.getIndexes();
             values = this.valuesInSection(this.type, this.section);
         }
-        this.excluded = [];
         this.optionSpots = {};
+        var pattern = this.typePattern.slice();
+        var indexToRemove = pattern.indexOf(this.type);
+        pattern.splice(indexToRemove, 1);
         indexes.forEach(function (index) {
             if (!_this.value(index)) {
-                _this.optionSpots[index] = _this.typePattern.slice();
+                _this.optionSpots[index] = pattern.slice();
             }
         });
     };
     Sudoku.prototype.isOption = function (index) {
-        return Object.keys(this.optionSpots).indexOf(index + '') !== -1;
+        return Object.keys(this.optionSpots).indexOf(index + '') !== -1 || this.possibleSpots.indexOf(index) !== -1;
     };
     Sudoku.prototype.setGivens = function () {
         var _this = this;
@@ -361,12 +460,18 @@ var Sudoku = (function () {
         return values.indexOf(number) !== -1;
     };
     Sudoku.prototype.currentStepString = function () {
-        if (this.stepType == "setUp") {
-            return "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section;
+        var string = '';
+        if (this.activeNumber !== null && this.type && this.section !== null) {
+            string += "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section + ". ";
         }
-        else {
-            return '';
+        if (this.currentNode !== null && this.comparisonType && this.stepType === "startComp") {
+            var sectionIndex = this.findSectionIndex(this.comparisonType, this.currentNode);
+            string += "Comparing " + this.comparisonType + " " + sectionIndex + " with node " + this.currentNode + ". ";
         }
+        if (this.stepType === "endComp") {
+            string += this.excludes.join(' ');
+        }
+        return string;
     };
     Sudoku.prototype.findSectionIndex = function (type, index) {
         if (type === "row") {

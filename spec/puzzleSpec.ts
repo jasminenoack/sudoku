@@ -201,10 +201,10 @@ describe('sudoku board', () => {
         it('gets a list of empty spots in current section', () => {
             expect(sudoku.optionSpots).toEqual(
                 {
-                    3: ['row', 'column', 'square'],
-                    4: ['row', 'column', 'square'],
-                    6: ['row', 'column', 'square'],
-                    7: ['row', 'column', 'square'],
+                    3: ['column', 'square'],
+                    4: ['column', 'square'],
+                    6: ['column', 'square'],
+                    7: ['column', 'square'],
                 }
             )
         })
@@ -561,20 +561,6 @@ describe('sudoku board', () => {
             expect(sudoku.check('column', 6, 3)).toBeTruthy()
             expect(sudoku.check('column', 7, 3)).toBeTruthy()
             expect(sudoku.check('column', 8, 3)).toBeFalsy()
-        })
-    })
-
-    describe('takes steps', () => {
-        xit('steps through a number looking for an exclusion', () => {
-
-        })
-
-        xit('stops when an exclusion is found', () => {
-
-        })
-
-        xit('stops if it determines the correct location', () => {
-
         })
     })
 })
