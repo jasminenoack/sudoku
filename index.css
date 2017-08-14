@@ -44,3 +44,7 @@ div#board {
 .row:nth-child(3n) {
     border-bottom: 4px solid black;
 }
+
+.given {
+    background: deepskyblue;
+}

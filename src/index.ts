@@ -13,7 +13,7 @@ class GameUtils {
         const grid = sudoku.grid 
         let row = this.createRow()
         grid.forEach((number, index) => {
-            const el = this.createSpot(index)
+            const el = this.createSpot(index, sudoku)
             if (number !== 0) {
                 el.innerText = number + ''
             }
@@ -31,9 +31,12 @@ class GameUtils {
         this.drawBoard(id, sudoku)
     }
 
-    private static createSpot (index: number) {
+    private static createSpot (index: number, sudoku: Sudoku) {
         const el = document.createElement('div')
         el.classList.add('spot')
+        if (sudoku.isGiven(index)) {
+            el.classList.add('given')
+        }
         return el
     }
 

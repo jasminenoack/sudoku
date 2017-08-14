@@ -86,7 +86,7 @@ var GameUtils = (function () {
         var grid = sudoku.grid;
         var row = this.createRow();
         grid.forEach(function (number, index) {
-            var el = _this.createSpot(index);
+            var el = _this.createSpot(index, sudoku);
             if (number !== 0) {
                 el.innerText = number + '';
             }
@@ -104,9 +104,12 @@ var GameUtils = (function () {
         var sudoku = new sudoku_1.Sudoku(grid);
         this.drawBoard(id, sudoku);
     };
-    GameUtils.createSpot = function (index) {
+    GameUtils.createSpot = function (index, sudoku) {
         var el = document.createElement('div');
         el.classList.add('spot');
+        if (sudoku.isGiven(index)) {
+            el.classList.add('given');
+        }
         return el;
     };
     GameUtils.createRow = function () {
