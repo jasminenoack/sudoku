@@ -70,15 +70,140 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var sudoku_1 = __webpack_require__(2);
+var puzzles_1 = __webpack_require__(1);
+var boards = {
+    "easy1": puzzles_1.easyPuzzle1,
+    "easy2": puzzles_1.easyPuzzle2,
+    "six1": puzzles_1.sixBySix1
+};
 var GameUtils = (function () {
     function GameUtils() {
     }
-    GameUtils.drawBoard = function (id) {
+    GameUtils.drawBoard = function (id, sudoku) {
+        var _this = this;
+        var boardEl = document.getElementById(id);
+        var grid = sudoku.grid;
+        var row = this.createRow();
+        grid.forEach(function (number, index) {
+            var el = _this.createSpot(index);
+            // if (number === 0) {
+            // } else {
+            //     console.log(number)
+            // }
+            row.appendChild(el);
+            console.log((index + 1), sudoku.numbers);
+            if ((index + 1) % sudoku.numbers === 0) {
+                boardEl.appendChild(row);
+                row = _this.createRow();
+            }
+        });
+    };
+    GameUtils.setUp = function (id, boardChoice) {
         if (id === void 0) { id = "board"; }
+        if (boardChoice === void 0) { boardChoice = "easy1"; }
+        var grid = boards[boardChoice];
+        var sudoku = new sudoku_1.Sudoku(grid);
+        this.drawBoard(id, sudoku);
+    };
+    GameUtils.createSpot = function (index) {
+        var el = document.createElement('div');
+        el.classList.add('spot');
+        return el;
+    };
+    GameUtils.createRow = function () {
+        var row = document.createElement('div');
+        row.classList.add('row');
+        row.classList.add('clear');
+        return row;
     };
     return GameUtils;
 }());
 window.gameUtils = GameUtils;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.easyPuzzle1 = [
+    3, 7, 4, 0, 0, 6, 0, 0, 5,
+    0, 0, 5, 8, 0, 9, 0, 0, 4,
+    0, 9, 8, 0, 7, 5, 1, 0, 0,
+    0, 0, 0, 0, 1, 0, 4, 3, 9,
+    7, 0, 0, 9, 0, 0, 0, 5, 0,
+    6, 3, 9, 2, 5, 0, 0, 0, 0,
+    9, 8, 6, 3, 0, 0, 0, 7, 0,
+    0, 0, 0, 0, 9, 0, 0, 4, 2,
+    4, 0, 7, 0, 6, 0, 3, 0, 0
+];
+exports.easyPuzzle2 = [
+    5, 0, 0, 0, 0, 7, 9, 3, 8,
+    2, 0, 9, 4, 3, 0, 0, 0, 7,
+    1, 0, 0, 6, 9, 8, 0, 5, 0,
+    0, 1, 0, 9, 0, 2, 8, 0, 0,
+    8, 6, 4, 0, 0, 0, 0, 1, 0,
+    0, 0, 0, 8, 0, 6, 5, 0, 3,
+    6, 5, 2, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 7, 9, 0, 0, 5,
+    0, 0, 0, 0, 6, 0, 3, 2, 4
+];
+exports.sixBySix1 = [
+    1, 6, 0, 0, 0, 5,
+    0, 0, 5, 2, 0, 0,
+    5, 0, 0, 0, 3, 0,
+    0, 4, 0, 0, 0, 1,
+    0, 0, 4, 1, 0, 0,
+    3, 0, 0, 0, 5, 4
+];
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var puzzles_1 = __webpack_require__(1);
+var Sudoku = (function () {
+    function Sudoku(grid) {
+        if (grid === void 0) { grid = puzzles_1.easyPuzzle1; }
+        this.grid = grid;
+        this.section = 0;
+        this.numbers = 9;
+        this.type = 'row';
+        this.typePattern = ['row', 'column', 'square'];
+        this.activeNumber = 0;
+        this.finishedNumbers = [];
+        this.numbers = Math.sqrt(grid.length);
+    }
+    Sudoku.prototype.nextSection = function () {
+        this.section = (this.section + 1) % this.numbers;
+        return this.section;
+    };
+    Sudoku.prototype.nextType = function () {
+        var currentIndex = this.typePattern.indexOf(this.type);
+        var nextIndex = (currentIndex + 1) % this.typePattern.length;
+        this.type = this.typePattern[nextIndex];
+        return this.type;
+    };
+    Sudoku.prototype.nextActiveNumber = function () {
+        this.activeNumber = (this.activeNumber + 1) % this.numbers;
+        if (this.finishedNumbers.length === this.numbers) {
+            return;
+        }
+        while (this.finishedNumbers.indexOf(this.activeNumber) !== -1) {
+            this.activeNumber = (this.activeNumber + 1) % this.numbers;
+        }
+        return this.activeNumber;
+    };
+    return Sudoku;
+}());
+exports.Sudoku = Sudoku;
 
 
 /***/ })
