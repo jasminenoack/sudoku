@@ -11,7 +11,7 @@ export class Sudoku {
     public finishedNumbers: number[] = []
     public givens: boolean[] = []
     public squareWidth: number = 3
-    public optionSpots: number[] = []
+    public optionSpots: {[key: number]: string[]} = {}
     public stepType: string = "setUp"
     // track strings explaining exclusions
     public excluded: string[] = []
@@ -34,16 +34,16 @@ export class Sudoku {
         }
 
         this.excluded = []
-        this.optionSpots = []
+        this.optionSpots = {}
         indexes.forEach((index) => {
             if(!this.value(index)) {
-                this.optionSpots.push(index)
+                this.optionSpots[index] = this.typePattern.slice()
             }
         })
     }
 
     isOption(index: number) {
-        return this.optionSpots.indexOf(index) !== -1
+        return Object.keys(this.optionSpots).indexOf(index + '') !== -1
     }
 
     private setGivens() {
@@ -197,6 +197,18 @@ export class Sudoku {
         }
         else {
             return ''
+        }
+    }
+
+    findSectionIndex(type: sectionType, index: number): number {
+        if (type === "row") {
+            return Math.floor(index / this.numbers)
+        } else if (type === "column") {
+            return index % this.numbers
+        } else if (type === "square") {
+            const squareRow = Math.floor(index / 27)
+            const squareColumn = Math.floor((index % 9) / 3)
+            return 3 * squareRow + squareColumn
         }
     }
 }

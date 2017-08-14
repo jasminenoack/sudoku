@@ -195,7 +195,7 @@ var Sudoku = (function () {
         this.finishedNumbers = [];
         this.givens = [];
         this.squareWidth = 3;
-        this.optionSpots = [];
+        this.optionSpots = {};
         this.stepType = "setUp";
         // track strings explaining exclusions
         this.excluded = [];
@@ -214,15 +214,15 @@ var Sudoku = (function () {
             values = this.valuesInSection(this.type, this.section);
         }
         this.excluded = [];
-        this.optionSpots = [];
+        this.optionSpots = {};
         indexes.forEach(function (index) {
             if (!_this.value(index)) {
-                _this.optionSpots.push(index);
+                _this.optionSpots[index] = _this.typePattern.slice();
             }
         });
     };
     Sudoku.prototype.isOption = function (index) {
-        return this.optionSpots.indexOf(index) !== -1;
+        return Object.keys(this.optionSpots).indexOf(index + '') !== -1;
     };
     Sudoku.prototype.setGivens = function () {
         var _this = this;
@@ -366,6 +366,19 @@ var Sudoku = (function () {
         }
         else {
             return '';
+        }
+    };
+    Sudoku.prototype.findSectionIndex = function (type, index) {
+        if (type === "row") {
+            return Math.floor(index / this.numbers);
+        }
+        else if (type === "column") {
+            return index % this.numbers;
+        }
+        else if (type === "square") {
+            var squareRow = Math.floor(index / 27);
+            var squareColumn = Math.floor((index % 9) / 3);
+            return 3 * squareRow + squareColumn;
         }
     };
     return Sudoku;

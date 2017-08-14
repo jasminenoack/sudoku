@@ -199,7 +199,14 @@ describe('sudoku board', () => {
         })
 
         it('gets a list of empty spots in current section', () => {
-            expect(sudoku.optionSpots).toEqual([3, 4, 6, 7])
+            expect(sudoku.optionSpots).toEqual(
+                {
+                    3: ['row', 'column', 'square'],
+                    4: ['row', 'column', 'square'],
+                    6: ['row', 'column', 'square'],
+                    7: ['row', 'column', 'square'],
+                }
+            )
         })
 
         it('knows if spot is empty', () => {
@@ -210,6 +217,42 @@ describe('sudoku board', () => {
 
         it('returns values in section', () => {
             expect(sudoku.valuesInSection('row', 0)).toEqual([3, 7, 4, 6, 5])
+        })
+
+        it('finds the row for a specific location', () => {
+            expect(sudoku.findSectionIndex('row', 0)).toEqual(0)
+            expect(sudoku.findSectionIndex('row', 8)).toEqual(0)
+            expect(sudoku.findSectionIndex('row', 13)).toEqual(1)
+            expect(sudoku.findSectionIndex('row', 23)).toEqual(2)
+            expect(sudoku.findSectionIndex('row', 43)).toEqual(4)
+            expect(sudoku.findSectionIndex('row', 50)).toEqual(5)
+            expect(sudoku.findSectionIndex('row', 61)).toEqual(6)
+            expect(sudoku.findSectionIndex('row', 70)).toEqual(7)
+            expect(sudoku.findSectionIndex('row', 80)).toEqual(8)
+        })
+
+        it('finds the column for a specific location', () => {
+            expect(sudoku.findSectionIndex('column', 0)).toEqual(0)
+            expect(sudoku.findSectionIndex('column', 8)).toEqual(8)
+            expect(sudoku.findSectionIndex('column', 13)).toEqual(4)
+            expect(sudoku.findSectionIndex('column', 23)).toEqual(5)
+            expect(sudoku.findSectionIndex('column', 43)).toEqual(7)
+            expect(sudoku.findSectionIndex('column', 50)).toEqual(5)
+            expect(sudoku.findSectionIndex('column', 61)).toEqual(7)
+            expect(sudoku.findSectionIndex('column', 70)).toEqual(7)
+            expect(sudoku.findSectionIndex('column', 80)).toEqual(8)
+        })
+
+        it('finds the square for a specific location', () => {
+            expect(sudoku.findSectionIndex('square', 0)).toEqual(0)
+            expect(sudoku.findSectionIndex('square', 8)).toEqual(2)
+            expect(sudoku.findSectionIndex('square', 13)).toEqual(1)
+            expect(sudoku.findSectionIndex('square', 23)).toEqual(1)
+            expect(sudoku.findSectionIndex('square', 43)).toEqual(5)
+            expect(sudoku.findSectionIndex('square', 50)).toEqual(4)
+            expect(sudoku.findSectionIndex('square', 61)).toEqual(8)
+            expect(sudoku.findSectionIndex('square', 70)).toEqual(8)
+            expect(sudoku.findSectionIndex('square', 80)).toEqual(8)
         })
     })
 
@@ -518,6 +561,20 @@ describe('sudoku board', () => {
             expect(sudoku.check('column', 6, 3)).toBeTruthy()
             expect(sudoku.check('column', 7, 3)).toBeTruthy()
             expect(sudoku.check('column', 8, 3)).toBeFalsy()
+        })
+    })
+
+    describe('takes steps', () => {
+        xit('steps through a number looking for an exclusion', () => {
+
+        })
+
+        xit('stops when an exclusion is found', () => {
+
+        })
+
+        xit('stops if it determines the correct location', () => {
+
         })
     })
 })
