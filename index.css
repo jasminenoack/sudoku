@@ -48,3 +48,11 @@ div#board {
 .given {
     color: maroon;
 }
+
+.active-section {
+    background: tomato;
+}
+
+.active-number {
+    background: cyan;
+}

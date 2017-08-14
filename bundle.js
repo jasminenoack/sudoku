@@ -96,6 +96,10 @@ var GameUtils = (function () {
                 row = _this.createRow();
             }
         });
+        var stepEl = document.getElementById("step");
+        var el = document.createElement('div');
+        el.innerText = sudoku.currentStepString();
+        stepEl.appendChild(el);
     };
     GameUtils.setUp = function (id, boardChoice) {
         if (id === void 0) { id = "board"; }
@@ -109,6 +113,12 @@ var GameUtils = (function () {
         el.classList.add('spot');
         if (sudoku.isGiven(index)) {
             el.classList.add('given');
+        }
+        if (sudoku.inActiveSection(index)) {
+            el.classList.add('active-section');
+        }
+        if (sudoku.value(index) === sudoku.activeNumber) {
+            el.classList.add('active-number');
         }
         return el;
     };
@@ -284,6 +294,9 @@ var Sudoku = (function () {
             }
         }
         return false;
+    };
+    Sudoku.prototype.currentStepString = function () {
+        return "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section;
     };
     return Sudoku;
 }());

@@ -125,4 +125,8 @@ export class Sudoku {
         }
         return false
     }
+
+    currentStepString() {
+        return `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}`
+    }
 }

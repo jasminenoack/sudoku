@@ -23,6 +23,10 @@ class GameUtils {
                 row = this.createRow()
             }
         })
+        const stepEl = document.getElementById("step")
+        const el = document.createElement('div')
+        el.innerText = sudoku.currentStepString()
+        stepEl.appendChild(el)
     }
 
     public static setUp (id = "board", boardChoice = "easy1") {
@@ -36,6 +40,12 @@ class GameUtils {
         el.classList.add('spot')
         if (sudoku.isGiven(index)) {
             el.classList.add('given')
+        }
+        if (sudoku.inActiveSection(index)) {
+            el.classList.add('active-section')
+        }
+        if (sudoku.value(index) === sudoku.activeNumber) {
+            el.classList.add('active-number')
         }
         return el
     }
