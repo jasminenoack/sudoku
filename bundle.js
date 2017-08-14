@@ -177,8 +177,30 @@ var Sudoku = (function () {
         this.typePattern = ['row', 'column', 'square'];
         this.activeNumber = 0;
         this.finishedNumbers = [];
+        this.givens = [];
         this.numbers = Math.sqrt(grid.length);
+        this.setGivens();
     }
+    Sudoku.prototype.setGivens = function () {
+        var _this = this;
+        this.grid.forEach(function (number) {
+            if (number !== 0) {
+                _this.givens.push(true);
+            }
+            else {
+                _this.givens.push(false);
+            }
+        });
+    };
+    Sudoku.prototype.isGiven = function (index) {
+        return this.givens[index];
+    };
+    Sudoku.prototype.value = function (index) {
+        var value = this.grid[index];
+        if (value) {
+            return value;
+        }
+    };
     Sudoku.prototype.nextSection = function () {
         this.section = (this.section + 1) % this.numbers;
         return this.section;

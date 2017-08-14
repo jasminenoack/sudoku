@@ -116,8 +116,22 @@ describe('sudoku board', () => {
         })
     })
 
-    xdescribe('spot', () => {
-        xdescribe('knows if a spot is given', () => { })
+    describe('spot', () => {
+        it('knows if a spot is given', () => {
+            const grid = sudoku.grid; 
+            const givens = sudoku.givens;
+            grid.forEach((number, index) => {
+                if (grid[index] !== 0) {
+                    expect(givens[index]).toBeTruthy()
+                    expect(sudoku.isGiven(index)).toBeTruthy()
+                    expect(sudoku.value(index)).toEqual(number)
+                } else {
+                    expect(givens[index]).toBeFalsy()
+                    expect(sudoku.isGiven(index)).toBeFalsy()
+                    expect(sudoku.value(index)).toEqual(undefined)
+                }
+            })
+        })
 
         xdescribe('knows if a spot is empty', () => { })
 

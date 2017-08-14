@@ -9,9 +9,32 @@ export class Sudoku {
     public typePattern: sectionType[] = ['row', 'column', 'square']
     public activeNumber: number = 0
     public finishedNumbers: number[] = []
+    public givens: boolean[] = []
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
+        this.setGivens()
+    }
+
+    private setGivens() {
+        this.grid.forEach((number) => {
+            if (number !== 0) {
+                this.givens.push(true)
+            } else {
+                this.givens.push(false)
+            }
+        })
+    }
+
+    isGiven (index: number): boolean {
+        return this.givens[index]
+    }
+
+    value (index: number): number {
+        const value = this.grid[index]
+        if (value) {
+            return value
+        }
     }
 
     nextSection (): number {
