@@ -14,6 +14,10 @@ export class Sudoku {
     public optionSpots: {[key: number]: string[]} = {}
     public notes: string[] = []
     public possibleSpots: number[] = []
+    public changed: boolean = false
+    public fullRoundChanged: boolean = false
+    public stuck: boolean = false
+    public done: boolean = false
 
     // nodes for what is currently being run
     public stepType: string = "setUp"
@@ -28,6 +32,9 @@ export class Sudoku {
     }
 
     takeStep() {
+        if (this.stuck || this.done) {
+            return
+        }
         // if we are in a setup step
         // the next step should be to start a comparison
         if (this.stepType === "setUp") {
@@ -44,9 +51,11 @@ export class Sudoku {
     place() {
         if (this.possibleSpots.length === 1) {
             this.grid[this.possibleSpots[0]] = this.activeNumber
+            this.changed = true
+            this.fullRoundChanged = true
             this.notes.unshift(`<span class="placed"><br>Determined ${this.activeNumber} should be placed in spot ${this.possibleSpots[0]}.</span>`)
         } else {
-            this.notes.unshift(`<span class="not-placed"><br>Could not determine location for ${this.activeNumber}, possibilities found ${this.possibleSpots.join(',')}.</span>`)
+            this.notes.unshift(`<span class="not-placed"><br>Could not determine location for ${this.activeNumber}, found 2 possibilities: ${this.possibleSpots.join(',')}.</span>`)
         }
         this.nextActiveNumber()
         this.setUpNewSection()
@@ -59,6 +68,9 @@ export class Sudoku {
         } else if (!this.optionSpots[this.currentNode].length) {
             delete this.optionSpots[this.currentNode]
             this.possibleSpots.push(this.currentNode)
+            if (this.possibleSpots.length > 1) {
+                this.place()
+            }
         }
 
         if (!Object.keys(this.optionSpots).length) {
@@ -98,6 +110,11 @@ export class Sudoku {
 
     setUpNewSection() {
         // todo when goes over setions/next number etc 
+        if (this.grid.indexOf(0) === -1) {
+            this.done = true;
+            this.notes.unshift("I'm DONE!")
+            return
+        }
         this.stepType = "setUp"
         this.currentNode = null
         this.comparisonType = null
@@ -148,18 +165,30 @@ export class Sudoku {
     }
 
     nextSection (): number {
-        this.section = (this.section + 1) 
-        if (this.section == this.numbers) {
-            this.section = this.section % this.numbers
-            this.nextType()
+        if (!this.changed) {
+            this.section = (this.section + 1) 
+            if (this.section == this.numbers) {
+                this.section = this.section % this.numbers
+                this.nextType()
+            }
         }
+        this.changed = false
         return this.section
     }
 
     nextType(): string {
-        let currentIndex = this.typePattern.indexOf(this.type)
-        let nextIndex = (currentIndex + 1) % this.typePattern.length
-        this.type = this.typePattern[nextIndex]
+        if (!this.fullRoundChanged) {
+            let currentIndex = this.typePattern.indexOf(this.type)
+            let nextIndex = (currentIndex + 1) 
+            if (nextIndex === this.typePattern.length) {
+                nextIndex = nextIndex % this.typePattern.length
+            }
+            this.type = this.typePattern[nextIndex]
+        } else {
+            this.stuck === true;
+            this.notes.unshift(`I'm sorry I'm stuck`)
+        }
+        this.fullRoundChanged = false
         return this.type
     }
 

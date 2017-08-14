@@ -98,9 +98,9 @@ var GameUtils = (function () {
         var stepEl = document.getElementById("step");
         stepEl.innerHTML = sudoku.currentStepString();
     };
-    GameUtils.setUp = function (id, boardChoice) {
-        if (id === void 0) { id = "board"; }
+    GameUtils.setUp = function (boardChoice, id) {
         if (boardChoice === void 0) { boardChoice = "easy1"; }
+        if (id === void 0) { id = "board"; }
         var grid = boards[boardChoice];
         var sudoku = new sudoku_1.Sudoku(grid);
         this.sudoku = sudoku;
@@ -186,7 +186,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 333);
+        interval = setInterval(func, 200);
     }
 });
 window.gameUtils = GameUtils;
@@ -254,6 +254,10 @@ var Sudoku = (function () {
         this.optionSpots = {};
         this.notes = [];
         this.possibleSpots = [];
+        this.changed = false;
+        this.fullRoundChanged = false;
+        this.stuck = false;
+        this.done = false;
         // nodes for what is currently being run
         this.stepType = "setUp";
         this.currentNode = null;
@@ -263,6 +267,9 @@ var Sudoku = (function () {
         this.setUpNewSection();
     }
     Sudoku.prototype.takeStep = function () {
+        if (this.stuck || this.done) {
+            return;
+        }
         // if we are in a setup step
         // the next step should be to start a comparison
         if (this.stepType === "setUp") {
@@ -281,10 +288,12 @@ var Sudoku = (function () {
     Sudoku.prototype.place = function () {
         if (this.possibleSpots.length === 1) {
             this.grid[this.possibleSpots[0]] = this.activeNumber;
+            this.changed = true;
+            this.fullRoundChanged = true;
             this.notes.unshift("<span class=\"placed\"><br>Determined " + this.activeNumber + " should be placed in spot " + this.possibleSpots[0] + ".</span>");
         }
         else {
-            this.notes.unshift("<span class=\"not-placed\"><br>Could not determine location for " + this.activeNumber + ", possibilities found " + this.possibleSpots.join(',') + ".</span>");
+            this.notes.unshift("<span class=\"not-placed\"><br>Could not determine location for " + this.activeNumber + ", found 2 possibilities: " + this.possibleSpots.join(',') + ".</span>");
         }
         this.nextActiveNumber();
         this.setUpNewSection();
@@ -297,6 +306,9 @@ var Sudoku = (function () {
         else if (!this.optionSpots[this.currentNode].length) {
             delete this.optionSpots[this.currentNode];
             this.possibleSpots.push(this.currentNode);
+            if (this.possibleSpots.length > 1) {
+                this.place();
+            }
         }
         if (!Object.keys(this.optionSpots).length) {
             this.stepType = "placement";
@@ -331,6 +343,11 @@ var Sudoku = (function () {
     Sudoku.prototype.setUpNewSection = function () {
         var _this = this;
         // todo when goes over setions/next number etc 
+        if (this.grid.indexOf(0) === -1) {
+            this.done = true;
+            this.notes.unshift("I'm DONE!");
+            return;
+        }
         this.stepType = "setUp";
         this.currentNode = null;
         this.comparisonType = null;
@@ -376,17 +393,30 @@ var Sudoku = (function () {
         }
     };
     Sudoku.prototype.nextSection = function () {
-        this.section = (this.section + 1);
-        if (this.section == this.numbers) {
-            this.section = this.section % this.numbers;
-            this.nextType();
+        if (!this.changed) {
+            this.section = (this.section + 1);
+            if (this.section == this.numbers) {
+                this.section = this.section % this.numbers;
+                this.nextType();
+            }
         }
+        this.changed = false;
         return this.section;
     };
     Sudoku.prototype.nextType = function () {
-        var currentIndex = this.typePattern.indexOf(this.type);
-        var nextIndex = (currentIndex + 1) % this.typePattern.length;
-        this.type = this.typePattern[nextIndex];
+        if (!this.fullRoundChanged) {
+            var currentIndex = this.typePattern.indexOf(this.type);
+            var nextIndex = (currentIndex + 1);
+            if (nextIndex === this.typePattern.length) {
+                nextIndex = nextIndex % this.typePattern.length;
+            }
+            this.type = this.typePattern[nextIndex];
+        }
+        else {
+            this.stuck === true;
+            this.notes.unshift("I'm sorry I'm stuck");
+        }
+        this.fullRoundChanged = false;
         return this.type;
     };
     Sudoku.prototype.nextActiveNumber = function () {

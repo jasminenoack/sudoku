@@ -29,7 +29,7 @@ class GameUtils {
         stepEl.innerHTML = sudoku.currentStepString()
     }
 
-    public static setUp (id = "board", boardChoice = "easy1") {
+    public static setUp(boardChoice = "easy1", id = "board") {
         const grid: number[] = boards[boardChoice]
         const sudoku = new Sudoku(grid)
         this.sudoku = sudoku
@@ -118,7 +118,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 333)
+        interval = setInterval(func, 200)
     }
 });
 
