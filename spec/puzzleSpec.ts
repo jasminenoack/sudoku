@@ -195,9 +195,130 @@ describe('sudoku board', () => {
                 })
             })
 
-            xit('knows if in current active column')
+            describe('knows if in current active column', () => {
+                it('knows column 0', () => {
+                    sudoku.type = "column"
+                    expect(sudoku.inActiveSection(0)).toBeTruthy()
+                    expect(sudoku.inActiveSection(9)).toBeTruthy()
+                    expect(sudoku.inActiveSection(18)).toBeTruthy()
+                    expect(sudoku.inActiveSection(27)).toBeTruthy()
+                    expect(sudoku.inActiveSection(36)).toBeTruthy()
+                    expect(sudoku.inActiveSection(45)).toBeTruthy()
+                    expect(sudoku.inActiveSection(54)).toBeTruthy()
+                    expect(sudoku.inActiveSection(63)).toBeTruthy()
+                    expect(sudoku.inActiveSection(72)).toBeTruthy()
 
-            xit('knows if in current active square')
+                    expect(sudoku.inActiveSection(10)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(80)).toBeFalsy()
+                })
+
+                it('knows column 8', () => {
+                    sudoku.type = "column"
+                    sudoku.section = 8
+                    expect(sudoku.inActiveSection(8)).toBeTruthy()
+                    expect(sudoku.inActiveSection(17)).toBeTruthy()
+                    expect(sudoku.inActiveSection(26)).toBeTruthy()
+                    expect(sudoku.inActiveSection(35)).toBeTruthy()
+                    expect(sudoku.inActiveSection(44)).toBeTruthy()
+                    expect(sudoku.inActiveSection(53)).toBeTruthy()
+                    expect(sudoku.inActiveSection(62)).toBeTruthy()
+                    expect(sudoku.inActiveSection(71)).toBeTruthy()
+                    expect(sudoku.inActiveSection(80)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+
+                it('knows column 3', () => {
+                    sudoku.type = "column"
+                    sudoku.section = 3
+                    expect(sudoku.inActiveSection(3)).toBeTruthy()
+                    expect(sudoku.inActiveSection(12)).toBeTruthy()
+                    expect(sudoku.inActiveSection(21)).toBeTruthy()
+                    expect(sudoku.inActiveSection(30)).toBeTruthy()
+                    expect(sudoku.inActiveSection(39)).toBeTruthy()
+                    expect(sudoku.inActiveSection(48)).toBeTruthy()
+                    expect(sudoku.inActiveSection(57)).toBeTruthy()
+                    expect(sudoku.inActiveSection(66)).toBeTruthy()
+                    expect(sudoku.inActiveSection(75)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+            })
+
+            describe('knows if in current active square', () => {
+                xit('knows square 0', () => {
+                    expect(sudoku.inActiveSection(0)).toBeTruthy()
+                    expect(sudoku.inActiveSection(1)).toBeTruthy()
+                    expect(sudoku.inActiveSection(2)).toBeTruthy()
+                    expect(sudoku.inActiveSection(3)).toBeTruthy()
+                    expect(sudoku.inActiveSection(4)).toBeTruthy()
+                    expect(sudoku.inActiveSection(5)).toBeTruthy()
+                    expect(sudoku.inActiveSection(6)).toBeTruthy()
+                    expect(sudoku.inActiveSection(7)).toBeTruthy()
+                    expect(sudoku.inActiveSection(8)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(80)).toBeFalsy()
+                })
+
+                xit('knows square 8', () => {
+                    sudoku.section = 8
+                    expect(sudoku.inActiveSection(72)).toBeTruthy()
+                    expect(sudoku.inActiveSection(73)).toBeTruthy()
+                    expect(sudoku.inActiveSection(74)).toBeTruthy()
+                    expect(sudoku.inActiveSection(75)).toBeTruthy()
+                    expect(sudoku.inActiveSection(76)).toBeTruthy()
+                    expect(sudoku.inActiveSection(77)).toBeTruthy()
+                    expect(sudoku.inActiveSection(78)).toBeTruthy()
+                    expect(sudoku.inActiveSection(79)).toBeTruthy()
+                    expect(sudoku.inActiveSection(80)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+
+                xit('knows square 3', () => {
+                    sudoku.section = 3
+                    expect(sudoku.inActiveSection(27)).toBeTruthy()
+                    expect(sudoku.inActiveSection(28)).toBeTruthy()
+                    expect(sudoku.inActiveSection(29)).toBeTruthy()
+                    expect(sudoku.inActiveSection(30)).toBeTruthy()
+                    expect(sudoku.inActiveSection(31)).toBeTruthy()
+                    expect(sudoku.inActiveSection(32)).toBeTruthy()
+                    expect(sudoku.inActiveSection(33)).toBeTruthy()
+                    expect(sudoku.inActiveSection(34)).toBeTruthy()
+                    expect(sudoku.inActiveSection(35)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+            })
         })
 
         xit('knows if spot is current number being analyzed')

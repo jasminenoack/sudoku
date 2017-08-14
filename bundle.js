@@ -226,11 +226,22 @@ var Sudoku = (function () {
         this.activeNumber = number + 1;
         return this.activeNumber;
     };
+    Sudoku.prototype.inRow = function (index, row) {
+        var low = row * this.numbers;
+        var high = low + this.numbers - 1;
+        return index >= low && index <= high;
+    };
+    Sudoku.prototype.inColumn = function (index, column) {
+        return (index - column) % this.numbers === 0;
+    };
     Sudoku.prototype.inActiveSection = function (index) {
         if (this.type === "row") {
-            var low = this.section * 9;
-            var high = low + 8;
-            if (index >= low && index <= high) {
+            if (this.inRow(index, this.section)) {
+                return true;
+            }
+        }
+        else if (this.type === "column") {
+            if (this.inColumn(index, this.section)) {
                 return true;
             }
         }
