@@ -76,6 +76,7 @@ var interval;
 var boards = {
     "easy1": puzzles_1.easyPuzzle1,
     "easy2": puzzles_1.easyPuzzle2,
+    "medium1": puzzles_1.medium1,
 };
 var GameUtils = (function () {
     function GameUtils() {
@@ -185,7 +186,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 200);
+        interval = setInterval(func, 30);
     }
 });
 window.gameUtils = GameUtils;
@@ -228,6 +229,17 @@ exports.sixBySix1 = [
     0, 0, 4, 1, 0, 0,
     3, 0, 0, 0, 5, 4
 ];
+exports.medium1 = [
+    0, 0, 9, 0, 0, 0, 0, 5, 8,
+    1, 0, 0, 0, 4, 0, 0, 0, 2,
+    0, 0, 6, 0, 0, 0, 9, 7, 0,
+    0, 0, 0, 1, 0, 0, 2, 0, 0,
+    0, 0, 0, 0, 9, 0, 5, 8, 0,
+    0, 0, 0, 8, 0, 0, 0, 0, 0,
+    5, 7, 0, 0, 1, 6, 0, 0, 0,
+    0, 0, 0, 0, 2, 0, 8, 6, 0,
+    0, 2, 0, 0, 0, 4, 0, 0, 0,
+];
 
 
 /***/ }),
@@ -255,6 +267,7 @@ var Sudoku = (function () {
         this.possibleSpots = [];
         this.changed = false;
         this.fullRoundChanged = false;
+        this.everChanged = false;
         this.stuck = false;
         this.done = false;
         // nodes for what is currently being run
@@ -289,7 +302,9 @@ var Sudoku = (function () {
             this.grid[this.possibleSpots[0]] = this.activeNumber;
             this.changed = true;
             this.fullRoundChanged = true;
+            this.everChanged = true;
             this.notes.unshift("<span class=\"placed\"><br>Determined " + this.activeNumber + " should be placed in spot " + this.possibleSpots[0] + ".</span>");
+            console.log(this.activeNumber, this.type, this.comparisonType, this.possibleSpots);
         }
         else {
             this.notes.unshift("<span class=\"not-placed\"><br>Could not determine location for " + this.activeNumber + ", found 2 possibilities: " + this.possibleSpots.join(',') + ".</span>");
@@ -408,12 +423,13 @@ var Sudoku = (function () {
             var nextIndex = (currentIndex + 1);
             if (nextIndex === this.typePattern.length) {
                 nextIndex = nextIndex % this.typePattern.length;
+                if (!this.everChanged) {
+                    this.stuck = true;
+                    this.notes.unshift("I'm sorry I'm stuck");
+                }
+                this.everChanged = false;
             }
             this.type = this.typePattern[nextIndex];
-        }
-        else {
-            this.stuck === true;
-            this.notes.unshift("I'm sorry I'm stuck");
         }
         this.fullRoundChanged = false;
         return this.type;

@@ -1,11 +1,12 @@
 import {Sudoku} from './sudoku';
-import { easyPuzzle1, easyPuzzle2, sixBySix1 } from '../src/puzzles'
+import { easyPuzzle1, easyPuzzle2, medium1 } from '../src/puzzles'
 
 let interval: any
 
 const boards: {[key: string]: number[]} = {
     "easy1": easyPuzzle1,
     "easy2": easyPuzzle2,
+    "medium1": medium1,
 }
 
 class GameUtils {
@@ -117,7 +118,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 200)
+        interval = setInterval(func, 30)
     }
 });
 

@@ -16,6 +16,7 @@ export class Sudoku {
     public possibleSpots: number[] = []
     public changed: boolean = false
     public fullRoundChanged: boolean = false
+    public everChanged: boolean = false
     public stuck: boolean = false
     public done: boolean = false
 
@@ -53,7 +54,9 @@ export class Sudoku {
             this.grid[this.possibleSpots[0]] = this.activeNumber
             this.changed = true
             this.fullRoundChanged = true
+            this.everChanged = true
             this.notes.unshift(`<span class="placed"><br>Determined ${this.activeNumber} should be placed in spot ${this.possibleSpots[0]}.</span>`)
+            console.log(this.activeNumber, this.type, this.comparisonType, this.possibleSpots)
         } else {
             this.notes.unshift(`<span class="not-placed"><br>Could not determine location for ${this.activeNumber}, found 2 possibilities: ${this.possibleSpots.join(',')}.</span>`)
         }
@@ -182,11 +185,13 @@ export class Sudoku {
             let nextIndex = (currentIndex + 1) 
             if (nextIndex === this.typePattern.length) {
                 nextIndex = nextIndex % this.typePattern.length
+                if (!this.everChanged) {
+                    this.stuck = true
+                    this.notes.unshift(`I'm sorry I'm stuck`)
+                }
+                this.everChanged = false
             }
             this.type = this.typePattern[nextIndex]
-        } else {
-            this.stuck === true;
-            this.notes.unshift(`I'm sorry I'm stuck`)
         }
         this.fullRoundChanged = false
         return this.type
