@@ -12,7 +12,7 @@ export class Sudoku {
     public givens: boolean[] = []
     public squareWidth: number = 3
     public optionSpots: {[key: number]: string[]} = {}
-    public excludes: string[] = []
+    public notes: string[] = []
     public possibleSpots: number[] = []
 
     // nodes for what is currently being run
@@ -36,15 +36,36 @@ export class Sudoku {
             this.endComparison()
         } else if (this.stepType === "endComp") {
             this.chooseNext()
+        } else if (this.stepType === "placement") {
+            this.place()
         }
     }
 
-    chooseNext() {
+    place() {
+        if (this.possibleSpots.length === 1) {
+            this.grid[this.possibleSpots[0]] = this.activeNumber
+            this.notes.unshift(`<span class="placed"><br>Determined ${this.activeNumber} should be placed in spot ${this.possibleSpots[0]}.</span>`)
+        } else {
+            this.notes.unshift(`<span class="not-placed"><br>Could not determine location for ${this.activeNumber}, possibilities found ${this.possibleSpots.join(',')}.</span>`)
+        }
+        this.nextActiveNumber()
+        this.setUpNewSection()
+    }
+
+    chooseNext(excluded?: boolean) {
         this.stepType = "setUp"
-        if (!this.optionSpots[this.currentNode].length) {
+        if (excluded) {
+            delete this.optionSpots[this.currentNode]
+        } else if (!this.optionSpots[this.currentNode].length) {
             delete this.optionSpots[this.currentNode]
             this.possibleSpots.push(this.currentNode)
         }
+
+        if (!Object.keys(this.optionSpots).length) {
+            this.stepType = "placement"
+        }
+
+        this.takeStep()
     }
 
     endComparison () {
@@ -53,11 +74,10 @@ export class Sudoku {
         let values = this.valuesInSection(this.comparisonType as sectionType, sectionIndex)
 
         if (values.indexOf(this.activeNumber) !== -1) {
-            this.excludes.push(`The ${this.comparisonType} excluded ${this.activeNumber} from spot ${this.currentNode}.`)
-            delete this.optionSpots[this.currentNode]
-            this.stepType = "setUp"
+            this.notes.unshift(`<span class="excluded ${this.comparisonType}">${this.comparisonType.toUpperCase()} ${sectionIndex} excluded ${this.activeNumber} from spot ${this.currentNode}.</span>`)
+            this.chooseNext(true)
         } else {
-            this.excludes.push(`The ${this.comparisonType} did not exclude ${this.activeNumber} from spot ${this.currentNode}.`)
+            this.notes.unshift(`<span class="${this.comparisonType}">${this.comparisonType.toUpperCase()} ${sectionIndex} did not exclude ${this.activeNumber} from spot ${this.currentNode}.</span>`)
         }
     }
 
@@ -81,7 +101,6 @@ export class Sudoku {
         this.stepType = "setUp"
         this.currentNode = null
         this.comparisonType = null
-        this.excludes = []
         this.possibleSpots = []
         let indexes = this.getIndexes()
         let values = this.valuesInSection(this.type, this.section)
@@ -255,14 +274,15 @@ export class Sudoku {
     currentStepString() {
         let string = ''
         if (this.activeNumber !== null && this.type && this.section !== null) {
-            string += `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}. `
+            string += `Attempting to determine location for ${this.activeNumber} in ${this.type} ${this.section}.<br>`
         }
         if (this.currentNode !== null && this.comparisonType && this.stepType === "startComp") {
             const sectionIndex = this.findSectionIndex(this.comparisonType as sectionType, this.currentNode)
-            string += `Comparing ${this.comparisonType} ${sectionIndex} with node ${this.currentNode}. `
+            string += `Comparing ${this.comparisonType} ${sectionIndex} with node ${this.currentNode}.<br>`
         }
-        if (this.stepType === "endComp") {
-            string += this.excludes.join(' ')
+        string += "<br>"
+        if (this.notes.length) {
+            string += this.notes.join('<br>')
         }
         return string
     }

@@ -1,6 +1,8 @@
 import {Sudoku} from './sudoku';
 import { easyPuzzle1, easyPuzzle2, sixBySix1 } from '../src/puzzles'
 
+let interval: any
+
 const boards: {[key: string]: number[]} = {
     "easy1": easyPuzzle1,
     "easy2": easyPuzzle2,
@@ -24,7 +26,7 @@ class GameUtils {
             }
         })
         const stepEl = document.getElementById("step")
-        stepEl.innerText = sudoku.currentStepString()
+        stepEl.innerHTML = sudoku.currentStepString()
     }
 
     public static setUp (id = "board", boardChoice = "easy1") {
@@ -74,7 +76,7 @@ class GameUtils {
 
         const number = sudoku.value(index)
         if (number) {
-            el.innerText = number + ''
+            el.innerHTML = number + ''
         }
         return el
     }
@@ -99,13 +101,25 @@ class GameUtils {
         })
 
         const stepEl = document.getElementById("step")
-        stepEl.innerText = sudoku.currentStepString()
+        stepEl.innerHTML = sudoku.currentStepString()
     }
 }
 
 const step = document.getElementById('take-step');
 step.addEventListener('click', () => {
     GameUtils.step()
+});
+
+const auto = document.getElementById('auto-step');
+auto.addEventListener('click', () => {
+    if (interval) {
+        clearInterval(interval)
+        interval = null
+    } else {
+        GameUtils.step()
+        let func = GameUtils.step.bind(GameUtils)
+        interval = setInterval(func, 333)
+    }
 });
 
 (window as any).gameUtils = GameUtils

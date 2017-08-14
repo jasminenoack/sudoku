@@ -68,3 +68,31 @@ div#board {
 .current-node {
     background: YellowGreen;
 }
+
+.square {
+    color: mediumblue;
+}
+
+.column {
+    color: navy;
+}
+
+.square.excluded {
+    color: peru;
+}
+
+.row.excluded {
+    color: saddlebrown;
+}
+
+.column.excluded {
+    color: sienna;
+}
+
+.placed {
+    color: springgreen;
+}
+
+.not-placed {
+    color: olive;
+}

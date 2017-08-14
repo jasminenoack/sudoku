@@ -72,6 +72,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var sudoku_1 = __webpack_require__(2);
 var puzzles_1 = __webpack_require__(1);
+var interval;
 var boards = {
     "easy1": puzzles_1.easyPuzzle1,
     "easy2": puzzles_1.easyPuzzle2,
@@ -95,7 +96,7 @@ var GameUtils = (function () {
             }
         });
         var stepEl = document.getElementById("step");
-        stepEl.innerText = sudoku.currentStepString();
+        stepEl.innerHTML = sudoku.currentStepString();
     };
     GameUtils.setUp = function (id, boardChoice) {
         if (id === void 0) { id = "board"; }
@@ -145,7 +146,7 @@ var GameUtils = (function () {
         }
         var number = sudoku.value(index);
         if (number) {
-            el.innerText = number + '';
+            el.innerHTML = number + '';
         }
         return el;
     };
@@ -168,13 +169,25 @@ var GameUtils = (function () {
             _this.updateSpot(el, index, sudoku);
         });
         var stepEl = document.getElementById("step");
-        stepEl.innerText = sudoku.currentStepString();
+        stepEl.innerHTML = sudoku.currentStepString();
     };
     return GameUtils;
 }());
 var step = document.getElementById('take-step');
 step.addEventListener('click', function () {
     GameUtils.step();
+});
+var auto = document.getElementById('auto-step');
+auto.addEventListener('click', function () {
+    if (interval) {
+        clearInterval(interval);
+        interval = null;
+    }
+    else {
+        GameUtils.step();
+        var func = GameUtils.step.bind(GameUtils);
+        interval = setInterval(func, 333);
+    }
 });
 window.gameUtils = GameUtils;
 
@@ -239,7 +252,7 @@ var Sudoku = (function () {
         this.givens = [];
         this.squareWidth = 3;
         this.optionSpots = {};
-        this.excludes = [];
+        this.notes = [];
         this.possibleSpots = [];
         // nodes for what is currently being run
         this.stepType = "setUp";
@@ -261,25 +274,45 @@ var Sudoku = (function () {
         else if (this.stepType === "endComp") {
             this.chooseNext();
         }
+        else if (this.stepType === "placement") {
+            this.place();
+        }
     };
-    Sudoku.prototype.chooseNext = function () {
+    Sudoku.prototype.place = function () {
+        if (this.possibleSpots.length === 1) {
+            this.grid[this.possibleSpots[0]] = this.activeNumber;
+            this.notes.unshift("<span class=\"placed\"><br>Determined " + this.activeNumber + " should be placed in spot " + this.possibleSpots[0] + ".</span>");
+        }
+        else {
+            this.notes.unshift("<span class=\"not-placed\"><br>Could not determine location for " + this.activeNumber + ", possibilities found " + this.possibleSpots.join(',') + ".</span>");
+        }
+        this.nextActiveNumber();
+        this.setUpNewSection();
+    };
+    Sudoku.prototype.chooseNext = function (excluded) {
         this.stepType = "setUp";
-        if (!this.optionSpots[this.currentNode].length) {
+        if (excluded) {
+            delete this.optionSpots[this.currentNode];
+        }
+        else if (!this.optionSpots[this.currentNode].length) {
             delete this.optionSpots[this.currentNode];
             this.possibleSpots.push(this.currentNode);
         }
+        if (!Object.keys(this.optionSpots).length) {
+            this.stepType = "placement";
+        }
+        this.takeStep();
     };
     Sudoku.prototype.endComparison = function () {
         this.stepType = "endComp";
         var sectionIndex = this.findSectionIndex(this.comparisonType, this.currentNode);
         var values = this.valuesInSection(this.comparisonType, sectionIndex);
         if (values.indexOf(this.activeNumber) !== -1) {
-            this.excludes.push("The " + this.comparisonType + " excluded " + this.activeNumber + " from spot " + this.currentNode + ".");
-            delete this.optionSpots[this.currentNode];
-            this.stepType = "setUp";
+            this.notes.unshift("<span class=\"excluded " + this.comparisonType + "\">" + this.comparisonType.toUpperCase() + " " + sectionIndex + " excluded " + this.activeNumber + " from spot " + this.currentNode + ".</span>");
+            this.chooseNext(true);
         }
         else {
-            this.excludes.push("The " + this.comparisonType + " did not exclude " + this.activeNumber + " from spot " + this.currentNode + ".");
+            this.notes.unshift("<span class=\"" + this.comparisonType + "\">" + this.comparisonType.toUpperCase() + " " + sectionIndex + " did not exclude " + this.activeNumber + " from spot " + this.currentNode + ".</span>");
         }
     };
     Sudoku.prototype.startComparison = function () {
@@ -301,7 +334,6 @@ var Sudoku = (function () {
         this.stepType = "setUp";
         this.currentNode = null;
         this.comparisonType = null;
-        this.excludes = [];
         this.possibleSpots = [];
         var indexes = this.getIndexes();
         var values = this.valuesInSection(this.type, this.section);
@@ -462,14 +494,15 @@ var Sudoku = (function () {
     Sudoku.prototype.currentStepString = function () {
         var string = '';
         if (this.activeNumber !== null && this.type && this.section !== null) {
-            string += "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section + ". ";
+            string += "Attempting to determine location for " + this.activeNumber + " in " + this.type + " " + this.section + ".<br>";
         }
         if (this.currentNode !== null && this.comparisonType && this.stepType === "startComp") {
             var sectionIndex = this.findSectionIndex(this.comparisonType, this.currentNode);
-            string += "Comparing " + this.comparisonType + " " + sectionIndex + " with node " + this.currentNode + ". ";
+            string += "Comparing " + this.comparisonType + " " + sectionIndex + " with node " + this.currentNode + ".<br>";
         }
-        if (this.stepType === "endComp") {
-            string += this.excludes.join(' ');
+        string += "<br>";
+        if (this.notes.length) {
+            string += this.notes.join('<br>');
         }
         return string;
     };
