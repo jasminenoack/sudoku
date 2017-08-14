@@ -197,13 +197,23 @@ var Sudoku = (function () {
         this.squareWidth = 3;
         this.optionSpots = [];
         this.stepType = "setUp";
+        // track strings explaining exclusions
+        this.excluded = [];
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
         this.setUpNewSection();
     }
     Sudoku.prototype.setUpNewSection = function () {
         var _this = this;
+        // todo when goes over setions/next number etc 
         var indexes = this.getIndexes();
+        var values = this.valuesInSection(this.type, this.section);
+        while (values.length === this.numbers || values.indexOf(this.activeNumber) !== -1) {
+            this.nextActiveNumber();
+            indexes = this.getIndexes();
+            values = this.valuesInSection(this.type, this.section);
+        }
+        this.excluded = [];
         this.optionSpots = [];
         indexes.forEach(function (index) {
             if (!_this.value(index)) {
@@ -235,7 +245,11 @@ var Sudoku = (function () {
         }
     };
     Sudoku.prototype.nextSection = function () {
-        this.section = (this.section + 1) % this.numbers;
+        this.section = (this.section + 1);
+        if (this.section == this.numbers) {
+            this.section = this.section % this.numbers;
+            this.nextType();
+        }
         return this.section;
     };
     Sudoku.prototype.nextType = function () {
@@ -246,7 +260,11 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.nextActiveNumber = function () {
         var number = this.activeNumber - 1;
-        number = (number + 1) % this.numbers;
+        number = (number + 1);
+        if (number === this.numbers) {
+            number = number % this.numbers;
+            this.nextSection();
+        }
         if (this.finishedNumbers.length === this.numbers) {
             return;
         }

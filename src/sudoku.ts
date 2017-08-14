@@ -13,6 +13,8 @@ export class Sudoku {
     public squareWidth: number = 3
     public optionSpots: number[] = []
     public stepType: string = "setUp"
+    // track strings explaining exclusions
+    public excluded: string[] = []
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
@@ -21,7 +23,17 @@ export class Sudoku {
     }
 
     setUpNewSection() {
-        const indexes = this.getIndexes()
+        // todo when goes over setions/next number etc 
+        let indexes = this.getIndexes()
+        let values = this.valuesInSection(this.type, this.section)
+
+        while (values.length === this.numbers || values.indexOf(this.activeNumber) !== -1) {
+            this.nextActiveNumber()
+            indexes = this.getIndexes()
+            values = this.valuesInSection(this.type, this.section)
+        }
+
+        this.excluded = []
         this.optionSpots = []
         indexes.forEach((index) => {
             if(!this.value(index)) {
@@ -56,7 +68,11 @@ export class Sudoku {
     }
 
     nextSection (): number {
-        this.section = (this.section + 1) % this.numbers
+        this.section = (this.section + 1) 
+        if (this.section == this.numbers) {
+            this.section = this.section % this.numbers
+            this.nextType()
+        }
         return this.section
     }
 
@@ -69,7 +85,11 @@ export class Sudoku {
 
     nextActiveNumber(): number {
         let number = this.activeNumber - 1
-        number = (number + 1) % this.numbers
+        number = (number + 1)
+        if (number === this.numbers) {
+            number = number % this.numbers
+            this.nextSection()
+        }
         if (this.finishedNumbers.length === this.numbers) {
             return
         }

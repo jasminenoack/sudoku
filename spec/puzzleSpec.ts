@@ -28,8 +28,10 @@ describe('sudoku board', () => {
             it('changes from section 8 to section 0 if next is triggered', () => {
                 sudoku.section = 8
                 expect(sudoku.section).toEqual(8)
+                expect(sudoku.type).toEqual('row')
                 expect(sudoku.nextSection()).toEqual(0)
                 expect(sudoku.section).toEqual(0)
+                expect(sudoku.type).toEqual('column')
             })
 
             it('can have different numbers of sections', () => {
@@ -82,8 +84,10 @@ describe('sudoku board', () => {
             it('resets numbers', () => {
                 sudoku.activeNumber = 9
                 expect(sudoku.activeNumber).toEqual(9)
+                expect(sudoku.section).toEqual(0)
                 expect(sudoku.nextActiveNumber()).toEqual(1)
                 expect(sudoku.activeNumber).toEqual(1)
+                expect(sudoku.section).toEqual(1)
             })
 
             it('skips finished numbers', () => {
@@ -202,6 +206,10 @@ describe('sudoku board', () => {
             expect(sudoku.isOption(3)).toBeTruthy()
             expect(sudoku.isOption(7)).toBeTruthy()
             expect(sudoku.isOption(1)).toBeFalsy()
+        })
+
+        it('returns values in section', () => {
+            expect(sudoku.valuesInSection('row', 0)).toEqual([3, 7, 4, 6, 5])
         })
     })
 
