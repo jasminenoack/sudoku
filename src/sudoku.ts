@@ -20,6 +20,7 @@ export class Sudoku {
     private typePattern: sectionType[] = ['row', 'column', 'square']
     private blanksStepPhases: stepPhase[] = ["showActive", "showCompare", "removeUnneeded"]
     public step: step
+    private notes: string[] = []
 
     constructor(public grid: number[] = easyPuzzle1) {
         this.numbers = Math.sqrt(grid.length)
@@ -60,6 +61,28 @@ export class Sudoku {
         })
         this.step.stepValuesToRemove = valuesToRemove
         this.step.stepPhases.shift()
+
+        // explain the step
+        if (valuesToRemove.length) {
+            this.notes.unshift(
+                `<div class="remove">Determined that ${valuesToRemove.join(',')} should be removed</div>`
+            )
+        } else {
+            this.notes.unshift(
+                `<div class="no-remove">Determined that no additional values should be removed</div>`
+            )
+        }
+        if (valuesInSection.length) {
+            this.notes.unshift(
+                `<div class="found">Found values: ${valuesInSection.join(',')} in ${this.activeType()} ${this.currentSectionIndex()}.</div>`
+            )
+        } else {
+            this.notes.unshift(
+                `<div class="no-found">Found no values in ${this.activeType()} ${this.currentSectionIndex()}.</div>`
+            )
+        }
+        this.notes.unshift(`<div class="consideration">Values in consideration for spot ${this.activeSpot()}: ${valueOptions.join(',')}</div>`)        
+        this.notes.unshift('<br>') 
     }
 
     processRemove() {
@@ -188,8 +211,11 @@ export class Sudoku {
         let string = ''
         const sectionIndex = this.currentSectionIndex()
         if (this.activeSpot() !== null && this.activeType()) {
-            string += `Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}`
+            string += `<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}</div> <br>`
         }
+
+        string += this.notes.join("")
+
         return string
     }
 

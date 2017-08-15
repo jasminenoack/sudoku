@@ -255,6 +255,7 @@ var Sudoku = (function () {
         this.givens = [];
         this.typePattern = ['row', 'column', 'square'];
         this.blanksStepPhases = ["showActive", "showCompare", "removeUnneeded"];
+        this.notes = [];
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
         this.setUpNewSection();
@@ -290,6 +291,21 @@ var Sudoku = (function () {
         });
         this.step.stepValuesToRemove = valuesToRemove;
         this.step.stepPhases.shift();
+        // explain the step
+        if (valuesToRemove.length) {
+            this.notes.unshift("<div class=\"remove\">Determined that " + valuesToRemove.join(',') + " should be removed</div>");
+        }
+        else {
+            this.notes.unshift("<div class=\"no-remove\">Determined that no additional values should be removed</div>");
+        }
+        if (valuesInSection.length) {
+            this.notes.unshift("<div class=\"found\">Found values: " + valuesInSection.join(',') + " in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
+        }
+        else {
+            this.notes.unshift("<div class=\"no-found\">Found no values in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
+        }
+        this.notes.unshift("<div class=\"consideration\">Values in consideration for spot " + this.activeSpot() + ": " + valueOptions.join(',') + "</div>");
+        this.notes.unshift('<br>');
     };
     Sudoku.prototype.processRemove = function () {
     };
@@ -408,8 +424,9 @@ var Sudoku = (function () {
         var string = '';
         var sectionIndex = this.currentSectionIndex();
         if (this.activeSpot() !== null && this.activeType()) {
-            string += "Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex;
+            string += "<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + "</div> <br>";
         }
+        string += this.notes.join("");
         return string;
     };
     Sudoku.prototype.currentSectionIndex = function () {
