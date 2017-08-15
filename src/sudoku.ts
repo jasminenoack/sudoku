@@ -1,8 +1,8 @@
 import { easyPuzzle1 } from './puzzles'
 
 type sectionType = 'row' | 'column' | 'square'
-type stepType = 'setUpBlanks'
-type stepPhase = "showActive" | "showCompare"
+type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle"
+type stepPhase = "showActive" | "showCompare" | "place" | "remove" | "checkSingle" | "search"
 
 interface step {
     stepSections: sectionType[],
@@ -11,6 +11,7 @@ interface step {
     stepIndexes: string[],
     stepValues: number[],
     stepValuesToRemove: number[], 
+    stepSpotsToRemoveFrom?: number[]
 }
 
 export class Sudoku {
@@ -19,10 +20,13 @@ export class Sudoku {
     public blanks: { [key: number]: number[] }
     private typePattern: sectionType[] = ['row', 'column', 'square']
     private blanksStepPhases: stepPhase[] = ["showActive", "showCompare"]
+    private placeSteps: stepPhase[] = ["place"]
     public step: step
     private notes: string[] = []
+    public grid: number[]
 
-    constructor(public grid: number[] = easyPuzzle1) {
+    constructor(grid: number[] = easyPuzzle1) {
+        this.grid = grid.slice()
         this.numbers = Math.sqrt(grid.length)
         this.setGivens()
         this.setUpNewSection()
@@ -30,13 +34,102 @@ export class Sudoku {
 
     setUpNewSection() {
         this.setUpBlanks()
-        this.setUpStep()
+        this.setUpBlankStep()
     }
 
     takeStep() {
         if (this.step.stepType === "setUpBlanks") {
             this.processBlanksStep()
+        } else if (this.step.stepType === "place") {
+            this.processPlaceStep()
+        } else if (this.step.stepType === "remove") {
+            this.processRemoveStep()
+        } else if (this.step.stepType === "findSingle") {
+            this.processFindSingle()
         }
+    }
+
+    processRemoveStep() {
+        if (this.activePhase() === "showActive") {
+            this.completeRemoveActive()
+        } else if (this.activePhase() === "showCompare") {
+            this.showRemoveActive()
+        }
+    }
+
+    processPlaceStep() {
+        if (this.activePhase() === "place") {
+            // move into the show active for remove row
+            this.showRemoveActive()
+        }
+    }
+
+    processFindSingle() {
+        let index
+        let blankKeys = Object.keys(this.blanks)
+        for (let i = 0; i < blankKeys.length; i++) {
+            index = +blankKeys[i]
+            if (this.blanks[index].length === 1) {
+                this.setValueToCell(index, this.blanks[index][0])
+                return
+            }
+        }
+        this.setUpBlankStepDefaults()
+    }
+
+    showRemoveActive() {
+        this.setUpRemoveStep()
+        const indexes = this.getIndexes(this.activeType(), this.currentSectionIndex())
+        const indexesToRemoveFrom: number[] = []
+        
+        indexes.forEach((index) => {
+            if(this.blanks[index] && this.blanks[index].indexOf(this.value(this.activeSpot())) !== -1) {
+                indexesToRemoveFrom.push(index)
+            }
+        })
+        this.step.stepSpotsToRemoveFrom = indexesToRemoveFrom
+
+        if (indexesToRemoveFrom.length) {
+            this.notes.unshift(
+                `<div class="remove">Determined that ${this.value(this.activeSpot())} should be removed from indexes: ${indexesToRemoveFrom.join(',')}</div>`
+            )
+        } else {
+            this.step.stepPhases = ["showCompare"]
+            this.notes.unshift(
+                `<div class="no-remove">Found no squares that need removal in ${this.activeType()}</div><br>`
+            )
+            this.step.stepSections.shift()
+        }
+        if (!this.step.stepSections.length) {
+            this.setUpSearch()
+        }
+    }
+
+    completeRemoveActive() {
+        const value = this.value(this.activeSpot())
+        const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
+        indexesToRemoveFrom.forEach((index) => {
+            const options = this.blanks[index]
+            const indexNum = options.indexOf(value)
+            options.splice(indexNum, 1)
+        })
+        this.resetSpotsToRemoveFrom()
+        this.step.stepPhases.shift()
+        this.step.stepSections.shift()
+
+        if (!this.step.stepSections.length) {
+            this.setUpSearch()
+        }
+    }
+
+    private setUpSearch() {
+        this.step.stepIndexes.shift()
+        this.step.stepValues = []
+        this.notes.unshift(
+            `Searching for any options with only one value`
+        )
+        this.step.stepPhases = ["search"]
+        this.step.stepType = "findSingle"
     }
 
     processBlanksStep() {
@@ -61,13 +154,32 @@ export class Sudoku {
         this.step.stepValues = newValues;
         this.step.stepSections.shift()
 
-        if (this.step.stepSections.length) {
-            this.resetStepPhase()
+        if (newValues.length === 1) {
+            this.notes.unshift(
+                `<div class="found">Determined there is only 1 option for spot ${this.activeSpot()}: ${newValues[0]}</div><br>`
+            )
+            this.setValueToCell(this.activeSpot(), newValues[0])
         } else {
-            this.blanks[this.activeSpot()] = this.step.stepValues
-            this.step.stepIndexes.shift()
-            this.setUpStepDefaults()
+            if (this.step.stepSections.length) {
+                this.resetBlankStepPhase()
+            } else {
+                this.blanks[this.activeSpot()] = this.step.stepValues
+                this.step.stepIndexes.shift()
+                this.setUpBlankStepDefaults()
+            }
         }
+    }
+
+    setValueToCell(index: number, value: number) {
+        this.grid[index] = value
+        delete this.blanks[index]
+        this.setUpPlaceStep()
+        // remove index from steps indexes 
+        const indexNum = this.step.stepIndexes.indexOf(index + '')
+        this.step.stepIndexes.splice(indexNum, 1)
+        // append to beginning of steps indexes
+        this.step.stepIndexes.unshift(index + "")
+        this.step.stepValues = [value]
     }
 
     processActive() {
@@ -105,7 +217,25 @@ export class Sudoku {
         this.notes.unshift('<br>') 
     }
 
-    private setUpStep() {
+    private setUpPlaceStep() {
+        this.step.stepSections = []
+        this.step.stepPhases = this.placeSteps.slice()
+        this.step.stepType = "place"
+        this.resetStepRemove()
+        this.resetStepTypePattern()
+    }
+
+    private setUpRemoveStep() {
+        this.step.stepType = "remove"
+        this.resetSpotsToRemoveFrom()
+        this.resetBlankStepPhase()
+    }
+
+    private resetSpotsToRemoveFrom () {
+        this.step.stepSpotsToRemoveFrom = []
+    }
+
+    private setUpBlankStep() {
         this.step = {
             stepSections: [],
             stepPhases: [],
@@ -114,21 +244,30 @@ export class Sudoku {
             stepValues: [],
             stepValuesToRemove: []
         }
-        this.setUpStepDefaults()
+        this.setUpBlankStepDefaults()
     }
 
-    private setUpStepDefaults() {
+    private setUpBlankStepDefaults() {
         const numbers: number[] = []
         for (let i = 1; i <= this.numbers; i++) {
             numbers.push(i)
         }
         this.step.stepValues = numbers
-        this.step.stepSections = this.typePattern.slice()
-        this.resetStepPhase()
+        this.resetStepTypePattern()
+        this.resetBlankStepPhase()
+        this.step.stepType = "setUpBlanks"
     }
 
-    private resetStepPhase() {
+    private resetStepTypePattern() {
+        this.step.stepSections = this.typePattern.slice()
+    }
+
+    private resetBlankStepPhase() {
         this.step.stepPhases = this.blanksStepPhases.slice()
+        this.resetStepRemove()
+    }
+
+    private resetStepRemove() {
         this.step.stepValuesToRemove = []
     }
 
@@ -230,8 +369,12 @@ export class Sudoku {
     currentStepString() {
         let string = ''
         const sectionIndex = this.currentSectionIndex()
-        if (this.activeSpot() !== null && this.activeType()) {
-            string += `<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}</div> <br>`
+        if (this.step.stepType === "setUpBlanks") {
+            string += `<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}.</div> <br>`
+        } else if (this.step.stepType === "place") {
+            string += `<div class="place">Placing ${this.value(this.activeSpot())} in ${this.activeSpot()}.</div> <br>`
+        } else if (this.step.stepType === "remove") {
+            string += `<div class="remove-note">Removing ${this.value(this.activeSpot())}s from ${this.activeType()} ${sectionIndex}.</div> <br>`
         }
 
         string += this.notes.join("")

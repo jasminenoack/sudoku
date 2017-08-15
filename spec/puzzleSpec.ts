@@ -520,7 +520,7 @@ describe('sudoku board', () => {
                         "73", "75", "77", "79", "80"
                     ],
                     stepValues: [1, 2, 8, 9],
-                    stepValuesToRemove: [2, 8, 9]
+                    stepValuesToRemove: [2, 9]
                 }
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
@@ -538,7 +538,7 @@ describe('sudoku board', () => {
                         "63", "64", "65", "66", "68", "69",
                         "73", "75", "77", "79", "80"
                     ],
-                    stepValues: [1],
+                    stepValues: [1, 8],
                     stepValuesToRemove: []
                 })
                 expect(sudoku.blanks[3]).toEqual([])
@@ -560,8 +560,8 @@ describe('sudoku board', () => {
                         "63", "64", "65", "66", "68", "69",
                         "73", "75", "77", "79", "80"
                     ],
-                    stepValues: [1],
-                    stepValuesToRemove: []
+                    stepValues: [1, 3, 8],
+                    stepValuesToRemove: [8]
                 }
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
@@ -582,7 +582,299 @@ describe('sudoku board', () => {
                     stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                     stepValuesToRemove: []
                 })
-                expect(sudoku.blanks[3]).toEqual([1])
+                expect(sudoku.blanks[3]).toEqual([1, 3])
+            })
+
+            it('moves into the place phase if there is only one number left', () => {
+                sudoku.step = {
+                    stepSections: ['column', 'square'],
+                    stepPhases: ["showCompare"],
+                    stepType: "setUpBlanks",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1, 2, 8, 9],
+                    stepValuesToRemove: [2, 8, 9]
+                }
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["row", "column", "square"],
+                    stepPhases: ["place"],
+                    stepType: "place",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: []
+                })
+                expect(sudoku.blanks[3]).toEqual(undefined)
+                expect(sudoku.value(3)).toEqual(1)
+            })
+
+            it('does handles no removal necessary', () => {
+                sudoku.step = {
+                    stepSections: ['column', 'square'],
+                    stepPhases: ["showCompare"],
+                    stepType: "setUpBlanks",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1, 2, 8, 9],
+                    stepValuesToRemove: [2, 8, 9]
+                }
+                // switch to place
+                sudoku.takeStep()
+                // switch to show active
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["column", "square"],
+                    stepPhases: ["showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [], 
+                    stepSpotsToRemoveFrom: []
+                })
+
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["square"],
+                    stepPhases: ["showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: [],
+                    stepPhases: ["search"],
+                    stepType: "findSingle",
+                    stepIndexes: [
+                        "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+            })
+
+            it('does steps for remove', () => {
+                sudoku.blanks[4] = [1, 2, 3]
+                sudoku.blanks[2] = [4, 5, 3]
+                sudoku.blanks[12] = [1, 2, 3]
+                sudoku.blanks[21] = [4, 5, 6]
+                sudoku.blanks[13] = [1, 2, 3]
+                sudoku.blanks[14] = [4, 5, 6]
+                sudoku.blanks[17] = [1]
+                sudoku.step = {
+                    stepSections: ['column', 'square'],
+                    stepPhases: ["showCompare"],
+                    stepType: "setUpBlanks",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1, 2, 8, 9],
+                    stepValuesToRemove: [2, 8, 9]
+                }
+                // switch to place
+                sudoku.takeStep()
+                // switch to show active
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["row", "column", "square"],
+                    stepPhases: ["showActive", "showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: [4]
+                })
+
+                // switch to show compare
+                sudoku.takeStep()
+                expect(sudoku.blanks[4]).toEqual([2, 3])
+                expect(sudoku.step).toEqual({
+                    stepSections: ["column", "square"],
+                    stepPhases: ["showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+
+                // switch to show active
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["column", "square"],
+                    stepPhases: ["showActive", "showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: [12]
+                })
+
+                // switch to show compare
+                sudoku.takeStep()
+                expect(sudoku.blanks[12]).toEqual([2, 3])
+                expect(sudoku.step).toEqual({
+                    stepSections: ["square"],
+                    stepPhases: ["showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+
+                // switch to show active
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["square"],
+                    stepPhases: ["showActive", "showCompare"],
+                    stepType: "remove",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: [13]
+                })
+
+                // switch to show compare
+                sudoku.takeStep()
+                expect(sudoku.blanks[13]).toEqual([2, 3])
+                expect(sudoku.step).toEqual({
+                    stepSections: [],
+                    stepPhases: ["search"],
+                    stepType: "findSingle",
+                    stepIndexes: [
+                        "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
             })
         })
 
@@ -792,6 +1084,95 @@ describe('sudoku board', () => {
                     expect(sudoku.inActiveSection(60)).toBeFalsy()
                     expect(sudoku.inActiveSection(1)).toBeFalsy()
                 })
+            })
+        })
+
+        describe('search', () => {
+            it('if finds a single in search goes to place for that index', () => {
+                sudoku.step = {
+                    stepSections: [],
+                    stepPhases: ["search"],
+                    stepType: "findSingle",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                }
+                sudoku.blanks[10] = [3]
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ["row", "column", 'square'],
+                    stepPhases: ["place"],
+                    stepType: "place",
+                    stepIndexes: [
+                        "10", "3", "4", "6", "7",
+                        "9", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [3],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+                expect(sudoku.value(10)).toEqual(3)
+            })
+
+            it('if no singles goes back to processing blanks', () => {
+                sudoku.step = {
+                    stepSections: [],
+                    stepPhases: ["search"],
+                    stepType: "findSingle",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                }
+                sudoku.takeStep()
+                expect(sudoku.step).toEqual({
+                    stepSections: ['row', 'column', 'square'],
+                    stepPhases: ["showActive", "showCompare"],
+                    stepType: "setUpBlanks",
+                    stepIndexes: [
+                        "3", "4", "6", "7",
+                        "9", "10", "13", "15", "16",
+                        "18", "21", "25", "26",
+                        "27", "28", "29", "30", "32",
+                        "37", "38", "40", "41", "42", "44",
+                        "50", "51", "52", "53",
+                        "58", "59", "60", "62",
+                        "63", "64", "65", "66", "68", "69",
+                        "73", "75", "77", "79", "80"
+                    ],
+                    stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    stepValuesToRemove: [],
+                    stepSpotsToRemoveFrom: []
+                })
+                expect(sudoku.getToRemove()).toEqual([])
             })
         })
     })

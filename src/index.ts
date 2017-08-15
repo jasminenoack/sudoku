@@ -56,22 +56,25 @@ class GameUtils {
 
         if (index === sudoku.activeSpot()) {
             el.classList.add('current-node')
-            const options = sudoku.getOptions(index)
-            const toRemove = sudoku.getToRemove()
-            this.addOptionsToEl(el, options, toRemove)
-            el.classList.add('options')
         } else {
             el.classList.remove('current-node')
-            const number = sudoku.value(index)
-            if (number) {
-                el.innerHTML = number + ''
-                el.classList.remove('options')
-            } else {
-                el.classList.add('options')
-                const options = sudoku.getOptions(index)
-                this.addOptionsToEl(el, options)
-            }
+            
         }
+
+        const number = sudoku.value(index)
+        if (number) {
+            el.innerHTML = number + ''
+            el.classList.remove('options')
+        } else {
+            el.classList.add('options')
+            const options = sudoku.getOptions(index)
+            let toRemove: number[] = []
+            if (index === sudoku.activeSpot()) {
+                toRemove = sudoku.getToRemove()
+            }
+            this.addOptionsToEl(el, options, toRemove)
+        }
+
         return el
     }
 
