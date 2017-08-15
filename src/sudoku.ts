@@ -280,4 +280,17 @@ export class Sudoku {
     public activePhase() {
         return this.step.stepPhases[0]
     }
+
+    public getOptions(index: number): number[] {
+        if (this.activeSpot() === index) {
+            return this.step.stepValues
+        } else if (this.blanks[index]) {
+            return this.blanks[index]
+        }
+        return []
+    }
+
+    public getToRemove() {
+        return this.step.stepValuesToRemove
+    }
 }

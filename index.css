@@ -35,6 +35,11 @@ div#board {
     float: left;
     padding: 6px;
     font-size: 24px;
+    position: relative;
+}
+
+.spot.options {
+    padding: 0px;
 }
 
 .spot:nth-child(3n) {
@@ -57,9 +62,9 @@ div.row:nth-child(3n) {
     background: cyan;
 }
 
-.option {
+/* .option {
     background: mediumseagreen;
-}
+} */
 
 .being-compared {
     background: violet;
@@ -96,3 +101,74 @@ div.row:nth-child(3n) {
 .not-placed {
     color: olive;
 }
+
+.option {
+    width: calc(100% / 3);
+    height: calc(100% / 3);
+    font-size: 12px;
+}
+
+.option.to-remove {
+    color: red
+}
+
+.option.one {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.option.two {
+    position: absolute;
+    top: 0;
+    right: 50%;
+    transform: translateX(50%)
+}
+
+.option.three {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.option.four {
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    transform: translateY(50%)
+}
+
+.option.five {
+    position: absolute;
+    bottom: 50%;
+    right: 50%;
+    transform: translateY(50%) translateX(50%)
+}
+
+.option.six {
+    position: absolute;
+    bottom: 50%;
+    right: 0;
+    transform: translateY(50%)
+}
+
+.option.seven {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.option.eight {
+    position: absolute;
+    bottom: 0;
+    right: 50%;
+    transform: translateX(50%)
+}
+
+.option.nine {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+/* .option[text=*foo] */

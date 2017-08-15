@@ -72,6 +72,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var sudoku_1 = __webpack_require__(2);
 var puzzles_1 = __webpack_require__(1);
+var numberClasses = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+];
 var interval;
 var boards = {
     "easy1": puzzles_1.easyPuzzle1,
@@ -120,12 +123,6 @@ var GameUtils = (function () {
         else {
             el.classList.remove('active-section');
         }
-        if (index === sudoku.activeSpot()) {
-            el.classList.add('active-number');
-        }
-        else {
-            el.classList.remove('active-number');
-        }
         // if (sudoku.isOption(index)) {
         //     el.classList.add('option')
         // } else {
@@ -141,11 +138,41 @@ var GameUtils = (function () {
         // } else {
         //     el.classList.remove('being-compared')
         // }
-        var number = sudoku.value(index);
-        if (number) {
-            el.innerHTML = number + '';
+        if (index === sudoku.activeSpot()) {
+            el.classList.add('active-number');
+            var options = sudoku.getOptions(index);
+            var toRemove = sudoku.getToRemove();
+            this.addOptionsToEl(el, options, toRemove);
+            el.classList.add('options');
+        }
+        else {
+            el.classList.remove('active-number');
+            var number = sudoku.value(index);
+            if (number) {
+                el.innerHTML = number + '';
+                el.classList.remove('options');
+            }
+            else {
+                el.classList.add('options');
+                var options = sudoku.getOptions(index);
+                this.addOptionsToEl(el, options);
+            }
         }
         return el;
+    };
+    GameUtils.addOptionsToEl = function (el, options, toRemove) {
+        if (toRemove === void 0) { toRemove = []; }
+        el.innerHTML = "";
+        options.forEach(function (number) {
+            var numEl = document.createElement('div');
+            numEl.classList.add('option');
+            numEl.classList.add(numberClasses[number - 1]);
+            if (toRemove.indexOf(number) !== -1) {
+                numEl.classList.add('to-remove');
+            }
+            numEl.innerText = number + "";
+            el.appendChild(numEl);
+        });
     };
     GameUtils.createRow = function () {
         var row = document.createElement('div');
@@ -485,6 +512,18 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.activePhase = function () {
         return this.step.stepPhases[0];
+    };
+    Sudoku.prototype.getOptions = function (index) {
+        if (this.activeSpot() === index) {
+            return this.step.stepValues;
+        }
+        else if (this.blanks[index]) {
+            return this.blanks[index];
+        }
+        return [];
+    };
+    Sudoku.prototype.getToRemove = function () {
+        return this.step.stepValuesToRemove;
     };
     return Sudoku;
 }());

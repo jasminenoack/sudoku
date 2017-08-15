@@ -228,6 +228,20 @@ describe('sudoku board', () => {
                 }
             })
         })
+
+        it('get options returns options from blanks array', () => {
+            sudoku.blanks[5] = [1, 3, 6]
+            expect(sudoku.getOptions(5)).toEqual([1, 3, 6])
+        })
+
+        it('get options returns options from step array', () => {
+            sudoku.step.stepValues = [1, 3, 6]
+            expect(sudoku.getOptions(3)).toEqual([1, 3, 6])
+        })
+
+        it('returns empty array if called on unknown', () => {
+            expect(sudoku.getOptions(0)).toEqual([])
+        })
     })
 
     describe('settings', () => {
@@ -349,6 +363,7 @@ describe('sudoku board', () => {
                 stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                 stepValuesToRemove: []
             })
+            expect(sudoku.getToRemove()).toEqual([])
         }) 
 
         it('moves from show to compare on row', () => {
@@ -371,6 +386,7 @@ describe('sudoku board', () => {
                 stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                 stepValuesToRemove: [3, 7, 4, 6, 5]
             }) 
+            expect(sudoku.getToRemove()).toEqual([3, 7, 4, 6, 5])
         })
 
         it('moves from show to compare on column', () => {
@@ -394,6 +410,7 @@ describe('sudoku board', () => {
                 stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                 stepValuesToRemove: [8, 9, 2, 3]
             })
+            expect(sudoku.getToRemove()).toEqual([8, 9, 2, 3])
         })
 
         it('moves from show to compare on square', () => {
@@ -652,10 +669,6 @@ describe('sudoku board', () => {
                     expect(sudoku.inActiveSection(1)).toBeFalsy()
                 })
             })
-        })
-
-        it('has a string for step', () => {
-            expect(sudoku.currentStepString()).toEqual('Comparing spot @ 3 with row 0')
         })
     })
 })

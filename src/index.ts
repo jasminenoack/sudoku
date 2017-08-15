@@ -1,6 +1,10 @@
 import {Sudoku} from './sudoku';
 import { easyPuzzle1, easyPuzzle2, medium1 } from '../src/puzzles'
 
+const numberClasses = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+]
+
 let interval: any
 
 const boards: {[key: string]: number[]} = {
@@ -50,12 +54,6 @@ class GameUtils {
             el.classList.remove('active-section')
         }
 
-        if (index === sudoku.activeSpot()) {
-            el.classList.add('active-number')
-        } else {
-            el.classList.remove('active-number')
-        }
-
         // if (sudoku.isOption(index)) {
         //     el.classList.add('option')
         // } else {
@@ -74,11 +72,39 @@ class GameUtils {
         //     el.classList.remove('being-compared')
         // }
 
-        const number = sudoku.value(index)
-        if (number) {
-            el.innerHTML = number + ''
+        if (index === sudoku.activeSpot()) {
+            el.classList.add('active-number')
+            const options = sudoku.getOptions(index)
+            const toRemove = sudoku.getToRemove()
+            this.addOptionsToEl(el, options, toRemove)
+            el.classList.add('options')
+        } else {
+            el.classList.remove('active-number')
+            const number = sudoku.value(index)
+            if (number) {
+                el.innerHTML = number + ''
+                el.classList.remove('options')
+            } else {
+                el.classList.add('options')
+                const options = sudoku.getOptions(index)
+                this.addOptionsToEl(el, options)
+            }
         }
         return el
+    }
+
+    private static addOptionsToEl(el: HTMLElement, options: number[], toRemove: number[] = []) {
+        el.innerHTML = ""
+        options.forEach((number) => {
+            const numEl = document.createElement('div')
+            numEl.classList.add('option')
+            numEl.classList.add(numberClasses[number - 1])
+            if (toRemove.indexOf(number) !== -1) {
+                numEl.classList.add('to-remove')
+            }
+            numEl.innerText = number + ""
+            el.appendChild(numEl)
+        })
     }
 
     private static createRow() {
