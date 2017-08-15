@@ -56,23 +56,23 @@ class GameUtils {
             el.classList.remove('active-number')
         }
 
-        if (sudoku.isOption(index)) {
-            el.classList.add('option')
-        } else {
-            el.classList.remove('option')
-        }
+        // if (sudoku.isOption(index)) {
+        //     el.classList.add('option')
+        // } else {
+        //     el.classList.remove('option')
+        // }
 
-        if (sudoku.currentNode === index) {
-            el.classList.add('current-node')
-        } else {
-            el.classList.remove('current-node')
-        }
+        // if (sudoku.currentNode === index) {
+        //     el.classList.add('current-node')
+        // } else {
+        //     el.classList.remove('current-node')
+        // }
 
-        if (sudoku.isBeingCompared(index)) {
-            el.classList.add('being-compared')
-        } else {
-            el.classList.remove('being-compared')
-        }
+        // if (sudoku.isBeingCompared(index)) {
+        //     el.classList.add('being-compared')
+        // } else {
+        //     el.classList.remove('being-compared')
+        // }
 
         const number = sudoku.value(index)
         if (number) {
