@@ -585,8 +585,6 @@ describe('sudoku board', () => {
                 expect(sudoku.blanks[3]).toEqual([1])
             })
         })
-        
-        xit('processes all steps for the first box')
 
         it('knows active number', () => {
             expect(sudoku.activeSpot()).toEqual(3)
