@@ -251,6 +251,7 @@ exports.medium1 = [
 Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(1);
 var Sudoku = (function () {
+    // public section: number = 0
     // public squareWidth: number = 3
     // public notes: string[] = []
     // public changed: boolean = false
@@ -265,8 +266,8 @@ var Sudoku = (function () {
         this.grid = grid;
         this.numbers = 9;
         this.givens = [];
-        // public section: number = 0
         this.typePattern = ['row', 'column', 'square'];
+        this.blanksStepPhases = ["showActive", "showCompare", "removeUnneeded"];
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
         this.setUpNewSection();
@@ -343,6 +344,7 @@ var Sudoku = (function () {
     // }
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
+        this.setUpStep();
         //     // todo when goes over setions/next number etc 
         //     if (this.grid.indexOf(0) === -1) {
         //         this.done = true;
@@ -370,6 +372,27 @@ var Sudoku = (function () {
         //         }
         //     })
     };
+    Sudoku.prototype.setUpStep = function () {
+        this.step = {
+            stepSections: [],
+            stepPhases: [],
+            stepType: "setUpBlanks",
+            stepIndexes: Object.keys(this.blanks),
+            stepValues: [],
+            stepValuesToRemove: []
+        };
+        this.setUpStepDefaults();
+    };
+    Sudoku.prototype.setUpStepDefaults = function () {
+        var numbers = [];
+        for (var i = 1; i <= this.numbers; i++) {
+            numbers.push(i);
+        }
+        this.step.stepValues = numbers;
+        this.step.stepValuesToRemove = [];
+        this.step.stepSections = this.typePattern.slice();
+        this.step.stepPhases = this.blanksStepPhases.slice();
+    };
     Sudoku.prototype.setUpBlanks = function () {
         var _this = this;
         this.blanks = {};
@@ -377,15 +400,9 @@ var Sudoku = (function () {
         var blanks = {};
         var typePattern = this.typePattern;
         var numbers = [];
-        for (var i = 1; i <= this.numbers; i++) {
-            numbers.push(i);
-        }
         this.grid.forEach(function (number, index) {
             if (number === 0) {
-                _this.blanks[index] = {
-                    typesToCheck: typePattern.slice(),
-                    options: numbers.slice()
-                };
+                _this.blanks[index] = [];
             }
         });
     };
@@ -490,6 +507,38 @@ var Sudoku = (function () {
             var squareColumn = Math.floor((index % 9) / 3);
             return 3 * squareRow + squareColumn;
         }
+    };
+    Sudoku.prototype.inActiveSection = function (index) {
+        var type = this.step.stepSections[0];
+        var sectionIndex = this.findSectionIndex(type, +this.step.stepIndexes[0]);
+        if (type === "row") {
+            if (this.inRow(index, sectionIndex)) {
+                return true;
+            }
+        }
+        else if (type === "column") {
+            if (this.inColumn(index, sectionIndex)) {
+                return true;
+            }
+        }
+        else if (type === "square") {
+            if (this.inSquare(index, sectionIndex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Sudoku.prototype.inRow = function (index, row) {
+        var low = row * this.numbers;
+        var high = low + this.numbers - 1;
+        return index >= low && index <= high;
+    };
+    Sudoku.prototype.inColumn = function (index, column) {
+        return (index - column) % this.numbers === 0;
+    };
+    Sudoku.prototype.inSquare = function (index, square) {
+        var indexes = this.squareIndexes(square);
+        return indexes.indexOf(index) !== -1;
     };
     return Sudoku;
 }());

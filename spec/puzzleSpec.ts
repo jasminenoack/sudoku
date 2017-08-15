@@ -140,37 +140,26 @@ describe('sudoku board', () => {
                 "63", "64", "65", "66", "68", "69", 
                 "73", "75", "77", "79", "80"
             ])
-            expect(sudoku.blanks[3].typesToCheck).toEqual(['row', 'column', 'square'])
-            expect(sudoku.blanks[3].options).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            expect(sudoku.blanks[3]).toEqual([])
 
-            expect(sudoku.blanks[9].typesToCheck).toEqual(['row', 'column', 'square'])
-            expect(sudoku.blanks[9].options).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            expect(sudoku.blanks[9]).toEqual([])
 
-            expect(sudoku.blanks[28].typesToCheck).toEqual(['row', 'column', 'square'])
-            expect(sudoku.blanks[28].options).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            expect(sudoku.blanks[28]).toEqual([])
 
-            expect(sudoku.blanks[59].typesToCheck).toEqual(['row', 'column', 'square'])
-            expect(sudoku.blanks[59].options).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            expect(sudoku.blanks[59]).toEqual([])
 
-            expect(sudoku.blanks[79].typesToCheck).toEqual(['row', 'column', 'square'])
-            expect(sudoku.blanks[79].options).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            expect(sudoku.blanks[79]).toEqual([])
 
-            expect(sudoku.blanks[0]).toEqual(undefined)
             expect(sudoku.blanks[0]).toEqual(undefined)
 
             expect(sudoku.blanks[12]).toEqual(undefined)
-            expect(sudoku.blanks[12]).toEqual(undefined)
 
-            expect(sudoku.blanks[24]).toEqual(undefined)
             expect(sudoku.blanks[24]).toEqual(undefined)
 
             expect(sudoku.blanks[54]).toEqual(undefined)
-            expect(sudoku.blanks[54]).toEqual(undefined)
 
             expect(sudoku.blanks[61]).toEqual(undefined)
-            expect(sudoku.blanks[61]).toEqual(undefined)
 
-            expect(sudoku.blanks[74]).toEqual(undefined)
             expect(sudoku.blanks[74]).toEqual(undefined)
         })
 
@@ -329,6 +318,226 @@ describe('sudoku board', () => {
             expect(sudoku.check('column', 6, 3)).toBeTruthy()
             expect(sudoku.check('column', 7, 3)).toBeTruthy()
             expect(sudoku.check('column', 8, 3)).toBeFalsy()
+        })
+    })
+
+    describe('step', () => {
+        it('has a step', () => {
+            expect(sudoku.step).toEqual({
+                stepSections: ['row', 'column', 'square'],
+                stepPhases: ["showActive", "showCompare", "removeUnneeded"],
+                stepType: "setUpBlanks",
+                stepIndexes: [
+                    "3", "4", "6", "7",
+                    "9", "10", "13", "15", "16",
+                    "18", "21", "25", "26",
+                    "27", "28", "29", "30", "32",
+                    "37", "38", "40", "41", "42", "44",
+                    "50", "51", "52", "53",
+                    "58", "59", "60", "62",
+                    "63", "64", "65", "66", "68", "69",
+                    "73", "75", "77", "79", "80"
+                ],
+                stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                stepValuesToRemove: []
+            })
+        }) 
+
+        describe('knows if spot is part of current analysis section', () => {
+            describe('knows if in current active row', () => {
+                it('knows row 0', () => {
+                    sudoku.step.stepSections = ['row']
+                    sudoku.step.stepIndexes = ["2"]
+                    expect(sudoku.inActiveSection(0)).toBeTruthy()
+                    expect(sudoku.inActiveSection(1)).toBeTruthy()
+                    expect(sudoku.inActiveSection(2)).toBeTruthy()
+                    expect(sudoku.inActiveSection(3)).toBeTruthy()
+                    expect(sudoku.inActiveSection(4)).toBeTruthy()
+                    expect(sudoku.inActiveSection(5)).toBeTruthy()
+                    expect(sudoku.inActiveSection(6)).toBeTruthy()
+                    expect(sudoku.inActiveSection(7)).toBeTruthy()
+                    expect(sudoku.inActiveSection(8)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(80)).toBeFalsy()
+                })
+
+                it('knows row 8', () => {
+                    sudoku.step.stepSections = ['row']
+                    sudoku.step.stepIndexes = ["74"]
+                    expect(sudoku.inActiveSection(72)).toBeTruthy()
+                    expect(sudoku.inActiveSection(73)).toBeTruthy()
+                    expect(sudoku.inActiveSection(74)).toBeTruthy()
+                    expect(sudoku.inActiveSection(75)).toBeTruthy()
+                    expect(sudoku.inActiveSection(76)).toBeTruthy()
+                    expect(sudoku.inActiveSection(77)).toBeTruthy()
+                    expect(sudoku.inActiveSection(78)).toBeTruthy()
+                    expect(sudoku.inActiveSection(79)).toBeTruthy()
+                    expect(sudoku.inActiveSection(80)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+
+                it('knows row 3', () => {
+                    sudoku.step.stepSections = ['row']
+                    sudoku.step.stepIndexes = ["27"]
+                    expect(sudoku.inActiveSection(27)).toBeTruthy()
+                    expect(sudoku.inActiveSection(28)).toBeTruthy()
+                    expect(sudoku.inActiveSection(29)).toBeTruthy()
+                    expect(sudoku.inActiveSection(30)).toBeTruthy()
+                    expect(sudoku.inActiveSection(31)).toBeTruthy()
+                    expect(sudoku.inActiveSection(32)).toBeTruthy()
+                    expect(sudoku.inActiveSection(33)).toBeTruthy()
+                    expect(sudoku.inActiveSection(34)).toBeTruthy()
+                    expect(sudoku.inActiveSection(35)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+            })
+
+            describe('knows if in current active column', () => {
+                it('knows column 0', () => {
+                    sudoku.step.stepSections = ['column']
+                    sudoku.step.stepIndexes = ["9"]
+                    expect(sudoku.inActiveSection(0)).toBeTruthy()
+                    expect(sudoku.inActiveSection(9)).toBeTruthy()
+                    expect(sudoku.inActiveSection(18)).toBeTruthy()
+                    expect(sudoku.inActiveSection(27)).toBeTruthy()
+                    expect(sudoku.inActiveSection(36)).toBeTruthy()
+                    expect(sudoku.inActiveSection(45)).toBeTruthy()
+                    expect(sudoku.inActiveSection(54)).toBeTruthy()
+                    expect(sudoku.inActiveSection(63)).toBeTruthy()
+                    expect(sudoku.inActiveSection(72)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(10)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(80)).toBeFalsy()
+                })
+
+                it('knows column 8', () => {
+                    sudoku.step.stepSections = ['column']
+                    sudoku.step.stepIndexes = ["71"]
+                    expect(sudoku.inActiveSection(8)).toBeTruthy()
+                    expect(sudoku.inActiveSection(17)).toBeTruthy()
+                    expect(sudoku.inActiveSection(26)).toBeTruthy()
+                    expect(sudoku.inActiveSection(35)).toBeTruthy()
+                    expect(sudoku.inActiveSection(44)).toBeTruthy()
+                    expect(sudoku.inActiveSection(53)).toBeTruthy()
+                    expect(sudoku.inActiveSection(62)).toBeTruthy()
+                    expect(sudoku.inActiveSection(71)).toBeTruthy()
+                    expect(sudoku.inActiveSection(80)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+
+                it('knows column 3', () => {
+                    sudoku.step.stepSections = ['column']
+                    sudoku.step.stepIndexes = ["21"]
+                    expect(sudoku.inActiveSection(3)).toBeTruthy()
+                    expect(sudoku.inActiveSection(12)).toBeTruthy()
+                    expect(sudoku.inActiveSection(21)).toBeTruthy()
+                    expect(sudoku.inActiveSection(30)).toBeTruthy()
+                    expect(sudoku.inActiveSection(39)).toBeTruthy()
+                    expect(sudoku.inActiveSection(48)).toBeTruthy()
+                    expect(sudoku.inActiveSection(57)).toBeTruthy()
+                    expect(sudoku.inActiveSection(66)).toBeTruthy()
+                    expect(sudoku.inActiveSection(75)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+            })
+
+            describe('knows if in current active square', () => {
+                it('knows square 0', () => {
+                    sudoku.step.stepSections = ['square']
+                    sudoku.step.stepIndexes = ["11"]
+                    expect(sudoku.inActiveSection(0)).toBeTruthy()
+                    expect(sudoku.inActiveSection(1)).toBeTruthy()
+                    expect(sudoku.inActiveSection(2)).toBeTruthy()
+                    expect(sudoku.inActiveSection(9)).toBeTruthy()
+                    expect(sudoku.inActiveSection(10)).toBeTruthy()
+                    expect(sudoku.inActiveSection(11)).toBeTruthy()
+                    expect(sudoku.inActiveSection(18)).toBeTruthy()
+                    expect(sudoku.inActiveSection(19)).toBeTruthy()
+                    expect(sudoku.inActiveSection(20)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(3)).toBeFalsy()
+                    expect(sudoku.inActiveSection(12)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(21)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(80)).toBeFalsy()
+                })
+
+                it('knows square 8', () => {
+                    sudoku.step.stepSections = ['square']
+                    sudoku.step.stepIndexes = ["79"]
+                    expect(sudoku.inActiveSection(60)).toBeTruthy()
+                    expect(sudoku.inActiveSection(61)).toBeTruthy()
+                    expect(sudoku.inActiveSection(62)).toBeTruthy()
+                    expect(sudoku.inActiveSection(69)).toBeTruthy()
+                    expect(sudoku.inActiveSection(70)).toBeTruthy()
+                    expect(sudoku.inActiveSection(71)).toBeTruthy()
+                    expect(sudoku.inActiveSection(78)).toBeTruthy()
+                    expect(sudoku.inActiveSection(79)).toBeTruthy()
+                    expect(sudoku.inActiveSection(80)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(15)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(63)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+
+                it('knows square 4', () => {
+                    sudoku.step.stepSections = ['square']
+                    sudoku.step.stepIndexes = ["31"]
+                    expect(sudoku.inActiveSection(30)).toBeTruthy()
+                    expect(sudoku.inActiveSection(31)).toBeTruthy()
+                    expect(sudoku.inActiveSection(32)).toBeTruthy()
+                    expect(sudoku.inActiveSection(39)).toBeTruthy()
+                    expect(sudoku.inActiveSection(40)).toBeTruthy()
+                    expect(sudoku.inActiveSection(41)).toBeTruthy()
+                    expect(sudoku.inActiveSection(48)).toBeTruthy()
+                    expect(sudoku.inActiveSection(49)).toBeTruthy()
+                    expect(sudoku.inActiveSection(50)).toBeTruthy()
+
+                    expect(sudoku.inActiveSection(9)).toBeFalsy()
+                    expect(sudoku.inActiveSection(11)).toBeFalsy()
+                    expect(sudoku.inActiveSection(14)).toBeFalsy()
+                    expect(sudoku.inActiveSection(20)).toBeFalsy()
+                    expect(sudoku.inActiveSection(60)).toBeFalsy()
+                    expect(sudoku.inActiveSection(1)).toBeFalsy()
+                })
+            })
         })
     })
 })

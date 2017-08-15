@@ -1,19 +1,28 @@
 import { easyPuzzle1 } from './puzzles'
 
 type sectionType = 'row' | 'column' | 'square'
+type stepType = 'setUpBlanks'
+type stepPhase = "showActive" | "showCompare" | "removeUnneeded"
 
-interface blankData {
-    typesToCheck: string[],
-    options: number[]
+interface step {
+    stepSections: sectionType[],
+    stepPhases: stepPhase[],
+    stepType: stepType,
+    stepIndexes: string[],
+    stepValues: number[],
+    stepValuesToRemove: number[], 
 }
 
 export class Sudoku {
     public numbers: number = 9
     public givens: boolean[] = []
-    public blanks: { [key: number]: blankData }
+    public blanks: { [key: number]: number[] }
+    private typePattern: sectionType[] = ['row', 'column', 'square']
+    private blanksStepPhases: stepPhase[] = ["showActive", "showCompare", "removeUnneeded"]
+    public step: step
 
     // public section: number = 0
-    public typePattern: sectionType[] = ['row', 'column', 'square']
+    
     // public squareWidth: number = 3
     // public notes: string[] = []
     // public changed: boolean = false
@@ -113,6 +122,7 @@ export class Sudoku {
 
     setUpNewSection() {
         this.setUpBlanks()
+        this.setUpStep()
     //     // todo when goes over setions/next number etc 
     //     if (this.grid.indexOf(0) === -1) {
     //         this.done = true;
@@ -143,21 +153,38 @@ export class Sudoku {
     //     })
     }
 
+    private setUpStep() {
+        this.step = {
+            stepSections: [],
+            stepPhases: [],
+            stepType: "setUpBlanks",
+            stepIndexes: Object.keys(this.blanks),
+            stepValues: [],
+            stepValuesToRemove: []
+        }
+        this.setUpStepDefaults()
+    }
+
+    private setUpStepDefaults() {
+        const numbers: number[] = []
+        for (let i = 1; i <= this.numbers; i++) {
+            numbers.push(i)
+        }
+        this.step.stepValues = numbers
+        this.step.stepValuesToRemove = []
+        this.step.stepSections = this.typePattern.slice()
+        this.step.stepPhases = this.blanksStepPhases.slice()
+    }
+
     private setUpBlanks() {
         this.blanks = {}
         const grid = this.grid
         const blanks = {}
         const typePattern = this.typePattern
         const numbers: number[] = []
-        for (let i = 1; i <= this.numbers; i++) {
-            numbers.push(i)
-        }
         this.grid.forEach((number, index) => {
             if (number === 0) {
-                this.blanks[index] = {
-                    typesToCheck: typePattern.slice(),
-                    options: numbers.slice()
-                }
+                this.blanks[index] = []
             }
         })
     }
@@ -266,5 +293,39 @@ export class Sudoku {
             const squareColumn = Math.floor((index % 9) / 3)
             return 3 * squareRow + squareColumn
         }
+    }
+
+    inActiveSection(index: number): boolean {
+        let type = this.step.stepSections[0]
+        let sectionIndex = this.findSectionIndex(type, +this.step.stepIndexes[0])
+        if (type === "row") {
+            if (this.inRow(index, sectionIndex)) {
+                return true
+            }
+        } else if (type === "column") {
+            if (this.inColumn(index, sectionIndex)) {
+                return true
+            }
+        } else if (type === "square") {
+            if (this.inSquare(index, sectionIndex)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private inRow(index: number, row: number): boolean {
+        let low = row * this.numbers
+        let high = low + this.numbers - 1
+        return index >= low && index <= high
+    }
+
+    private inColumn(index: number, column: number): boolean {
+        return (index - column) % this.numbers === 0
+    }
+
+    private inSquare(index: number, square: number): boolean {
+        const indexes = this.squareIndexes(square)
+        return indexes.indexOf(index) !== -1
     }
 }
