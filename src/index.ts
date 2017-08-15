@@ -50,7 +50,7 @@ class GameUtils {
             el.classList.remove('active-section')
         }
 
-        if (sudoku.value(index) === sudoku.activeNumber) {
+        if (index === sudoku.activeSpot()) {
             el.classList.add('active-number')
         } else {
             el.classList.remove('active-number')

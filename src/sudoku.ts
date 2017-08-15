@@ -296,8 +296,8 @@ export class Sudoku {
     }
 
     inActiveSection(index: number): boolean {
-        let type = this.step.stepSections[0]
-        let sectionIndex = this.findSectionIndex(type, +this.step.stepIndexes[0])
+        let type = this.activeType()
+        let sectionIndex = this.findSectionIndex(type, this.activeSpot())
         if (type === "row") {
             if (this.inRow(index, sectionIndex)) {
                 return true
@@ -327,5 +327,13 @@ export class Sudoku {
     private inSquare(index: number, square: number): boolean {
         const indexes = this.squareIndexes(square)
         return indexes.indexOf(index) !== -1
+    }
+
+    public activeSpot() {
+        return +this.step.stepIndexes[0]
+    }
+
+    public activeType() {
+        return this.step.stepSections[0]
     }
 }

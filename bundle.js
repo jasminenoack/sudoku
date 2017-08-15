@@ -120,7 +120,7 @@ var GameUtils = (function () {
         else {
             el.classList.remove('active-section');
         }
-        if (sudoku.value(index) === sudoku.activeNumber) {
+        if (index === sudoku.activeSpot()) {
             el.classList.add('active-number');
         }
         else {
@@ -509,8 +509,8 @@ var Sudoku = (function () {
         }
     };
     Sudoku.prototype.inActiveSection = function (index) {
-        var type = this.step.stepSections[0];
-        var sectionIndex = this.findSectionIndex(type, +this.step.stepIndexes[0]);
+        var type = this.activeType();
+        var sectionIndex = this.findSectionIndex(type, this.activeSpot());
         if (type === "row") {
             if (this.inRow(index, sectionIndex)) {
                 return true;
@@ -539,6 +539,12 @@ var Sudoku = (function () {
     Sudoku.prototype.inSquare = function (index, square) {
         var indexes = this.squareIndexes(square);
         return indexes.indexOf(index) !== -1;
+    };
+    Sudoku.prototype.activeSpot = function () {
+        return +this.step.stepIndexes[0];
+    };
+    Sudoku.prototype.activeType = function () {
+        return this.step.stepSections[0];
     };
     return Sudoku;
 }());

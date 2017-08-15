@@ -343,6 +343,14 @@ describe('sudoku board', () => {
             })
         }) 
 
+        it('knows active number', () => {
+            expect(sudoku.activeSpot()).toEqual(3)
+        })
+
+        it('knows active type', () => {
+            expect(sudoku.activeType()).toEqual('row')
+        })
+
         describe('knows if spot is part of current analysis section', () => {
             describe('knows if in current active row', () => {
                 it('knows row 0', () => {
