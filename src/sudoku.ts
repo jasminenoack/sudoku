@@ -39,6 +39,9 @@ export class Sudoku {
 
     takeStep() {
         if (this.step.stepType === "setUpBlanks") {
+            if (!this.step.stepIndexes.length) {
+                return
+            }
             this.processBlanksStep()
         } else if (this.step.stepType === "place") {
             this.processPlaceStep()
@@ -70,11 +73,15 @@ export class Sudoku {
         for (let i = 0; i < blankKeys.length; i++) {
             index = +blankKeys[i]
             if (this.blanks[index].length === 1) {
+                this.notes.unshift(
+                    `<div class="search-success">Found element to insert at ${index}. Value: ${this.blanks[index][0]}.</div><br>`
+                )
                 this.setValueToCell(index, this.blanks[index][0])
                 return
             }
         }
         this.setUpBlankStepDefaults()
+        this.notes.unshift(`<div class="search-failure">Can't find any single elements. Going back to checking cells.</div><br>`)
     }
 
     showRemoveActive() {
