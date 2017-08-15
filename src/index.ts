@@ -54,32 +54,14 @@ class GameUtils {
             el.classList.remove('active-section')
         }
 
-        // if (sudoku.isOption(index)) {
-        //     el.classList.add('option')
-        // } else {
-        //     el.classList.remove('option')
-        // }
-
-        // if (sudoku.currentNode === index) {
-        //     el.classList.add('current-node')
-        // } else {
-        //     el.classList.remove('current-node')
-        // }
-
-        // if (sudoku.isBeingCompared(index)) {
-        //     el.classList.add('being-compared')
-        // } else {
-        //     el.classList.remove('being-compared')
-        // }
-
         if (index === sudoku.activeSpot()) {
-            el.classList.add('active-number')
+            el.classList.add('current-node')
             const options = sudoku.getOptions(index)
             const toRemove = sudoku.getToRemove()
             this.addOptionsToEl(el, options, toRemove)
             el.classList.add('options')
         } else {
-            el.classList.remove('active-number')
+            el.classList.remove('current-node')
             const number = sudoku.value(index)
             if (number) {
                 el.innerHTML = number + ''

@@ -123,30 +123,15 @@ var GameUtils = (function () {
         else {
             el.classList.remove('active-section');
         }
-        // if (sudoku.isOption(index)) {
-        //     el.classList.add('option')
-        // } else {
-        //     el.classList.remove('option')
-        // }
-        // if (sudoku.currentNode === index) {
-        //     el.classList.add('current-node')
-        // } else {
-        //     el.classList.remove('current-node')
-        // }
-        // if (sudoku.isBeingCompared(index)) {
-        //     el.classList.add('being-compared')
-        // } else {
-        //     el.classList.remove('being-compared')
-        // }
         if (index === sudoku.activeSpot()) {
-            el.classList.add('active-number');
+            el.classList.add('current-node');
             var options = sudoku.getOptions(index);
             var toRemove = sudoku.getToRemove();
             this.addOptionsToEl(el, options, toRemove);
             el.classList.add('options');
         }
         else {
-            el.classList.remove('active-number');
+            el.classList.remove('current-node');
             var number = sudoku.value(index);
             if (number) {
                 el.innerHTML = number + '';
@@ -281,7 +266,7 @@ var Sudoku = (function () {
         this.numbers = 9;
         this.givens = [];
         this.typePattern = ['row', 'column', 'square'];
-        this.blanksStepPhases = ["showActive", "showCompare", "removeUnneeded"];
+        this.blanksStepPhases = ["showActive", "showCompare"];
         this.notes = [];
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
@@ -300,12 +285,25 @@ var Sudoku = (function () {
             // process compare will start to compare and setup removing
             this.processCompare();
         }
-        else if (this.activePhase() === "removeUnneeded") {
-            // process remove will update the options
-            this.processRemove();
-        }
     };
     Sudoku.prototype.processCompare = function () {
+        var valueOptions = this.step.stepValues;
+        var valuesToRemove = this.getToRemove();
+        var newValues = [];
+        valueOptions.forEach(function (number) {
+            if (valuesToRemove.indexOf(number) === -1) {
+                newValues.push(number);
+            }
+        });
+        this.step.stepValues = newValues;
+        this.step.stepSections.shift();
+        if (this.step.stepSections.length) {
+            this.resetStepPhase();
+        }
+        else {
+            this.step.stepIndexes.shift();
+            this.setUpStepDefaults();
+        }
     };
     Sudoku.prototype.processActive = function () {
         var valuesInSection = this.valuesInCurrentSection();
@@ -334,8 +332,6 @@ var Sudoku = (function () {
         this.notes.unshift("<div class=\"consideration\">Values in consideration for spot " + this.activeSpot() + ": " + valueOptions.join(',') + "</div>");
         this.notes.unshift('<br>');
     };
-    Sudoku.prototype.processRemove = function () {
-    };
     Sudoku.prototype.setUpStep = function () {
         this.step = {
             stepSections: [],
@@ -353,9 +349,12 @@ var Sudoku = (function () {
             numbers.push(i);
         }
         this.step.stepValues = numbers;
-        this.step.stepValuesToRemove = [];
         this.step.stepSections = this.typePattern.slice();
+        this.resetStepPhase();
+    };
+    Sudoku.prototype.resetStepPhase = function () {
         this.step.stepPhases = this.blanksStepPhases.slice();
+        this.step.stepValuesToRemove = [];
     };
     Sudoku.prototype.setUpBlanks = function () {
         var _this = this;

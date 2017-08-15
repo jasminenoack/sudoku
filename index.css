@@ -58,18 +58,6 @@ div.row:nth-child(3n) {
     background: tomato;
 }
 
-.active-number {
-    background: cyan;
-}
-
-/* .option {
-    background: mediumseagreen;
-} */
-
-.being-compared {
-    background: violet;
-}
-
 .current-node {
     background: YellowGreen;
 }

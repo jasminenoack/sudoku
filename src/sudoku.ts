@@ -2,7 +2,7 @@ import { easyPuzzle1 } from './puzzles'
 
 type sectionType = 'row' | 'column' | 'square'
 type stepType = 'setUpBlanks'
-type stepPhase = "showActive" | "showCompare" | "removeUnneeded"
+type stepPhase = "showActive" | "showCompare"
 
 interface step {
     stepSections: sectionType[],
@@ -18,7 +18,7 @@ export class Sudoku {
     public givens: boolean[] = []
     public blanks: { [key: number]: number[] }
     private typePattern: sectionType[] = ['row', 'column', 'square']
-    private blanksStepPhases: stepPhase[] = ["showActive", "showCompare", "removeUnneeded"]
+    private blanksStepPhases: stepPhase[] = ["showActive", "showCompare"]
     public step: step
     private notes: string[] = []
 
@@ -40,14 +40,27 @@ export class Sudoku {
         } else if (this.activePhase() === "showCompare") {
             // process compare will start to compare and setup removing
             this.processCompare()
-        } else if (this.activePhase() === "removeUnneeded") {
-            // process remove will update the options
-            this.processRemove()
         }
     }
 
     processCompare() {
-        
+        const valueOptions = this.step.stepValues
+        const valuesToRemove = this.getToRemove()
+        const newValues: number[] = []
+        valueOptions.forEach((number) => {
+            if (valuesToRemove.indexOf(number) === -1) {
+                newValues.push(number)
+            }
+        })
+        this.step.stepValues = newValues;
+        this.step.stepSections.shift()
+
+        if (this.step.stepSections.length) {
+            this.resetStepPhase()
+        } else {
+            this.step.stepIndexes.shift()
+            this.setUpStepDefaults()
+        }
     }
 
     processActive() {
@@ -85,10 +98,6 @@ export class Sudoku {
         this.notes.unshift('<br>') 
     }
 
-    processRemove() {
-
-    }
-
     private setUpStep() {
         this.step = {
             stepSections: [],
@@ -107,9 +116,13 @@ export class Sudoku {
             numbers.push(i)
         }
         this.step.stepValues = numbers
-        this.step.stepValuesToRemove = []
         this.step.stepSections = this.typePattern.slice()
+        this.resetStepPhase()
+    }
+
+    private resetStepPhase() {
         this.step.stepPhases = this.blanksStepPhases.slice()
+        this.step.stepValuesToRemove = []
     }
 
     private setUpBlanks() {
