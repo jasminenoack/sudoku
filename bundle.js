@@ -410,7 +410,9 @@ var Sudoku = (function () {
         this.setUpPlaceStep();
         // remove index from steps indexes 
         var indexNum = this.step.stepIndexes.indexOf(index + '');
-        this.step.stepIndexes.splice(indexNum, 1);
+        if (indexNum !== -1) {
+            this.step.stepIndexes.splice(indexNum, 1);
+        }
         // append to beginning of steps indexes
         this.step.stepIndexes.unshift(index + "");
         this.step.stepValues = [value];
@@ -579,6 +581,9 @@ var Sudoku = (function () {
         return values.indexOf(number) !== -1;
     };
     Sudoku.prototype.currentStepString = function () {
+        if (!this.activeSpot()) {
+            return "I have finished all the logic I know.";
+        }
         var string = '';
         var sectionIndex = this.currentSectionIndex();
         if (this.step.stepType === "setUpBlanks") {

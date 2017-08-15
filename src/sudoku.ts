@@ -183,7 +183,9 @@ export class Sudoku {
         this.setUpPlaceStep()
         // remove index from steps indexes 
         const indexNum = this.step.stepIndexes.indexOf(index + '')
-        this.step.stepIndexes.splice(indexNum, 1)
+        if (indexNum !== -1) {
+            this.step.stepIndexes.splice(indexNum, 1)
+        }
         // append to beginning of steps indexes
         this.step.stepIndexes.unshift(index + "")
         this.step.stepValues = [value]
@@ -374,6 +376,9 @@ export class Sudoku {
     }
 
     currentStepString() {
+        if (!this.activeSpot()) {
+            return `I have finished all the logic I know.`
+        }
         let string = ''
         const sectionIndex = this.currentSectionIndex()
         if (this.step.stepType === "setUpBlanks") {
