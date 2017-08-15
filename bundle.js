@@ -581,19 +581,21 @@ var Sudoku = (function () {
         return values.indexOf(number) !== -1;
     };
     Sudoku.prototype.currentStepString = function () {
-        if (!this.activeSpot()) {
-            return "I have finished all the logic I know.";
-        }
         var string = '';
-        var sectionIndex = this.currentSectionIndex();
-        if (this.step.stepType === "setUpBlanks") {
-            string += "<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> <br>";
+        if (!this.activeSpot()) {
+            string += "I have finished all the logic I know.";
         }
-        else if (this.step.stepType === "place") {
-            string += "<div class=\"place\">Placing " + this.value(this.activeSpot()) + " in " + this.activeSpot() + ".</div> <br>";
-        }
-        else if (this.step.stepType === "remove") {
-            string += "<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div> <br>";
+        else {
+            var sectionIndex = this.currentSectionIndex();
+            if (this.step.stepType === "setUpBlanks") {
+                string += "<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> <br>";
+            }
+            else if (this.step.stepType === "place") {
+                string += "<div class=\"place\">Placing " + this.value(this.activeSpot()) + " in " + this.activeSpot() + ".</div> <br>";
+            }
+            else if (this.step.stepType === "remove") {
+                string += "<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div> <br>";
+            }
         }
         string += this.notes.join("");
         return string;
