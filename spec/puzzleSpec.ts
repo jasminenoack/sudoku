@@ -582,6 +582,7 @@ describe('sudoku board', () => {
                     stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                     stepValuesToRemove: []
                 })
+                expect(sudoku.blanks[3]).toEqual([1])
             })
         })
         

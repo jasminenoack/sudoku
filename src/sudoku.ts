@@ -34,6 +34,12 @@ export class Sudoku {
     }
 
     takeStep() {
+        if (this.step.stepType === "setUpBlanks") {
+            this.processBlanksStep()
+        }
+    }
+
+    processBlanksStep() {
         if (this.activePhase() === "showActive") {
             // show active moves into the process compare phase
             this.processActive()
@@ -58,6 +64,7 @@ export class Sudoku {
         if (this.step.stepSections.length) {
             this.resetStepPhase()
         } else {
+            this.blanks[this.activeSpot()] = this.step.stepValues
             this.step.stepIndexes.shift()
             this.setUpStepDefaults()
         }

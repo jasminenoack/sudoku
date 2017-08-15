@@ -277,6 +277,11 @@ var Sudoku = (function () {
         this.setUpStep();
     };
     Sudoku.prototype.takeStep = function () {
+        if (this.step.stepType === "setUpBlanks") {
+            this.processBlanksStep();
+        }
+    };
+    Sudoku.prototype.processBlanksStep = function () {
         if (this.activePhase() === "showActive") {
             // show active moves into the process compare phase
             this.processActive();
@@ -301,6 +306,7 @@ var Sudoku = (function () {
             this.resetStepPhase();
         }
         else {
+            this.blanks[this.activeSpot()] = this.step.stepValues;
             this.step.stepIndexes.shift();
             this.setUpStepDefaults();
         }
