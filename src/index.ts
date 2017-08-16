@@ -24,7 +24,7 @@ class GameUtils {
             }
         })
         const stepEl = document.getElementById("step")
-        stepEl.innerHTML = sudoku.currentStepString()
+        this.addStepString(sudoku)
     }
 
     public static setUp(boardChoice = "easy1", id = "board") {
@@ -104,9 +104,14 @@ class GameUtils {
             const el = spots[index]
             this.updateSpot(el as HTMLElement, index, sudoku)
         })
+        this.addStepString(sudoku)
+    }
 
+    private static addStepString(sudoku) {
         const stepEl = document.getElementById("step")
-        stepEl.innerHTML = sudoku.currentStepString()
+        const div = document.createElement('div')
+        div.innerHTML = sudoku.currentStepString()
+        stepEl.insertBefore(div, stepEl.firstChild);
     }
 }
 
@@ -123,7 +128,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 50)
+        interval = setInterval(func, 300)
     }
 });
 

@@ -94,7 +94,7 @@ var GameUtils = (function () {
             }
         });
         var stepEl = document.getElementById("step");
-        stepEl.innerHTML = sudoku.currentStepString();
+        this.addStepString(sudoku);
     };
     GameUtils.setUp = function (boardChoice, id) {
         if (boardChoice === void 0) { boardChoice = "easy1"; }
@@ -172,8 +172,13 @@ var GameUtils = (function () {
             var el = spots[index];
             _this.updateSpot(el, index, sudoku);
         });
+        this.addStepString(sudoku);
+    };
+    GameUtils.addStepString = function (sudoku) {
         var stepEl = document.getElementById("step");
-        stepEl.innerHTML = sudoku.currentStepString();
+        var div = document.createElement('div');
+        div.innerHTML = sudoku.currentStepString();
+        stepEl.insertBefore(div, stepEl.firstChild);
     };
     return GameUtils;
 }());
@@ -190,7 +195,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 50);
+        interval = setInterval(func, 300);
     }
 });
 window.gameUtils = GameUtils;
@@ -295,7 +300,6 @@ var Sudoku = (function () {
         this.setUpBlankStep();
     };
     Sudoku.prototype.takeStep = function () {
-        console.log(this.step.stepType);
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
                 this.setUpSectionSingle();
@@ -338,13 +342,13 @@ var Sudoku = (function () {
         for (var i = 0; i < blankKeys.length; i++) {
             index = +blankKeys[i];
             if (this.blanks[index].length === 1) {
-                this.notes.unshift("<div class=\"search-success\">Found element to insert at " + index + ". Value: " + this.blanks[index][0] + ".</div><br>");
+                this.notes.unshift("<div class=\"search-success\">Found element to insert at " + index + ". Value: " + this.blanks[index][0] + ".</div>");
                 this.setValueToCell(index, this.blanks[index][0]);
                 return;
             }
         }
         this.setUpBlankStepDefaults();
-        this.notes.unshift("<div class=\"search-failure\">Can't find any single elements. Going back to checking cells.</div><br>");
+        this.notes.unshift("<div class=\"search-failure\">Can't find any single elements. Going back to checking cells.</div>");
     };
     Sudoku.prototype.processSectionSingle = function () {
         if (Object.keys(this.step.valuesToPlace).length) {
@@ -376,7 +380,6 @@ var Sudoku = (function () {
         });
         var stepType = this.activeType();
         var stepSection = this.step.stepValues[0];
-        this.notes.unshift('<br>');
         Object.keys(locations).forEach(function (value) {
             var indexes = locations[+value];
             if (indexes.length === 1) {
@@ -403,7 +406,7 @@ var Sudoku = (function () {
         }
         else {
             this.step.stepPhases = ["showCompare"];
-            this.notes.unshift("<div class=\"no-remove\">Found no squares that need removal in " + this.activeType() + "</div><br>");
+            this.notes.unshift("<div class=\"no-remove\">Found no squares that need removal in " + this.activeType() + "</div>");
             this.step.stepSections.shift();
         }
         if (!this.step.stepSections.length) {
@@ -475,7 +478,7 @@ var Sudoku = (function () {
         this.step.stepValues = newValues;
         this.step.stepSections.shift();
         if (newValues.length === 1) {
-            this.notes.unshift("<div class=\"found\">Determined there is only 1 option for spot " + this.activeSpot() + ": " + newValues[0] + "</div><br>");
+            this.notes.unshift("<div class=\"found\">Determined there is only 1 option for spot " + this.activeSpot() + ": " + newValues[0] + "</div>");
             this.setValueToCell(this.activeSpot(), newValues[0]);
         }
         else {
@@ -527,7 +530,7 @@ var Sudoku = (function () {
             this.notes.unshift("<div class=\"no-found\">Found no values in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
         }
         this.notes.unshift("<div class=\"consideration\">Values in consideration for spot " + this.activeSpot() + ": " + valueOptions.join(',') + "</div>");
-        this.notes.unshift('<br>');
+        this.notes.unshift('');
     };
     Sudoku.prototype.setUpPlaceStep = function () {
         this.step.stepSections = [];
@@ -667,22 +670,26 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.currentStepString = function () {
         var string = '';
-        if (!this.activeSpot()) {
-            string += "Thinking!!!.<br>";
+        if (this.step.stepType === "endStep") {
+            return;
         }
         else {
             var sectionIndex = this.currentSectionIndex();
             if (this.step.stepType === "setUpBlanks") {
-                this.notes.unshift("<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> <br>");
+                this.notes.unshift("<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> ");
             }
             else if (this.step.stepType === "place") {
-                this.notes.unshift("<div class=\"place\">Placing " + this.value(this.activeSpot()) + " in " + this.activeSpot() + ".</div> <br>");
+                this.notes.unshift("<div class=\"place\">Placing " + this.value(this.activeSpot()) + " in " + this.activeSpot() + ".</div> ");
             }
             else if (this.step.stepType === "remove") {
-                this.notes.unshift("<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div> <br>");
+                this.notes.unshift("<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div>");
             }
         }
-        string += this.notes.join("");
+        if (!this.notes.length) {
+            string += "<div>Thinking!!!</div>";
+        }
+        string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
+        this.notes = [];
         return string;
     };
     Sudoku.prototype.currentSectionIndex = function () {

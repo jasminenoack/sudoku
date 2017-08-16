@@ -159,4 +159,6 @@ div.row:nth-child(3n) {
     right: 0;
 }
 
-/* .option[text=*foo] */
+.step-text {
+    padding: 10px;
+}

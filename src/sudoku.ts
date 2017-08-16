@@ -39,7 +39,6 @@ export class Sudoku {
     }
 
     takeStep() {
-        console.log(this.step.stepType)
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
                 this.setUpSectionSingle()
@@ -80,14 +79,14 @@ export class Sudoku {
             index = +blankKeys[i]
             if (this.blanks[index].length === 1) {
                 this.notes.unshift(
-                    `<div class="search-success">Found element to insert at ${index}. Value: ${this.blanks[index][0]}.</div><br>`
+                    `<div class="search-success">Found element to insert at ${index}. Value: ${this.blanks[index][0]}.</div>`
                 )
                 this.setValueToCell(index, this.blanks[index][0])
                 return
             }
         }
         this.setUpBlankStepDefaults()
-        this.notes.unshift(`<div class="search-failure">Can't find any single elements. Going back to checking cells.</div><br>`)
+        this.notes.unshift(`<div class="search-failure">Can't find any single elements. Going back to checking cells.</div>`)
     }
 
     processSectionSingle() {
@@ -118,7 +117,6 @@ export class Sudoku {
         })
         const stepType = this.activeType()
         const stepSection = this.step.stepValues[0]
-        this.notes.unshift('<br>')
         Object.keys(locations).forEach((value) => {
             const indexes = locations[+value]
             if (indexes.length === 1) {
@@ -153,7 +151,7 @@ export class Sudoku {
         } else {
             this.step.stepPhases = ["showCompare"]
             this.notes.unshift(
-                `<div class="no-remove">Found no squares that need removal in ${this.activeType()}</div><br>`
+                `<div class="no-remove">Found no squares that need removal in ${this.activeType()}</div>`
             )
             this.step.stepSections.shift()
         }
@@ -234,7 +232,7 @@ export class Sudoku {
 
         if (newValues.length === 1) {
             this.notes.unshift(
-                `<div class="found">Determined there is only 1 option for spot ${this.activeSpot()}: ${newValues[0]}</div><br>`
+                `<div class="found">Determined there is only 1 option for spot ${this.activeSpot()}: ${newValues[0]}</div>`
             )
             this.setValueToCell(this.activeSpot(), newValues[0])
         } else {
@@ -294,7 +292,7 @@ export class Sudoku {
             )
         }
         this.notes.unshift(`<div class="consideration">Values in consideration for spot ${this.activeSpot()}: ${valueOptions.join(',')}</div>`)        
-        this.notes.unshift('<br>') 
+        this.notes.unshift('') 
     }
 
     private setUpPlaceStep() {
@@ -448,20 +446,26 @@ export class Sudoku {
 
     currentStepString() {
         let string = ''
-        if (!this.activeSpot()) {
-            string += `Thinking!!!.<br>`
+        if (this.step.stepType === "endStep") {
+            return 
         } else {
             const sectionIndex = this.currentSectionIndex()
             if (this.step.stepType === "setUpBlanks") {
-                this.notes.unshift(`<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}.</div> <br>`)
+                this.notes.unshift(`<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}.</div> `)
             } else if (this.step.stepType === "place") {
-                this.notes.unshift(`<div class="place">Placing ${this.value(this.activeSpot())} in ${this.activeSpot()}.</div> <br>`)
+                this.notes.unshift(`<div class="place">Placing ${this.value(this.activeSpot())} in ${this.activeSpot()}.</div> `)
             } else if (this.step.stepType === "remove") {
-                this.notes.unshift(`<div class="remove-note">Removing ${this.value(this.activeSpot())}s from ${this.activeType()} ${sectionIndex}.</div> <br>`)
+                this.notes.unshift(`<div class="remove-note">Removing ${this.value(this.activeSpot())}s from ${this.activeType()} ${sectionIndex}.</div>`)
             }
         }
 
-        string += this.notes.join("")
+        if (!this.notes.length) {
+            string += `<div>Thinking!!!</div>`
+        }
+
+        string += `<div class="step-text">${this.notes.join("")}</div>`
+
+        this.notes = []
 
         return string
     }

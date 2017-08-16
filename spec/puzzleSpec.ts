@@ -1244,7 +1244,7 @@ describe('sudoku board', () => {
                     "78":[1,3,7],
                     "79":[1,9],
                     "80":[1,3,5,7,9]}
-            }
+                }
             )
             it("if in setupBlanks runs out of steps moves to sectionSingle", () => {
                 sudoku.takeStep()
@@ -1420,14 +1420,6 @@ describe('sudoku board', () => {
                     "valuesToPlace": { }
                 })
             })
-
-            xit("looks for singles in rows")
-
-            xit("looks for singles in columns")
-
-            xit("looks for singles in squares")
-
-            xit("handles multiple values to place")
         })
     })
 
