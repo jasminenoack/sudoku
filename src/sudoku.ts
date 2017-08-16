@@ -1,7 +1,7 @@
-import { easyPuzzle1 } from './puzzles'
+import { easy1 } from './puzzles'
 
 type sectionType = 'row' | 'column' | 'square'
-type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle"
+type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle" | "sectionSingle"
 type stepPhase = "showActive" | "showCompare" | "place" | "remove" | "checkSingle" | "search"
 
 interface step {
@@ -11,7 +11,8 @@ interface step {
     stepIndexes: string[],
     stepValues: number[],
     stepValuesToRemove: number[], 
-    stepSpotsToRemoveFrom?: number[]
+    stepSpotsToRemoveFrom?: number[],
+    valuesToPlace?: {[key: number]: number}
 }
 
 export class Sudoku {
@@ -25,7 +26,7 @@ export class Sudoku {
     private notes: string[] = []
     public grid: number[]
 
-    constructor(grid: number[] = easyPuzzle1) {
+    constructor(grid: number[] = easy1) {
         this.grid = grid.slice()
         this.numbers = Math.sqrt(grid.length)
         this.setGivens()
@@ -40,15 +41,19 @@ export class Sudoku {
     takeStep() {
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
-                return
+                this.setUpSectionSingle()
+                this.sectionSingleFindActives()
+            } else {
+                this.processBlanksStep()
             }
-            this.processBlanksStep()
         } else if (this.step.stepType === "place") {
             this.processPlaceStep()
         } else if (this.step.stepType === "remove") {
             this.processRemoveStep()
         } else if (this.step.stepType === "findSingle") {
             this.processFindSingle()
+        } else if (this.step.stepType === "sectionSingle") {
+            this.processSectionSingle()
         }
     }
 
@@ -84,6 +89,37 @@ export class Sudoku {
         this.notes.unshift(`<div class="search-failure">Can't find any single elements. Going back to checking cells.</div><br>`)
     }
 
+    processSectionSingle() {
+        if (Object.keys(this.step.valuesToPlace).length) {
+            this.placeFromValuesToPlace()
+        } else if (this.activePhase() === "showActive") {
+            // move into the show active for remove row
+            this.nextSectionSingle()
+            this.sectionSingleFindActives()
+        }
+    }
+
+    sectionSingleFindActives() {
+        const indexes = this.getIndexes(this.activeType(), this.step.stepValues[0])
+        const locations: {[key: number]: number[]} = {}
+        indexes.forEach((index) => {
+            if (this.blanks[index]) {
+                const values = this.blanks[index]
+                values.forEach((value) => {
+                    const valueIndexes = locations[value] = (locations[value] || [])
+                    valueIndexes.push(index)
+                })
+            }
+        })
+        Object.keys(locations).forEach((value) => {
+            const indexes = locations[+value]
+            if (indexes.length === 1) {
+                const index = indexes[0]
+                this.step.valuesToPlace[+index] = +value
+            }
+        })
+    }
+
     showRemoveActive() {
         this.setUpRemoveStep()
         const indexes = this.getIndexes(this.activeType(), this.currentSectionIndex())
@@ -108,8 +144,25 @@ export class Sudoku {
             this.step.stepSections.shift()
         }
         if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace()
+                return
+            }
             this.setUpSearch()
         }
+    }
+
+    placeFromValuesToPlace () {
+        const index = +Object.keys(this.step.valuesToPlace)[0]
+        const value = this.step.valuesToPlace[index]
+        delete this.step.valuesToPlace[index]
+        this.step.stepIndexes.shift()
+        this.step.stepValues.shift()
+        this.setValueToCell(index, value)
+        const type = this.activeType()
+        const types = this.step.stepSections
+        const typeIndex = types.indexOf(type)
+        types.splice(typeIndex, 1)
     }
 
     completeRemoveActive() {
@@ -125,6 +178,10 @@ export class Sudoku {
         this.step.stepSections.shift()
 
         if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace()
+                return
+            }
             this.setUpSearch()
         }
     }
@@ -468,5 +525,17 @@ export class Sudoku {
 
     public getToRemove() {
         return this.step.stepValuesToRemove
+    }
+
+    private setUpSectionSingle() {
+        this.step.stepSections = this.typePattern.slice()
+        this.step.valuesToPlace = {}
+        this.step.stepPhases = ['showActive']
+        this.step.stepType = "sectionSingle"
+        this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    }
+
+    private nextSectionSingle() {
+        this.step.stepValues.shift()
     }
 }

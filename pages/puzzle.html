@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Solve Example</title>
+    <link rel="stylesheet" href="../blaze.css">
+    <link rel="stylesheet" href="../index.css">
+</head>
+
+<body>
+    <h1 class="c-heading">Solve Example: <span id="puzzle-name"></span></h1>
+    <a href="../index.html">Index</a>
+    <div class="o-container o-container--medium">
+        <div>
+            <button id="take-step" class="c-button c-button--info">Step</button>
+            <button id="auto-step" class="c-button c-button--info">Auto</button>
+        </div>
+        <div id="board"></div>
+        <div id="step"></div>
+    </div>
+    <script src="../bundle.js"></script>
+
+    <script>
+        var board = window.location.search.split("p=")[1].split("&")[0] || "easy1"
+        document.getElementById("puzzle-name").innerText = board
+        gameUtils.setUp(board)
+    </script>
+</body>
+
+</html>

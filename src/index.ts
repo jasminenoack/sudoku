@@ -1,17 +1,11 @@
 import {Sudoku} from './sudoku';
-import { easyPuzzle1, easyPuzzle2, medium1 } from '../src/puzzles'
+import * as boards from '../src/puzzles'
 
 const numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
 ]
 
 let interval: any
-
-const boards: {[key: string]: number[]} = {
-    "easy1": easyPuzzle1,
-    "easy2": easyPuzzle2,
-    "medium1": medium1,
-}
 
 class GameUtils {
     public static sudoku: Sudoku

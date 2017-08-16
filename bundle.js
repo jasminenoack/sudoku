@@ -71,16 +71,11 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var sudoku_1 = __webpack_require__(2);
-var puzzles_1 = __webpack_require__(1);
+var boards = __webpack_require__(1);
 var numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
 ];
 var interval;
-var boards = {
-    "easy1": puzzles_1.easyPuzzle1,
-    "easy2": puzzles_1.easyPuzzle2,
-    "medium1": puzzles_1.medium1,
-};
 var GameUtils = (function () {
     function GameUtils() {
     }
@@ -208,7 +203,7 @@ window.gameUtils = GameUtils;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.easyPuzzle1 = [
+exports.easy1 = [
     3, 7, 4, 0, 0, 6, 0, 0, 5,
     0, 0, 5, 8, 0, 9, 0, 0, 4,
     0, 9, 8, 0, 7, 5, 1, 0, 0,
@@ -219,7 +214,7 @@ exports.easyPuzzle1 = [
     0, 0, 0, 0, 9, 0, 0, 4, 2,
     4, 0, 7, 0, 6, 0, 3, 0, 0
 ];
-exports.easyPuzzle2 = [
+exports.easy2 = [
     5, 0, 0, 0, 0, 7, 9, 3, 8,
     2, 0, 9, 4, 3, 0, 0, 0, 7,
     1, 0, 0, 6, 9, 8, 0, 5, 0,
@@ -249,6 +244,28 @@ exports.medium1 = [
     0, 0, 0, 0, 2, 0, 8, 6, 0,
     0, 2, 0, 0, 0, 4, 0, 0, 0,
 ];
+exports.medium2 = [
+    0, 1, 0, 0, 0, 0, 6, 0, 0,
+    0, 7, 8, 6, 0, 0, 0, 0, 0,
+    4, 0, 0, 0, 2, 0, 5, 0, 0,
+    0, 0, 5, 0, 0, 3, 2, 0, 0,
+    0, 0, 0, 0, 5, 0, 1, 0, 0,
+    0, 4, 9, 0, 7, 2, 0, 0, 0,
+    0, 0, 0, 0, 0, 5, 0, 1, 0,
+    0, 0, 0, 0, 3, 4, 9, 0, 6,
+    8, 0, 0, 0, 0, 1, 0, 0, 3,
+];
+exports.hard1 = [
+    0, 2, 0, 8, 6, 0, 0, 7, 4,
+    0, 0, 0, 4, 0, 0, 0, 2, 0,
+    0, 0, 3, 0, 1, 0, 0, 9, 0,
+    0, 0, 0, 7, 0, 0, 0, 0, 9,
+    4, 0, 1, 0, 3, 2, 0, 8, 6,
+    0, 9, 0, 0, 0, 0, 0, 0, 0,
+    9, 0, 0, 0, 0, 0, 0, 0, 5,
+    0, 8, 0, 3, 0, 0, 0, 0, 0,
+    0, 3, 7, 0, 0, 0, 0, 0, 0,
+];
 
 
 /***/ }),
@@ -261,7 +278,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(1);
 var Sudoku = (function () {
     function Sudoku(grid) {
-        if (grid === void 0) { grid = puzzles_1.easyPuzzle1; }
+        if (grid === void 0) { grid = puzzles_1.easy1; }
         this.numbers = 9;
         this.givens = [];
         this.typePattern = ['row', 'column', 'square'];
@@ -280,9 +297,12 @@ var Sudoku = (function () {
     Sudoku.prototype.takeStep = function () {
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
-                return;
+                this.setUpSectionSingle();
+                this.sectionSingleFindActives();
             }
-            this.processBlanksStep();
+            else {
+                this.processBlanksStep();
+            }
         }
         else if (this.step.stepType === "place") {
             this.processPlaceStep();
@@ -292,6 +312,9 @@ var Sudoku = (function () {
         }
         else if (this.step.stepType === "findSingle") {
             this.processFindSingle();
+        }
+        else if (this.step.stepType === "sectionSingle") {
+            this.processSectionSingle();
         }
     };
     Sudoku.prototype.processRemoveStep = function () {
@@ -322,6 +345,37 @@ var Sudoku = (function () {
         this.setUpBlankStepDefaults();
         this.notes.unshift("<div class=\"search-failure\">Can't find any single elements. Going back to checking cells.</div><br>");
     };
+    Sudoku.prototype.processSectionSingle = function () {
+        if (Object.keys(this.step.valuesToPlace).length) {
+            this.placeFromValuesToPlace();
+        }
+        else if (this.activePhase() === "showActive") {
+            // move into the show active for remove row
+            this.nextSectionSingle();
+            this.sectionSingleFindActives();
+        }
+    };
+    Sudoku.prototype.sectionSingleFindActives = function () {
+        var _this = this;
+        var indexes = this.getIndexes(this.activeType(), this.step.stepValues[0]);
+        var locations = {};
+        indexes.forEach(function (index) {
+            if (_this.blanks[index]) {
+                var values = _this.blanks[index];
+                values.forEach(function (value) {
+                    var valueIndexes = locations[value] = (locations[value] || []);
+                    valueIndexes.push(index);
+                });
+            }
+        });
+        Object.keys(locations).forEach(function (value) {
+            var indexes = locations[+value];
+            if (indexes.length === 1) {
+                var index = indexes[0];
+                _this.step.valuesToPlace[+index] = +value;
+            }
+        });
+    };
     Sudoku.prototype.showRemoveActive = function () {
         var _this = this;
         this.setUpRemoveStep();
@@ -342,8 +396,24 @@ var Sudoku = (function () {
             this.step.stepSections.shift();
         }
         if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace();
+                return;
+            }
             this.setUpSearch();
         }
+    };
+    Sudoku.prototype.placeFromValuesToPlace = function () {
+        var index = +Object.keys(this.step.valuesToPlace)[0];
+        var value = this.step.valuesToPlace[index];
+        delete this.step.valuesToPlace[index];
+        this.step.stepIndexes.shift();
+        this.step.stepValues.shift();
+        this.setValueToCell(index, value);
+        var type = this.activeType();
+        var types = this.step.stepSections;
+        var typeIndex = types.indexOf(type);
+        types.splice(typeIndex, 1);
     };
     Sudoku.prototype.completeRemoveActive = function () {
         var _this = this;
@@ -358,6 +428,10 @@ var Sudoku = (function () {
         this.step.stepPhases.shift();
         this.step.stepSections.shift();
         if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace();
+                return;
+            }
             this.setUpSearch();
         }
     };
@@ -668,6 +742,16 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.getToRemove = function () {
         return this.step.stepValuesToRemove;
+    };
+    Sudoku.prototype.setUpSectionSingle = function () {
+        this.step.stepSections = this.typePattern.slice();
+        this.step.valuesToPlace = {};
+        this.step.stepPhases = ['showActive'];
+        this.step.stepType = "sectionSingle";
+        this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    };
+    Sudoku.prototype.nextSectionSingle = function () {
+        this.step.stepValues.shift();
     };
     return Sudoku;
 }());
