@@ -1,7 +1,7 @@
 import { easy1 } from './puzzles'
 
 type sectionType = 'row' | 'column' | 'square'
-type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle" | "sectionSingle"
+type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle" | "sectionSingle" | "endStep"
 type stepPhase = "showActive" | "showCompare" | "place" | "remove" | "checkSingle" | "search"
 
 interface step {
@@ -39,6 +39,7 @@ export class Sudoku {
     }
 
     takeStep() {
+        console.log(this.step.stepType)
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
                 this.setUpSectionSingle()
@@ -95,7 +96,11 @@ export class Sudoku {
         } else if (this.activePhase() === "showActive") {
             // move into the show active for remove row
             this.nextSectionSingle()
-            this.sectionSingleFindActives()
+            if (this.step.stepType === "sectionSingle") {
+                this.sectionSingleFindActives()
+            } else {
+                this.takeStep()
+            }
         }
     }
 
@@ -111,13 +116,22 @@ export class Sudoku {
                 })
             }
         })
+        const stepType = this.activeType()
+        const stepSection = this.step.stepValues[0]
+        this.notes.unshift('<br>')
         Object.keys(locations).forEach((value) => {
             const indexes = locations[+value]
             if (indexes.length === 1) {
                 const index = indexes[0]
                 this.step.valuesToPlace[+index] = +value
+                this.notes.unshift(
+                    `<div class="section-single">Found single ${value} at index ${index}</div>`
+                )
             }
         })
+        this.notes.unshift(
+            `<div class="section-single">Looking for single occurrences in ${stepType} ${stepSection}.</div>`
+        )
     }
 
     showRemoveActive() {
@@ -435,15 +449,15 @@ export class Sudoku {
     currentStepString() {
         let string = ''
         if (!this.activeSpot()) {
-            string += `I have finished all the logic I know.`
+            string += `Thinking!!!.<br>`
         } else {
             const sectionIndex = this.currentSectionIndex()
             if (this.step.stepType === "setUpBlanks") {
-                string += `<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}.</div> <br>`
+                this.notes.unshift(`<div class="current-step">Comparing spot @ ${this.activeSpot()} with ${this.activeType()} ${sectionIndex}.</div> <br>`)
             } else if (this.step.stepType === "place") {
-                string += `<div class="place">Placing ${this.value(this.activeSpot())} in ${this.activeSpot()}.</div> <br>`
+                this.notes.unshift(`<div class="place">Placing ${this.value(this.activeSpot())} in ${this.activeSpot()}.</div> <br>`)
             } else if (this.step.stepType === "remove") {
-                string += `<div class="remove-note">Removing ${this.value(this.activeSpot())}s from ${this.activeType()} ${sectionIndex}.</div> <br>`
+                this.notes.unshift(`<div class="remove-note">Removing ${this.value(this.activeSpot())}s from ${this.activeType()} ${sectionIndex}.</div> <br>`)
             }
         }
 
@@ -453,6 +467,9 @@ export class Sudoku {
     }
 
     currentSectionIndex() {
+        if (this.step.stepType === "sectionSingle") {
+            return this.step.stepValues[0]
+        }
         return this.findSectionIndex(this.activeType(), this.activeSpot())
     }
 
@@ -527,15 +544,26 @@ export class Sudoku {
         return this.step.stepValuesToRemove
     }
 
+    private setStepValueIndexes() {
+        this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    }
+
     private setUpSectionSingle() {
         this.step.stepSections = this.typePattern.slice()
         this.step.valuesToPlace = {}
         this.step.stepPhases = ['showActive']
         this.step.stepType = "sectionSingle"
-        this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        this.setStepValueIndexes()
     }
 
     private nextSectionSingle() {
         this.step.stepValues.shift()
+        if (!this.step.stepValues.length) {
+            this.step.stepSections.shift()
+            this.setStepValueIndexes()
+        }
+        if (!this.step.stepSections.length) {
+            this.step.stepType = "endStep"
+        }
     }
 }

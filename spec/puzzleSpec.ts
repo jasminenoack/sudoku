@@ -1244,7 +1244,8 @@ describe('sudoku board', () => {
                     "78":[1,3,7],
                     "79":[1,9],
                     "80":[1,3,5,7,9]}
-            })
+            }
+            )
             it("if in setupBlanks runs out of steps moves to sectionSingle", () => {
                 sudoku.takeStep()
                 // step values become active section
