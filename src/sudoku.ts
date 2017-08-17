@@ -172,7 +172,7 @@ export class Sudoku {
         this.step.stepValues.shift()
         this.setValueToCell(index, value)
         const type = this.activeType()
-        const types = this.step.stepSections
+        const types = this.step.stepSections.slice()
         const typeIndex = types.indexOf(type)
         types.splice(typeIndex, 1)
     }
