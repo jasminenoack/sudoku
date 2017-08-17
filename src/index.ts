@@ -110,8 +110,11 @@ class GameUtils {
     private static addStepString(sudoku) {
         const stepEl = document.getElementById("step")
         const div = document.createElement('div')
-        div.innerHTML = sudoku.currentStepString()
-        stepEl.insertBefore(div, stepEl.firstChild);
+        const string = sudoku.currentStepString()
+        if (string){
+            div.innerHTML = string
+            stepEl.insertBefore(div, stepEl.firstChild);
+        }
     }
 }
 

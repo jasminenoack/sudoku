@@ -177,8 +177,11 @@ var GameUtils = (function () {
     GameUtils.addStepString = function (sudoku) {
         var stepEl = document.getElementById("step");
         var div = document.createElement('div');
-        div.innerHTML = sudoku.currentStepString();
-        stepEl.insertBefore(div, stepEl.firstChild);
+        var string = sudoku.currentStepString();
+        if (string) {
+            div.innerHTML = string;
+            stepEl.insertBefore(div, stepEl.firstChild);
+        }
     };
     return GameUtils;
 }());
