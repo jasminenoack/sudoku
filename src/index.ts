@@ -11,11 +11,11 @@ class GameUtils {
     public static sudoku: Sudoku
 
     public static drawBoard (id: string, sudoku: Sudoku) {
-        const boardEl = document.getElementById(id)
-        const grid = sudoku.grid 
-        let row = this.createRow()
-        grid.forEach((number, index) => {
-            const el = document.createElement('div')
+        const boardEl: HTMLElement = document.getElementById(id)
+        const grid: number[] = sudoku.grid 
+        let row: HTMLElement = this.createRow()
+        grid.forEach((number: number, index: number) => {
+            const el: HTMLElement = document.createElement('div')
             this.updateSpot(el, index, sudoku)
             row.appendChild(el)
             if ((index + 1) % sudoku.numbers === 0) {
@@ -23,13 +23,13 @@ class GameUtils {
                 row = this.createRow()
             }
         })
-        const stepEl = document.getElementById("step")
+        const stepEl: HTMLElement = document.getElementById("step")
         this.addStepString(sudoku)
     }
 
-    public static setUp(boardChoice = "easy1", id = "board") {
-        const grid: number[] = boards[boardChoice]
-        const sudoku = new Sudoku(grid)
+    public static setUp(boardChoice: string = "easy1", id: string = "board") {
+        const grid: number[] = (boards as any)[boardChoice]
+        const sudoku: Sudoku = new Sudoku(grid)
         this.sudoku = sudoku
         this.drawBoard(id, sudoku)
     }
@@ -55,13 +55,13 @@ class GameUtils {
             
         }
 
-        const number = sudoku.value(index)
+        const number: number = sudoku.value(index)
         if (number) {
             el.innerHTML = number + ''
             el.classList.remove('options')
         } else {
             el.classList.add('options')
-            const options = sudoku.getOptions(index)
+            const options: number[] = sudoku.getOptions(index)
             let toRemove: number[] = []
             if (index === sudoku.activeSpot()) {
                 toRemove = sudoku.getToRemove()
@@ -75,13 +75,13 @@ class GameUtils {
     private static addOptionsToEl(el: HTMLElement, options: number[], toRemove: number[] = []) {
         el.innerHTML = ""
         options.forEach((number) => {
-            const numEl = document.createElement('div')
+            const numEl: HTMLElement = document.createElement('div')
             numEl.classList.add('option')
             numEl.classList.add(numberClasses[number - 1])
             if (toRemove.indexOf(number) !== -1) {
                 numEl.classList.add('to-remove')
             }
-            numEl.innerText = number + ""
+            numEl.innerText = number + "";
             el.appendChild(numEl)
         })
     }
@@ -107,7 +107,7 @@ class GameUtils {
         this.addStepString(sudoku)
     }
 
-    private static addStepString(sudoku) {
+    private static addStepString(sudoku: Sudoku) {
         const stepEl = document.getElementById("step")
         const div = document.createElement('div')
         const string = sudoku.currentStepString()

@@ -1382,7 +1382,7 @@ describe('sudoku board', () => {
 
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
-                    "stepSections":["column","square"],
+                    "stepSections":["row","column"],
                     "stepPhases":["place"],
                     "stepType": "place",
                     "stepIndexes":["61"],
@@ -1397,7 +1397,7 @@ describe('sudoku board', () => {
                 // switch to show active
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
-                    stepSections: ["square"],
+                    stepSections: ["column"],
                     stepPhases: ["showCompare"],
                     stepType: "remove",
                     "stepIndexes":["61"],

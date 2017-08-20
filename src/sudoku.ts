@@ -167,14 +167,16 @@ export class Sudoku {
     placeFromValuesToPlace () {
         const index = +Object.keys(this.step.valuesToPlace)[0]
         const value = this.step.valuesToPlace[index]
+        const type = this.activeType()
+        const types = this.typePattern.slice()
+        const typeIndex = types.indexOf(type)
+        types.splice(typeIndex, 1)
+
         delete this.step.valuesToPlace[index]
         this.step.stepIndexes.shift()
         this.step.stepValues.shift()
         this.setValueToCell(index, value)
-        const type = this.activeType()
-        const types = this.step.stepSections.slice()
-        const typeIndex = types.indexOf(type)
-        types.splice(typeIndex, 1)
+        this.step.stepSections = types
     }
 
     completeRemoveActive() {

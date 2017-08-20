@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,8 +70,91 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.easy1 = [
+    3, 7, 4, 0, 0, 6, 0, 0, 5,
+    0, 0, 5, 8, 0, 9, 0, 0, 4,
+    0, 9, 8, 0, 7, 5, 1, 0, 0,
+    0, 0, 0, 0, 1, 0, 4, 3, 9,
+    7, 0, 0, 9, 0, 0, 0, 5, 0,
+    6, 3, 9, 2, 5, 0, 0, 0, 0,
+    9, 8, 6, 3, 0, 0, 0, 7, 0,
+    0, 0, 0, 0, 9, 0, 0, 4, 2,
+    4, 0, 7, 0, 6, 0, 3, 0, 0
+];
+exports.easy2 = [
+    5, 0, 0, 0, 0, 7, 9, 3, 8,
+    2, 0, 9, 4, 3, 0, 0, 0, 7,
+    1, 0, 0, 6, 9, 8, 0, 5, 0,
+    0, 1, 0, 9, 0, 2, 8, 0, 0,
+    8, 6, 4, 0, 0, 0, 0, 1, 0,
+    0, 0, 0, 8, 0, 6, 5, 0, 3,
+    6, 5, 2, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 7, 9, 0, 0, 5,
+    0, 0, 0, 0, 6, 0, 3, 2, 4
+];
+exports.sixBySix1 = [
+    1, 6, 0, 0, 0, 5,
+    0, 0, 5, 2, 0, 0,
+    5, 0, 0, 0, 3, 0,
+    0, 4, 0, 0, 0, 1,
+    0, 0, 4, 1, 0, 0,
+    3, 0, 0, 0, 5, 4
+];
+exports.medium1 = [
+    0, 0, 9, 0, 0, 0, 0, 5, 8,
+    1, 0, 0, 0, 4, 0, 0, 0, 2,
+    0, 0, 6, 0, 0, 0, 9, 7, 0,
+    0, 0, 0, 1, 0, 0, 2, 0, 0,
+    0, 0, 0, 0, 9, 0, 5, 8, 0,
+    0, 0, 0, 8, 0, 0, 0, 0, 0,
+    5, 7, 0, 0, 1, 6, 0, 0, 0,
+    0, 0, 0, 0, 2, 0, 8, 6, 0,
+    0, 2, 0, 0, 0, 4, 0, 0, 0,
+];
+exports.medium2 = [
+    0, 1, 0, 0, 0, 0, 6, 0, 0,
+    0, 7, 8, 6, 0, 0, 0, 0, 0,
+    4, 0, 0, 0, 2, 0, 5, 0, 0,
+    0, 0, 5, 0, 0, 3, 2, 0, 0,
+    0, 0, 0, 0, 5, 0, 1, 0, 0,
+    0, 4, 9, 0, 7, 2, 0, 0, 0,
+    0, 0, 0, 0, 0, 5, 0, 1, 0,
+    0, 0, 0, 0, 3, 4, 9, 0, 6,
+    8, 0, 0, 0, 0, 1, 0, 0, 3,
+];
+exports.hard1 = [
+    0, 2, 0, 8, 6, 0, 0, 7, 4,
+    0, 0, 0, 4, 0, 0, 0, 2, 0,
+    0, 0, 3, 0, 1, 0, 0, 9, 0,
+    0, 0, 0, 7, 0, 0, 0, 0, 9,
+    4, 0, 1, 0, 3, 2, 0, 8, 6,
+    0, 9, 0, 0, 0, 0, 0, 0, 0,
+    9, 0, 0, 0, 0, 0, 0, 0, 5,
+    0, 8, 0, 3, 0, 0, 0, 0, 0,
+    0, 3, 7, 0, 0, 0, 0, 0, 0,
+];
+exports.hard2 = [
+    0, 0, 0, 6, 0, 0, 3, 0, 0,
+    0, 0, 0, 0, 0, 9, 0, 0, 1,
+    7, 2, 0, 0, 0, 0, 0, 4, 0,
+    0, 0, 4, 0, 0, 0, 0, 0, 8,
+    0, 0, 7, 4, 0, 0, 5, 2, 0,
+    2, 0, 0, 0, 0, 6, 0, 7, 0,
+    8, 0, 0, 0, 1, 0, 6, 0, 0,
+    5, 0, 0, 0, 0, 7, 0, 0, 0,
+    9, 1, 0, 3, 0, 0, 0, 0, 0
+];
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var sudoku_1 = __webpack_require__(2);
-var boards = __webpack_require__(1);
+var boards = __webpack_require__(0);
 var numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
 ];
@@ -205,96 +288,13 @@ window.gameUtils = GameUtils;
 
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.easy1 = [
-    3, 7, 4, 0, 0, 6, 0, 0, 5,
-    0, 0, 5, 8, 0, 9, 0, 0, 4,
-    0, 9, 8, 0, 7, 5, 1, 0, 0,
-    0, 0, 0, 0, 1, 0, 4, 3, 9,
-    7, 0, 0, 9, 0, 0, 0, 5, 0,
-    6, 3, 9, 2, 5, 0, 0, 0, 0,
-    9, 8, 6, 3, 0, 0, 0, 7, 0,
-    0, 0, 0, 0, 9, 0, 0, 4, 2,
-    4, 0, 7, 0, 6, 0, 3, 0, 0
-];
-exports.easy2 = [
-    5, 0, 0, 0, 0, 7, 9, 3, 8,
-    2, 0, 9, 4, 3, 0, 0, 0, 7,
-    1, 0, 0, 6, 9, 8, 0, 5, 0,
-    0, 1, 0, 9, 0, 2, 8, 0, 0,
-    8, 6, 4, 0, 0, 0, 0, 1, 0,
-    0, 0, 0, 8, 0, 6, 5, 0, 3,
-    6, 5, 2, 0, 0, 0, 0, 0, 0,
-    0, 0, 1, 0, 7, 9, 0, 0, 5,
-    0, 0, 0, 0, 6, 0, 3, 2, 4
-];
-exports.sixBySix1 = [
-    1, 6, 0, 0, 0, 5,
-    0, 0, 5, 2, 0, 0,
-    5, 0, 0, 0, 3, 0,
-    0, 4, 0, 0, 0, 1,
-    0, 0, 4, 1, 0, 0,
-    3, 0, 0, 0, 5, 4
-];
-exports.medium1 = [
-    0, 0, 9, 0, 0, 0, 0, 5, 8,
-    1, 0, 0, 0, 4, 0, 0, 0, 2,
-    0, 0, 6, 0, 0, 0, 9, 7, 0,
-    0, 0, 0, 1, 0, 0, 2, 0, 0,
-    0, 0, 0, 0, 9, 0, 5, 8, 0,
-    0, 0, 0, 8, 0, 0, 0, 0, 0,
-    5, 7, 0, 0, 1, 6, 0, 0, 0,
-    0, 0, 0, 0, 2, 0, 8, 6, 0,
-    0, 2, 0, 0, 0, 4, 0, 0, 0,
-];
-exports.medium2 = [
-    0, 1, 0, 0, 0, 0, 6, 0, 0,
-    0, 7, 8, 6, 0, 0, 0, 0, 0,
-    4, 0, 0, 0, 2, 0, 5, 0, 0,
-    0, 0, 5, 0, 0, 3, 2, 0, 0,
-    0, 0, 0, 0, 5, 0, 1, 0, 0,
-    0, 4, 9, 0, 7, 2, 0, 0, 0,
-    0, 0, 0, 0, 0, 5, 0, 1, 0,
-    0, 0, 0, 0, 3, 4, 9, 0, 6,
-    8, 0, 0, 0, 0, 1, 0, 0, 3,
-];
-exports.hard1 = [
-    0, 2, 0, 8, 6, 0, 0, 7, 4,
-    0, 0, 0, 4, 0, 0, 0, 2, 0,
-    0, 0, 3, 0, 1, 0, 0, 9, 0,
-    0, 0, 0, 7, 0, 0, 0, 0, 9,
-    4, 0, 1, 0, 3, 2, 0, 8, 6,
-    0, 9, 0, 0, 0, 0, 0, 0, 0,
-    9, 0, 0, 0, 0, 0, 0, 0, 5,
-    0, 8, 0, 3, 0, 0, 0, 0, 0,
-    0, 3, 7, 0, 0, 0, 0, 0, 0,
-];
-exports.hard2 = [
-    0, 0, 0, 6, 0, 0, 3, 0, 0,
-    0, 0, 0, 0, 0, 9, 0, 0, 1,
-    7, 2, 0, 0, 0, 0, 0, 4, 0,
-    0, 0, 4, 0, 0, 0, 0, 0, 8,
-    0, 0, 7, 4, 0, 0, 5, 2, 0,
-    2, 0, 0, 0, 0, 6, 0, 7, 0,
-    8, 0, 0, 0, 1, 0, 6, 0, 0,
-    5, 0, 0, 0, 0, 7, 0, 0, 0,
-    9, 1, 0, 3, 0, 0, 0, 0, 0
-];
-
-
-/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var puzzles_1 = __webpack_require__(1);
+var puzzles_1 = __webpack_require__(0);
 var Sudoku = (function () {
     function Sudoku(grid) {
         if (grid === void 0) { grid = puzzles_1.easy1; }
@@ -434,14 +434,15 @@ var Sudoku = (function () {
     Sudoku.prototype.placeFromValuesToPlace = function () {
         var index = +Object.keys(this.step.valuesToPlace)[0];
         var value = this.step.valuesToPlace[index];
+        var type = this.activeType();
+        var types = this.typePattern.slice();
+        var typeIndex = types.indexOf(type);
+        types.splice(typeIndex, 1);
         delete this.step.valuesToPlace[index];
         this.step.stepIndexes.shift();
         this.step.stepValues.shift();
         this.setValueToCell(index, value);
-        var type = this.activeType();
-        var types = this.step.stepSections.slice();
-        var typeIndex = types.indexOf(type);
-        types.splice(typeIndex, 1);
+        this.step.stepSections = types;
     };
     Sudoku.prototype.completeRemoveActive = function () {
         var _this = this;
