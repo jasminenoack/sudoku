@@ -431,7 +431,11 @@ export class Sudoku {
     }
 
     valuesInSection(type: sectionType, section: number) {
-        const indexes = this.getIndexes(type, section)
+        const indexes = this.getIndexes(type, section)  
+        return this.valuesByIndex(indexes)
+    }
+
+    private valuesByIndex(indexes: number[]) {
         let values: number[] = []
         indexes.forEach((index) => {
             if (this.value(index)) {
@@ -577,15 +581,45 @@ export class Sudoku {
         }
     }
 
+    private getOptionsByIndex(indexes: number[]) {
+        const values: {[key: number]: number} = {}
+        indexes.forEach((index) => {
+            const options = this.blanks[index]
+            if (options) {
+                options.forEach((option) => {
+                    values[option] = option
+                })
+            }
+        })
+        return (Object as any).values(values).sort()
+    }
+
+    private getOptionsOrderedSubSections(indexes: number[]): number[][] {
+        const valueSets = [
+            this.getOptionsByIndex(indexes.slice(0, 3)),
+            this.getOptionsByIndex(indexes.slice(3, 6)),
+            this.getOptionsByIndex(indexes.slice(6, 9))
+        ]
+        return valueSets
+    }
+
     numbersInSquareParts(section: number): {[key: string]: number[][]} {
-        return {}
+        const indexes = this.getIndexes('row', section)  
+        return {
+            rows: this.getOptionsOrderedSubSections(indexes),
+            columns: [
+                this.getOptionsByIndex([indexes[0], indexes[3], indexes[6]]),
+                this.getOptionsByIndex([indexes[1], indexes[4], indexes[7]]),
+                this.getOptionsByIndex([indexes[2], indexes[5], indexes[8]]),
+            ] 
+        }
     }
 
     numbersInRowParts(section: number): number[][] {
-        return [[]]
+        return this.getOptionsOrderedSubSections(this.getIndexes('row', section))
     }
 
     numbersInColumnParts(section: number): number[][] {
-        return [[]]
+        return this.getOptionsOrderedSubSections(this.getIndexes('column', section))
     }
 }

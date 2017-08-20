@@ -670,8 +670,11 @@ var Sudoku = (function () {
         return indexes;
     };
     Sudoku.prototype.valuesInSection = function (type, section) {
-        var _this = this;
         var indexes = this.getIndexes(type, section);
+        return this.valuesByIndex(indexes);
+    };
+    Sudoku.prototype.valuesByIndex = function (indexes) {
+        var _this = this;
         var values = [];
         indexes.forEach(function (index) {
             if (_this.value(index)) {
@@ -803,14 +806,43 @@ var Sudoku = (function () {
             this.step.stepType = "endStep";
         }
     };
+    Sudoku.prototype.getOptionsByIndex = function (indexes) {
+        var _this = this;
+        var values = {};
+        indexes.forEach(function (index) {
+            var options = _this.blanks[index];
+            if (options) {
+                options.forEach(function (option) {
+                    values[option] = option;
+                });
+            }
+        });
+        return Object.values(values).sort();
+    };
+    Sudoku.prototype.getOptionsOrderedSubSections = function (indexes) {
+        var valueSets = [
+            this.getOptionsByIndex(indexes.slice(0, 3)),
+            this.getOptionsByIndex(indexes.slice(3, 6)),
+            this.getOptionsByIndex(indexes.slice(6, 9))
+        ];
+        return valueSets;
+    };
     Sudoku.prototype.numbersInSquareParts = function (section) {
-        return {};
+        var indexes = this.getIndexes('row', section);
+        return {
+            rows: this.getOptionsOrderedSubSections(indexes),
+            columns: [
+                this.getOptionsByIndex([indexes[0], indexes[3], indexes[6]]),
+                this.getOptionsByIndex([indexes[1], indexes[4], indexes[7]]),
+                this.getOptionsByIndex([indexes[2], indexes[5], indexes[8]]),
+            ]
+        };
     };
     Sudoku.prototype.numbersInRowParts = function (section) {
-        return [[]];
+        return this.getOptionsOrderedSubSections(this.getIndexes('row', section));
     };
     Sudoku.prototype.numbersInColumnParts = function (section) {
-        return [[]];
+        return this.getOptionsOrderedSubSections(this.getIndexes('column', section));
     };
     return Sudoku;
 }());

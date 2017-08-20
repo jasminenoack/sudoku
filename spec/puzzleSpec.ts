@@ -1486,8 +1486,8 @@ describe('sudoku board', () => {
             expect(sudoku.numbersInSquareParts(0)).toEqual({
                 rows: [
                     [1, 3, 4, 5, 6, 8],
-                    [1, 2, 6, 7, 9],
-                    [1, 2, 6]
+                    [1, 2, 4, 7, 9],
+                    [2, 3, 4, 8]
                 ],
                 columns: [
                     [1, 2, 4],
