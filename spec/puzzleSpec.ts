@@ -1906,45 +1906,6 @@ describe('sudoku board', () => {
             sudoku.takeStep()
             expect(sudoku.step).toEqual({
                 "stepSections": [],
-                "stepPhases": ["processSection"],
-                "stepType": "processFoundSubsections",
-                "stepIndexes": [],
-                "stepValues": [],
-                "stepValuesToRemove": [],
-                "stepSpotsToRemoveFrom": [10],
-                "valuesToPlace": {},
-                "stepSubsectionsToProcess": [
-                    { "indexesToCompare": [36, 37, 38, 45, 46, 47], "indexesToIgnore": [27, 28, 29], "numbersToRemove": [8] },
-                    { "indexesToCompare": [69, 70, 71, 78, 79, 80], "indexesToIgnore": [60, 61, 62], "numbersToRemove": [4] },
-                    { "indexesToCompare": [28, 29, 37, 38, 46, 47], "indexesToIgnore": [27, 36, 45], "numbersToRemove": [7] },
-                    { "indexesToCompare": [27, 29, 36, 38, 45, 47], "indexesToIgnore": [28, 37, 46], "numbersToRemove": [6] },
-                    { "indexesToCompare": [27, 28, 36, 37, 45, 46], "indexesToIgnore": [29, 38, 47], "numbersToRemove": [2, 5] },
-                    { "indexesToCompare": [58, 59, 67, 68, 76, 77], "indexesToIgnore": [57, 66, 75], "numbersToRemove": [3, 7] },
-                    { "indexesToCompare": [30, 32, 39, 41, 48, 50], "indexesToIgnore": [31, 40, 49], "numbersToRemove": [6] },
-                    { "indexesToCompare": [3, 4, 12, 13, 21, 22], "indexesToIgnore": [5, 14, 23], "numbersToRemove": [1, 8] },
-                    { "indexesToCompare": [30, 31, 39, 40, 48, 49], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
-                    { "indexesToCompare": [33, 35, 42, 44, 51, 53], "indexesToIgnore": [34, 43, 52], "numbersToRemove": [4] },
-                    { "indexesToCompare": [33, 34, 42, 43, 51, 52], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
-                    { "indexesToCompare": [60, 61, 69, 70, 78, 79], "indexesToIgnore": [62, 71, 80], "numbersToRemove": [5] },
-                    { "indexesToCompare": [28, 37, 46, 55, 64, 73], "indexesToIgnore": [1, 10, 19], "numbersToRemove": [5] },
-                    { "indexesToCompare": [0, 1, 2, 6, 7, 8], "indexesToIgnore": [3, 4, 5], "numbersToRemove": [7] },
-                    { "indexesToCompare": [9, 10, 11, 15, 16, 17], "indexesToIgnore": [12, 13, 14], "numbersToRemove": [9] },
-                    { "indexesToCompare": [32, 41, 50, 59, 68, 77], "indexesToIgnore": [5, 14, 23], "numbersToRemove": [1, 8] },
-                    { "indexesToCompare": [30, 31, 32, 33, 34, 35], "indexesToIgnore": [27, 28, 29], "numbersToRemove": [8] },
-                    { "indexesToCompare": [0, 9, 18, 54, 63, 72], "indexesToIgnore": [27, 36, 45], "numbersToRemove": [7] },
-                    { "indexesToCompare": [1, 10, 19, 55, 64, 73], "indexesToIgnore": [28, 37, 46], "numbersToRemove": [6] },
-                    { "indexesToCompare": [2, 11, 20, 56, 65, 74], "indexesToIgnore": [29, 38, 47], "numbersToRemove": [2] },
-                    { "indexesToCompare": [4, 13, 22, 58, 67, 76], "indexesToIgnore": [31, 40, 49], "numbersToRemove": [6] },
-                    { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
-                    { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
-                    { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
-                ]
-            })
-            // remove 8
-            sudoku.takeStep()
-            expect(sudoku.step).toEqual({
-                "stepSections": [],
                 "stepPhases": ["showActive", "processSection"],
                 "stepType": "processFoundSubsections",
                 "stepIndexes": [],
@@ -1979,8 +1940,6 @@ describe('sudoku board', () => {
                     { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
-            expect(sudoku.blanks[10]).toEqual([5])
-
             sudoku.takeStep()
             expect(sudoku.step).toEqual({
                 "stepSections": [],
@@ -2019,9 +1978,9 @@ describe('sudoku board', () => {
                 ]
             })
 
-            expect(sudoku.blanks[71]).toEqual([3, 9])
-
             sudoku.takeStep()
+            expect(sudoku.blanks[71]).toEqual([1, 3, 5, 7, 9])
+
             expect(sudoku.step).toEqual({
                 "stepSections": [],
                 "stepPhases": ["showActive", "processSection"],
