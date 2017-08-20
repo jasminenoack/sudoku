@@ -207,6 +207,13 @@ var GameUtils = (function () {
         else {
             el.classList.remove('current-node');
         }
+        var indexesFlagged = sudoku.indexesWithSpecialValues();
+        if (indexesFlagged.indexOf(index) !== -1) {
+            el.classList.add('flagged');
+        }
+        else {
+            el.classList.remove('flagged');
+        }
         var number = sudoku.value(index);
         if (number) {
             el.innerHTML = number + '';
@@ -281,7 +288,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 300);
+        interval = setInterval(func, 100);
     }
 });
 window.gameUtils = GameUtils;
@@ -308,12 +315,28 @@ var Sudoku = (function () {
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
         this.setUpNewSection();
+        // TODO remove
+        // this.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
+        // this.step = {
+        //     "stepSections": ["square"],
+        //     "stepPhases": ["showActive"],
+        //     "stepType": "sectionSingle",
+        //     "stepIndexes": [],
+        //     "stepValues": [8],
+        //     "stepValuesToRemove": [],
+        //     "stepSpotsToRemoveFrom": [],
+        //     "valuesToPlace": {}
+        // }
+        // this.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
     }
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
         this.setUpBlankStep();
     };
     Sudoku.prototype.takeStep = function () {
+        if (this.grid.indexOf(0) === -1) {
+            return;
+        }
         if (this.step.stepType === "setUpBlanks") {
             if (!this.step.stepIndexes.length) {
                 this.setUpSectionSingle();
@@ -334,6 +357,35 @@ var Sudoku = (function () {
         }
         else if (this.step.stepType === "sectionSingle") {
             this.processSectionSingle();
+        }
+        else if (this.step.stepType === "subsectionOptionSets") {
+            this.processSubsectionStep();
+        }
+    };
+    Sudoku.prototype.setupSubsectionOptions = function () {
+        this.step.stepSections = this.typePattern.slice();
+        this.step.stepPhases = ["processSection"];
+        this.step.stepSubsectionsToProcess = [];
+        this.setStepValueIndexes();
+    };
+    Sudoku.prototype.processSubsectionStep = function () {
+        var _this = this;
+        var findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0]);
+        findings.forEach(function (finding) {
+            _this.notes.push("<div class=\"found\">Found values: " + finding.numbersToRemove + " only in indexes " + finding.indexesToIgnore + " in " + _this.activeType() + " " + _this.step.stepValues[0] + " they are listed for processing.</div>");
+        });
+        this.step.stepSubsectionsToProcess = this.step.stepSubsectionsToProcess.concat(findings);
+        this.notes.push("<div class=\"found\">Has " + this.step.stepSubsectionsToProcess.length + " listed to process.</div>");
+        this.step.stepValues.shift();
+        if (!this.step.stepValues.length) {
+            this.step.stepSections.shift();
+            this.setStepValueIndexes();
+        }
+        if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
+            this.step.stepType = "processFoundSubsections";
+        }
+        else if (!this.step.stepSections.length) {
+            this.step.stepType = "endStep";
         }
     };
     Sudoku.prototype.processRemoveStep = function () {
@@ -373,9 +425,6 @@ var Sudoku = (function () {
             this.nextSectionSingle();
             if (this.step.stepType === "sectionSingle") {
                 this.sectionSingleFindActives();
-            }
-            else {
-                this.takeStep();
             }
         }
     };
@@ -692,7 +741,7 @@ var Sudoku = (function () {
     };
     Sudoku.prototype.currentStepString = function () {
         var string = '';
-        if (this.step.stepType === "endStep") {
+        if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
             return;
         }
         else {
@@ -715,7 +764,7 @@ var Sudoku = (function () {
         return string;
     };
     Sudoku.prototype.currentSectionIndex = function () {
-        if (this.step.stepType === "sectionSingle") {
+        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
             return this.step.stepValues[0];
         }
         return this.findSectionIndex(this.activeType(), this.activeSpot());
@@ -803,7 +852,8 @@ var Sudoku = (function () {
             this.setStepValueIndexes();
         }
         if (!this.step.stepSections.length) {
-            this.step.stepType = "endStep";
+            this.step.stepType = "subsectionOptionSets";
+            this.setupSubsectionOptions();
         }
     };
     Sudoku.prototype.getOptionsByIndex = function (indexes) {
@@ -819,14 +869,6 @@ var Sudoku = (function () {
         });
         return Object.values(values).sort();
     };
-    // private getOptionsOrderedSubSections(indexSets: number[][]): number[][] {
-    //     const valueSets = [
-    //         this.getOptionsByIndex(indexSets[0]),
-    //         this.getOptionsByIndex(indexSets[1]),
-    //         this.getOptionsByIndex(indexSets[2])
-    //     ]
-    //     return valueSets
-    // }
     Sudoku.prototype.getInOrderSubsectionSequences = function (indexes) {
         return [
             indexes.slice(0, 3),
@@ -932,6 +974,17 @@ var Sudoku = (function () {
             output = this.determineValueChangesBasedOnFindings(findings);
         }
         return output;
+    };
+    Sudoku.prototype.indexesWithSpecialValues = function () {
+        var findings = this.step.stepSubsectionsToProcess;
+        if (findings) {
+            var result_1 = [];
+            findings.forEach(function (finding) {
+                result_1 = result_1.concat(finding.indexesToIgnore);
+            });
+            return result_1;
+        }
+        return [];
     };
     return Sudoku;
 }());

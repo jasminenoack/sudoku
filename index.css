@@ -62,6 +62,10 @@ div.row:nth-child(3n) {
     background: YellowGreen;
 }
 
+.flagged {
+    background: lightcoral;
+}
+
 .square {
     color: mediumblue;
 }

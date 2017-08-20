@@ -1611,5 +1611,129 @@ describe('sudoku board', () => {
                 },
             ])
         })
+
+        it('determines indexes with special values', () => {
+            sudoku.step.stepSubsectionsToProcess = [
+                {
+                    indexesToIgnore: [0, 1, 2],
+                    indexesToCompare: [3, 4, 5, 6, 7, 8],
+                    numbersToRemove: [1, 3, 4, 5, 6, 8],
+                }, {
+                    indexesToIgnore: [9, 10, 11],
+                    indexesToCompare: [12, 13, 14, 15, 16, 17],
+                    numbersToRemove: [1, 2, 6, 7, 9],
+                }, {
+                    indexesToIgnore: [18, 19, 20],
+                    indexesToCompare: [21, 22, 23, 24, 25, 26],
+                    numbersToRemove: [1, 2, 6]
+                },
+            ]
+
+            expect(sudoku.indexesWithSpecialValues()).toEqual(
+                [0, 1, 2, 9, 10, 11, 18, 19, 20]
+            )
+        })
+    })
+
+    describe('step steps with value diff', () => {
+        beforeEach(() => {
+            sudoku.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
+            sudoku.step = { 
+                "stepSections": ["square"], 
+                "stepPhases": ["showActive"], 
+                "stepType": "sectionSingle", 
+                "stepIndexes": [], 
+                "stepValues": [8], 
+                "stepValuesToRemove": [], 
+                "stepSpotsToRemoveFrom": [], 
+                "valuesToPlace": {} 
+            }
+            sudoku.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
+        })
+
+        it('moves into subsection step', () => {
+            sudoku.takeStep()
+            expect(sudoku.step).toEqual({ 
+                "stepSections": ["row", "column", "square"], 
+                "stepPhases": ["processSection"], 
+                "stepType": "subsectionOptionSets", 
+                "stepIndexes": [], 
+                "stepValues": [0, 1, 2, 3, 4, 5, 6, 7, 8], 
+                "stepValuesToRemove": [], 
+                "stepSpotsToRemoveFrom": [], 
+                "valuesToPlace": {} ,
+                "stepSubsectionsToProcess": []
+            })
+        })
+
+        it('does active phase of subsection steps', () => {
+            sudoku.takeStep()
+            sudoku.takeStep()
+            expect(sudoku.step).toEqual({
+                "stepSections": ["row", "column", "square"],
+                "stepPhases": ["processSection"],
+                "stepType": "subsectionOptionSets",
+                "stepIndexes": [],
+                "stepValues": [1, 2, 3, 4, 5, 6, 7, 8],
+                "stepValuesToRemove": [],
+                "stepSpotsToRemoveFrom": [],
+                "valuesToPlace": {},
+                "stepSubsectionsToProcess": [
+                    {
+                        indexesToCompare: [12, 13, 14, 21, 22, 23],
+                        indexesToIgnore: [3, 4, 5],
+                        numbersToRemove: [7],
+                    },
+                ]
+            })
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+            sudoku.takeStep()
+
+            expect(sudoku.step).toEqual({
+                "stepSections": ["column", "square"],
+                "stepPhases": ["processSection"],
+                "stepType": "subsectionOptionSets",
+                "stepIndexes": [],
+                "stepValues": [2, 3, 4, 5, 6, 7, 8],
+                "stepValuesToRemove": [],
+                "stepSpotsToRemoveFrom": [],
+                "valuesToPlace": {},
+                "stepSubsectionsToProcess": [
+                    {
+                        indexesToCompare: [12, 13, 14, 21, 22, 23],
+                        indexesToIgnore: [3, 4, 5],
+                        numbersToRemove: [7]
+                    }, {
+                        indexesToCompare: [3, 4, 5, 21, 22, 23],
+                        indexesToIgnore: [12, 13, 14],
+                        numbersToRemove: [9]
+                    }, {
+                        indexesToCompare: [36, 37, 38, 45, 46, 47],
+                        indexesToIgnore: [27, 28, 29],
+                        numbersToRemove: [8]
+                    }, {
+                        indexesToCompare: [69, 70, 71, 78, 79, 80],
+                        indexesToIgnore: [60, 61, 62],
+                        numbersToRemove: [4]
+                    }, {
+                        indexesToCompare: [28, 29, 37, 38, 46, 47],
+                        indexesToIgnore: [27, 36, 45],
+                        numbersToRemove: [7]
+                    }, {
+                        indexesToCompare: [27, 29, 36, 38, 45, 47],
+                        indexesToIgnore: [28, 37, 46],
+                        numbersToRemove: [6]
+                    }
+                ] 
+            })
+        })
     })
 })

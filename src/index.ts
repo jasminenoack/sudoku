@@ -52,7 +52,13 @@ class GameUtils {
             el.classList.add('current-node')
         } else {
             el.classList.remove('current-node')
-            
+        }
+
+        const indexesFlagged =  sudoku.indexesWithSpecialValues()
+        if (indexesFlagged.indexOf(index) !== -1) {
+            el.classList.add('flagged')
+        } else {
+            el.classList.remove('flagged')
         }
 
         const number: number = sudoku.value(index)
@@ -131,7 +137,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 300)
+        interval = setInterval(func, 100)
     }
 });
 
