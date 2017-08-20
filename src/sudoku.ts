@@ -34,18 +34,46 @@ export class Sudoku {
         this.setUpNewSection()
 
         // TODO remove
-        // this.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
-        // this.step = {
-        //     "stepSections": ["square"],
-        //     "stepPhases": ["showActive"],
-        //     "stepType": "sectionSingle",
-        //     "stepIndexes": [],
-        //     "stepValues": [8],
-        //     "stepValuesToRemove": [],
-        //     "stepSpotsToRemoveFrom": [],
-        //     "valuesToPlace": {}
-        // }
-        // this.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
+        this.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
+        this.step = { 
+            "stepSections": ["square"], 
+            "stepPhases": ["processSection"], 
+            "stepType": "subsectionOptionSets", 
+            "stepIndexes": [], 
+            "stepValues": [8], 
+            "stepValuesToRemove": [], 
+            "stepSpotsToRemoveFrom": [], 
+            "valuesToPlace": {}, 
+            "stepSubsectionsToProcess": [
+                { "indexesToCompare": [12, 13, 14, 21, 22, 23], "indexesToIgnore": [3, 4, 5], "numbersToRemove": [7] }, 
+                { "indexesToCompare": [3, 4, 5, 21, 22, 23], "indexesToIgnore": [12, 13, 14], "numbersToRemove": [9] }, 
+                { "indexesToCompare": [36, 37, 38, 45, 46, 47], "indexesToIgnore": [27, 28, 29], "numbersToRemove": [8] }, 
+                { "indexesToCompare": [69, 70, 71, 78, 79, 80], "indexesToIgnore": [60, 61, 62], "numbersToRemove": [4] }, 
+                { "indexesToCompare": [28, 29, 37, 38, 46, 47], "indexesToIgnore": [27, 36, 45], "numbersToRemove": [7] }, 
+                { "indexesToCompare": [27, 29, 36, 38, 45, 47], "indexesToIgnore": [28, 37, 46], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [27, 28, 36, 37, 45, 46], "indexesToIgnore": [29, 38, 47], "numbersToRemove": [2, 5] }, 
+                { "indexesToCompare": [58, 59, 67, 68, 76, 77], "indexesToIgnore": [57, 66, 75], "numbersToRemove": [3, 7] }, 
+                { "indexesToCompare": [30, 32, 39, 41, 48, 50], "indexesToIgnore": [31, 40, 49], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [3, 4, 12, 13, 21, 22], "indexesToIgnore": [5, 14, 23], "numbersToRemove": [1, 8] }, 
+                { "indexesToCompare": [30, 31, 39, 40, 48, 49], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] }, 
+                { "indexesToCompare": [33, 35, 42, 44, 51, 53], "indexesToIgnore": [34, 43, 52], "numbersToRemove": [4] }, 
+                { "indexesToCompare": [33, 34, 42, 43, 51, 52], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [60, 61, 69, 70, 78, 79], "indexesToIgnore": [62, 71, 80], "numbersToRemove": [5] }, 
+                { "indexesToCompare": [28, 37, 46, 55, 64, 73], "indexesToIgnore": [1, 10, 19], "numbersToRemove": [5] }, 
+                { "indexesToCompare": [0, 1, 2, 6, 7, 8], "indexesToIgnore": [3, 4, 5], "numbersToRemove": [7] }, 
+                { "indexesToCompare": [9, 10, 11, 15, 16, 17], "indexesToIgnore": [12, 13, 14], "numbersToRemove": [9] }, 
+                { "indexesToCompare": [32, 41, 50, 59, 68, 77], "indexesToIgnore": [5, 14, 23], "numbersToRemove": [1, 8] }, 
+                { "indexesToCompare": [30, 31, 32, 33, 34, 35], "indexesToIgnore": [27, 28, 29], "numbersToRemove": [8] }, 
+                { "indexesToCompare": [0, 9, 18, 54, 63, 72], "indexesToIgnore": [27, 36, 45], "numbersToRemove": [7] }, 
+                { "indexesToCompare": [1, 10, 19, 55, 64, 73], "indexesToIgnore": [28, 37, 46], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [2, 11, 20, 56, 65, 74], "indexesToIgnore": [29, 38, 47], "numbersToRemove": [2] }, 
+                { "indexesToCompare": [4, 13, 22, 58, 67, 76], "indexesToIgnore": [31, 40, 49], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] }, 
+                { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] }, 
+                { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] }
+            ] 
+        }
+        this.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
     }
 
     setUpNewSection() {
@@ -73,7 +101,74 @@ export class Sudoku {
         } else if (this.step.stepType === "sectionSingle") {
             this.processSectionSingle()
         } else if (this.step.stepType === "subsectionOptionSets") {
+            this.subsectionOptionsStep()
+        } else if (this.step.stepType === "processFoundSubsections") {
             this.processSubsectionStep()
+        }
+    }
+
+    processSubsectionStep() {
+        if (this.step.stepPhases[0] === "showActive") {
+            this.processSubsectionActive()
+        } else if (this.step.stepPhases[0] === "processSection") {
+            this.processSubSectionProcess()
+        }
+    }
+
+    private optionsToRemoveFrom (value: number, indexes: number[]): number[] {
+        const locationsToRemove: number[] = []
+        indexes.forEach((index: number) => {
+            if (this.blanks[index] && this.blanks[index].indexOf(value) !== -1) {
+                locationsToRemove.push(index)
+            }
+        })
+        return locationsToRemove
+    }
+
+    private processSubSectionProcess() {
+        const numberToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove[0]
+        const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
+        indexesToRemoveFrom.forEach((index) => {
+            const options = this.blanks[index]
+            this.removeFromOptions(options, numberToRemove)
+        })
+        this.step.stepPhases = ['showActive', 'processSection']
+        const numbersToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove
+        if (numbersToRemove.length === 1) {
+            this.step.stepSubsectionsToProcess.shift()
+        } else {
+            numbersToRemove.shift()
+        }
+        if (!this.step.stepSubsectionsToProcess.length) {
+            this.setUpSearch()
+        }
+    }
+
+    private processSubsectionActive() {
+        const numbersToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove
+        const indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore
+        const compare = this.step.stepSubsectionsToProcess[0].indexesToCompare
+        this.notes.push(
+            `<div class="processing">Processing ${numbersToRemove[0]} in ${indexes} removing from ${compare}.</div>`
+        )
+        const locationsToRemove = this.optionsToRemoveFrom(numbersToRemove[0], compare)
+
+        if (locationsToRemove.length) {
+            this.notes.push(
+                `Found ${locationsToRemove.length} to remove.`
+            )
+            this.step.stepSpotsToRemoveFrom = locationsToRemove
+            this.step.stepPhases.shift()
+        } else {
+            this.notes.push(`Found no locations to remove.`)
+            if (numbersToRemove.length === 1) {
+                this.step.stepSubsectionsToProcess.shift()
+            } else {
+                numbersToRemove.shift()
+            }
+        }
+        if (!this.step.stepSubsectionsToProcess.length) {
+            this.setUpSearch()
         }
     }
 
@@ -84,7 +179,7 @@ export class Sudoku {
         this.setStepValueIndexes()
     }
 
-    processSubsectionStep() {
+    subsectionOptionsStep() {
         const findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0])
         findings.forEach((finding) => {
             this.notes.push(
@@ -100,10 +195,17 @@ export class Sudoku {
             this.setStepValueIndexes()
         }
         if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
-            this.step.stepType = "processFoundSubsections"
+            this.setupProcessFoundSubsections()
         } else if (!this.step.stepSections.length) {
             this.step.stepType = "endStep"
         }
+    }
+
+    setupProcessFoundSubsections() {
+        this.step.stepType = "processFoundSubsections"
+        this.step.stepValues = []
+        this.step.stepPhases = ['showActive', 'processSection']
+        this.step.stepSections = []
     }
 
     processRemoveStep() {
@@ -226,13 +328,17 @@ export class Sudoku {
         this.step.stepSections = types
     }
 
+    removeFromOptions(options: number[], value: number) {
+        const indexNum = options.indexOf(value)
+        options.splice(indexNum, 1)
+    }
+
     completeRemoveActive() {
         const value = this.value(this.activeSpot())
         const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
         indexesToRemoveFrom.forEach((index) => {
             const options = this.blanks[index]
-            const indexNum = options.indexOf(value)
-            options.splice(indexNum, 1)
+            this.removeFromOptions(options, value)
         })
         this.resetSpotsToRemoveFrom()
         this.step.stepPhases.shift()
@@ -547,6 +653,10 @@ export class Sudoku {
     }
 
     inActiveSection(index: number): boolean {
+        if (this.step.stepType === "processFoundSubsections") {
+            const indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore
+            return indexes.indexOf(index) !== -1
+        }
         let type = this.activeType()
         let sectionIndex = this.currentSectionIndex()
         if (type === "row") {
@@ -760,11 +870,13 @@ export class Sudoku {
     indexesWithSpecialValues(): number[] {
         const findings = this.step.stepSubsectionsToProcess
         if (findings) {
-            let result: number[] = []
+            let result: {[key: number]: number} = {}
             findings.forEach((finding) => {
-                result = result.concat(finding.indexesToIgnore)
+                finding.indexesToIgnore.forEach((index) => {
+                    result[index] = index;
+                })
             })
-            return result
+            return (Object as any).values(result)
         }
         return []
     }

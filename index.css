@@ -54,16 +54,16 @@ div.row:nth-child(3n) {
     color: maroon;
 }
 
-.active-section {
-    background: tomato;
-}
-
 .current-node {
     background: YellowGreen;
 }
 
 .flagged {
     background: lightcoral;
+}
+
+.active-section {
+    background: tomato;
 }
 
 .square {
