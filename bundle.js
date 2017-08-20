@@ -828,7 +828,7 @@ var Sudoku = (function () {
         return valueSets;
     };
     Sudoku.prototype.numbersInSquareParts = function (section) {
-        var indexes = this.getIndexes('row', section);
+        var indexes = this.getIndexes('square', section);
         return {
             rows: this.getOptionsOrderedSubSections(indexes),
             columns: [

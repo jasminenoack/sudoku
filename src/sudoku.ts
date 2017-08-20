@@ -604,7 +604,7 @@ export class Sudoku {
     }
 
     numbersInSquareParts(section: number): {[key: string]: number[][]} {
-        const indexes = this.getIndexes('row', section)  
+        const indexes = this.getIndexes('square', section)  
         return {
             rows: this.getOptionsOrderedSubSections(indexes),
             columns: [
