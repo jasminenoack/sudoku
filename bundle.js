@@ -841,8 +841,9 @@ var Sudoku = (function () {
             [indexes[2], indexes[5], indexes[8]],
         ];
     };
-    Sudoku.prototype.addDataToFindingsForSubSections = function (findings, indexSets, comparisonType) {
+    Sudoku.prototype.addDataToFindingsForSubSections = function (indexSets, comparisonType, findings) {
         var _this = this;
+        if (findings === void 0) { findings = []; }
         indexSets.forEach(function (indexes) {
             var rowIndexes = _this.getIndexes(comparisonType, _this.findSectionIndex(comparisonType, indexes[0]));
             indexes.forEach(function (index) {
@@ -854,38 +855,83 @@ var Sudoku = (function () {
                 options: _this.getOptionsByIndex(indexes)
             });
         });
+        return findings;
     };
     Sudoku.prototype.numbersInSquareParts = function (section) {
         var indexes = this.getIndexes('square', section);
         var rowSets = this.getInOrderSubsectionSequences(indexes);
-        var rowFindings = [];
-        this.addDataToFindingsForSubSections(rowFindings, rowSets, 'row');
-        var columnFindings = [];
+        var rowFindings = this.addDataToFindingsForSubSections(rowSets, 'row');
         var columnSets = this.getInColumnSubSequences(indexes);
-        this.addDataToFindingsForSubSections(columnFindings, columnSets, 'column');
+        var columnFindings = this.addDataToFindingsForSubSections(columnSets, 'column');
         return {
             rowFindings: rowFindings,
             columnFindings: columnFindings
         };
     };
     Sudoku.prototype.numbersInRowParts = function (section) {
-        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('row', section))
-        // return this.getOptionsOrderedSubSections(indexOrderedSets)
-        return [];
+        var rowSets = this.getInOrderSubsectionSequences(this.getIndexes('row', section));
+        var squareFindings = this.addDataToFindingsForSubSections(rowSets, 'square');
+        return squareFindings;
     };
     Sudoku.prototype.numbersInColumnParts = function (section) {
-        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('column', section))
-        // return this.getOptionsOrderedSubSections(indexOrderedSets)
-        return [];
+        var columnSets = this.getInOrderSubsectionSequences(this.getIndexes('column', section));
+        var squareFindings = this.addDataToFindingsForSubSections(columnSets, 'square');
+        return squareFindings;
+    };
+    Sudoku.prototype.findSubSectionDistribution = function (findings) {
+        var dist = {};
+        findings.forEach(function (finding, index) {
+            finding['options'].forEach(function (value) {
+                dist[value] = (dist[value] || []).concat([index]);
+            });
+        });
+        return dist;
+    };
+    Sudoku.prototype.translateDistToValuesSpecificToSection = function (dist) {
+        var sections = {
+            0: [],
+            1: [],
+            2: []
+        };
+        Object.keys(dist).forEach(function (value) {
+            if (dist[+value].length === 1) {
+                sections[dist[+value][0]].push(+value);
+            }
+        });
+        return sections;
+    };
+    Sudoku.prototype.determineValueChangesBasedOnFindings = function (findings) {
+        var dist = this.findSubSectionDistribution(findings);
+        var singleBySubsection = this.translateDistToValuesSpecificToSection(dist);
+        var output = [];
+        Object.keys(singleBySubsection).forEach(function (subsection) {
+            if (singleBySubsection[subsection].length > 0) {
+                output.push({
+                    indexesToCompare: findings[+subsection].compareIndexes,
+                    indexesToIgnore: findings[+subsection].indexes,
+                    numbersToRemove: singleBySubsection[subsection],
+                });
+            }
+        });
+        return output;
     };
     Sudoku.prototype.subSectionsToEvaluate = function (sectionType, section) {
+        var output;
         if (sectionType === "row") {
+            var findings = this.numbersInRowParts(section);
+            output = this.determineValueChangesBasedOnFindings(findings);
         }
         else if (sectionType === "square") {
+            var findings = this.numbersInSquareParts(section);
+            var rowFindings = findings['rowFindings'];
+            var columnFindings = findings['columnFindings'];
+            output = this.determineValueChangesBasedOnFindings(rowFindings).concat(this.determineValueChangesBasedOnFindings(columnFindings));
         }
         else if (sectionType === "column") {
+            var findings = this.numbersInColumnParts(section);
+            output = this.determineValueChangesBasedOnFindings(findings);
         }
-        return [];
+        return output;
     };
     return Sudoku;
 }());

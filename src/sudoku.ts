@@ -619,7 +619,7 @@ export class Sudoku {
         ]
     }
 
-    private addDataToFindingsForSubSections(findings: { [key: string]: number[] }[], indexSets: number[][], comparisonType: sectionType) {
+    private addDataToFindingsForSubSections(indexSets: number[][], comparisonType: sectionType, findings: { [key: string]: number[] }[] = []) {
         indexSets.forEach((indexes) => {
             const rowIndexes = this.getIndexes(comparisonType, this.findSectionIndex(comparisonType, indexes[0]))
             indexes.forEach((index) => {
@@ -631,16 +631,15 @@ export class Sudoku {
                 options: this.getOptionsByIndex(indexes)
             })
         })
+        return findings
     }
 
     numbersInSquareParts(section: number): {[key: string]: {[key: string]: number[]}[]} {
         const indexes = this.getIndexes('square', section)  
         const rowSets = this.getInOrderSubsectionSequences(indexes)
-        const rowFindings: { [key: string]: number[] }[] = []
-        this.addDataToFindingsForSubSections(rowFindings, rowSets, 'row')
-        const columnFindings: { [key: string]: number[] }[] = []
+        const rowFindings: { [key: string]: number[] }[] = this.addDataToFindingsForSubSections(rowSets, 'row')
         const columnSets = this.getInColumnSubSequences(indexes)
-        this.addDataToFindingsForSubSections(columnFindings, columnSets, 'column')
+        const columnFindings: { [key: string]: number[] }[] = this.addDataToFindingsForSubSections(columnSets, 'column')
         return {
             rowFindings,
             columnFindings
@@ -648,25 +647,74 @@ export class Sudoku {
     }
 
     numbersInRowParts(section: number): {[key: string]: number[]}[] {
-        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('row', section))
-        // return this.getOptionsOrderedSubSections(indexOrderedSets)
-        return []
+        const rowSets = this.getInOrderSubsectionSequences(this.getIndexes('row', section))
+        const squareFindings: { [key: string]: number[] }[] = this.addDataToFindingsForSubSections(rowSets, 'square')
+        return squareFindings
     }
 
     numbersInColumnParts(section: number): {[key: string]: number[]}[] {
-        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('column', section))
-        // return this.getOptionsOrderedSubSections(indexOrderedSets)
-        return []
+        const columnSets = this.getInOrderSubsectionSequences(this.getIndexes('column', section))
+        const squareFindings: { [key: string]: number[] }[] = this.addDataToFindingsForSubSections(columnSets, 'square')
+        return squareFindings
+    }
+
+    private findSubSectionDistribution(findings: { [key: string]: number[] }[]) {
+        const dist: {[key: number]: number[]} = {}
+
+        findings.forEach((finding: { [key: string]: number[] }, index) => {
+            finding['options'].forEach((value) => {
+                dist[value] = (dist[value] || []).concat([index])
+            })
+        })
+        return dist
+    }
+
+    private translateDistToValuesSpecificToSection(dist: { [key: number]: number[] }) {
+        const sections: {[key: string]: number[]} = {
+            0: [],
+            1: [],
+            2: []
+        }
+        Object.keys(dist).forEach((value) => {
+            if (dist[+value].length === 1) {
+                sections[dist[+value][0]].push(+value)
+            }
+        })
+        return sections
+    }
+
+    private determineValueChangesBasedOnFindings(findings: { [key: string]: number[] }[]): { [key: string]: number[] }[] {
+        const dist = this.findSubSectionDistribution(findings)
+        const singleBySubsection = this.translateDistToValuesSpecificToSection(dist)
+        const output: { [key: string]: number[] }[] = []
+        Object.keys(singleBySubsection).forEach((subsection) => {
+            if (singleBySubsection[subsection].length > 0) {
+                output.push({
+                    indexesToCompare: findings[+subsection].compareIndexes,
+                    indexesToIgnore: findings[+subsection].indexes,
+                    numbersToRemove: singleBySubsection[subsection],
+                })
+            }
+        })
+        return output
     }
 
     subSectionsToEvaluate(sectionType: string, section: number): {[key: string]: number[]}[] {
+        let output
         if (sectionType === "row") {
-
+            const findings = this.numbersInRowParts(section)
+            output = this.determineValueChangesBasedOnFindings(findings)
         } else if (sectionType === "square") {
-
+            const findings = this.numbersInSquareParts(section)
+            const rowFindings = findings['rowFindings']
+            const columnFindings = findings['columnFindings']
+            output = this.determineValueChangesBasedOnFindings(rowFindings).concat(
+                this.determineValueChangesBasedOnFindings(columnFindings)
+            )
         } else if (sectionType === "column") {
-
+            const findings = this.numbersInColumnParts(section)
+            output = this.determineValueChangesBasedOnFindings(findings)
         }
-        return []
+        return output
     }
 }
