@@ -1484,83 +1484,132 @@ describe('sudoku board', () => {
 
         it('finds numbers in square parts', () => {
             expect(sudoku.numbersInSquareParts(0)).toEqual({
-                rows: [
-                    [1, 3, 4, 5, 6, 8],
-                    [1, 2, 6, 7, 9],
-                    [1, 2, 6]
+                rowFindings: [
+                    {
+                        indexes: [0, 1, 2],
+                        compareIndexes: [3, 4, 5, 6, 7, 8],
+                        options: [1, 3, 4, 5, 6, 8],
+                    }, {
+                        indexes: [9, 10, 11],
+                        compareIndexes: [12, 13, 14, 15, 16, 17],
+                        options: [1, 2, 6, 7, 9],
+                    }, {
+                        indexes: [18, 19, 20],
+                        compareIndexes: [21, 22, 23, 24, 25, 26],
+                        options: [1, 2, 6]
+                    }, 
                 ],
-                columns: [
-                    [1, 2, 4, 6],
-                    [1, 2, 3, 5, 7],
-                    [1, 3, 6, 8, 9]
+                columnFindings: [
+                    {
+                        indexes: [0, 9, 18],
+                        compareIndexes: [27, 36, 45, 54, 63, 72],
+                        options: [1, 2, 4, 6],
+                    }, {
+                        indexes: [1, 10, 19],
+                        compareIndexes: [28, 37, 46, 55, 64, 73],
+                        options: [1, 2, 3, 5, 7],
+                    }, {
+                        indexes: [2, 11, 20],
+                        compareIndexes: [29, 38, 47, 56, 65, 74],
+                        options: [1, 3, 6, 8, 9]
+                    }
                 ]
-             })
+            })
         })
 
-        it('finds numbers in row parts', () => {
+        xit('finds numbers in row parts', () => {
             expect(sudoku.numbersInRowParts(0)).toEqual([
-                [1, 3, 4, 5, 6, 8],
-                [1, 2, 4, 7, 9],
-                [2, 3, 4, 8]
+                {
+                    indexes: [0, 1, 2],
+                    compareIndexes: [9, 10, 11, 18, 19, 20],
+                    options: [1, 3, 4, 5, 6, 8],
+                },
+                {
+                    indexes: [3, 4, 5],
+                    compareIndexes: [12, 13, 14, 21, 22, 23],
+                    options: [1, 2, 4, 7, 9],
+                },
+                {
+                    indexes: [6, 7, 8],
+                    compareIndexes: [15, 16, 17, 24, 25, 26],
+                    options: [2, 3, 4, 8]
+                }
             ])
         })
 
-        it('finds numbers in column parts', () => {
+        xit('finds numbers in column parts', () => {
             expect(sudoku.numbersInColumnParts(0)).toEqual([
-                [1, 2, 4, 6],
-                [3, 4, 5, 7],
-                [3, 4, 5, 6, 7]
+                {
+                    indexes: [0, 9, 18],
+                    compareIndexes: [1, 2, 10, 11, 19, 20],
+                    options: [1, 2, 4, 6],
+                },
+                {
+                    indexes: [27, 36, 45],
+                    compareIndexes: [28, 29, 37, 38, 46, 47],
+                    options: [3, 4, 5, 7],
+                }, 
+                {
+                    indexes: [54, 63, 72],
+                    compareIndexes: [55, 56, 64, 65, 73, 74],
+                    options: [3, 4, 5, 6, 7]
+                }
             ])
         })
 
-        // it('determines numbers in subsection to evaluate square', () => {
-        //     expect(sudoku.subSectionsToEvaluate("square", 0)).toEqual([
-        //         {
-        //             indexesToCompare: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-        //             indexesToIgnore: [0, 1, 2],
-        //             numbersToRemove: [5, 6],
-        //         }, 
-        //         {
-        //             indexesToCompare: [9, 10, 11, 12, 13, 14, 15, 16, 17],
-        //             indexesToIgnore: [9, 10, 11],
-        //             numbersToRemove: [7, 9],
-        //         },
-        //         {
-        //             indexesToCompare: [0, 9, 18, 27, 36, 45, 54, 63, 72],
-        //             indexesToIgnore: [0, 9, 18],
-        //             numbersToRemove: [2],
-        //         },
-        //         {
-        //             indexesToCompare: [1, 10, 19, 28, 37, 46, 55, 64, 73],
-        //             indexesToIgnore: [1, 10, 19],
-        //             numbersToRemove: [5, 9],
-        //         },
-        //         {
-        //             indexesToCompare: [2, 11, 20, 29, 38, 47, 56, 65, 74],
-        //             indexesToIgnore: [2, 11, 20],
-        //             numbersToRemove: [6, 7],
-        //         },
-        //     ])
-        // })
+        xit('determines numbers in subsection to evaluate square', () => {
+            expect(sudoku.subSectionsToEvaluate("square", 0)).toEqual([
+                {
+                    indexesToCompare: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    indexesToIgnore: [0, 1, 2],
+                    numbersToRemove: [3, 4, 5, 8],
+                }, 
+                {
+                    indexesToCompare: [9, 10, 11, 12, 13, 14, 15, 16, 17],
+                    indexesToIgnore: [9, 10, 11],
+                    numbersToRemove: [7, 9],
+                },
+                {
+                    indexesToCompare: [0, 9, 18, 27, 36, 45, 54, 63, 72],
+                    indexesToIgnore: [0, 9, 18],
+                    numbersToRemove: [4],
+                },
+                {
+                    indexesToCompare: [1, 10, 19, 28, 37, 46, 55, 64, 73],
+                    indexesToIgnore: [1, 10, 19],
+                    numbersToRemove: [5, 7],
+                },
+                {
+                    indexesToCompare: [2, 11, 20, 29, 38, 47, 56, 65, 74],
+                    indexesToIgnore: [2, 11, 20],
+                    numbersToRemove: [8, 9],
+                },
+            ])
+        })
 
-        // it('determines numbers in subsection to evaluate row', () => {
-        //     expect(sudoku.subSectionsToEvaluate("row", 0)).toEqual([
-        //         {
-        //             indexesToCompare: [0, 1, 2, 9, 10, 11, 18, 19, 20],
-        //             indexesToIgnore: [0, 1, 2],
-        //             numbersToRemove: [5, 6],
-        //         },
-        //         {
-        //             indexesToCompare: [3, 4, 5, 12, 13, 14, 21, 22, 23],
-        //             indexesToIgnore: [3, 4, 5],
-        //             numbersToRemove: [7, 9],
-        //         },
-        //         {
-        //             indexesToCompare: [6, 7, 8, 15, 16, 17, 24, 25, 26],
-        //             indexesToIgnore: [6, 7, 8],
-        //             numbersToRemove: [2],
-        //         },
-        //     ])
-        // })
+        xit('determines numbers in subsection to evaluate row', () => {
+            expect(sudoku.subSectionsToEvaluate("row", 0)).toEqual([
+                {
+                    indexesToCompare: [0, 1, 2, 9, 10, 11, 18, 19, 20],
+                    indexesToIgnore: [0, 1, 2],
+                    numbersToRemove: [5, 6],
+                },
+                {
+                    indexesToCompare: [3, 4, 5, 12, 13, 14, 21, 22, 23],
+                    indexesToIgnore: [3, 4, 5],
+                    numbersToRemove: [7, 9],
+                }
+            ])
+        })
+
+        xit('determines numbers in subsection to evaluate column', () => {
+            expect(sudoku.subSectionsToEvaluate("column", 0)).toEqual([
+                {
+                    indexesToCompare: [0, 9, 18, 27, 36, 45, 54, 63, 72],
+                    indexesToIgnore: [0, 9, 18],
+                    numbersToRemove: [1, 2],
+                },
+            ])
+        })
     })
 })

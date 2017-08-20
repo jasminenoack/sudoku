@@ -594,32 +594,79 @@ export class Sudoku {
         return (Object as any).values(values).sort()
     }
 
-    private getOptionsOrderedSubSections(indexes: number[]): number[][] {
-        const valueSets = [
-            this.getOptionsByIndex(indexes.slice(0, 3)),
-            this.getOptionsByIndex(indexes.slice(3, 6)),
-            this.getOptionsByIndex(indexes.slice(6, 9))
+    // private getOptionsOrderedSubSections(indexSets: number[][]): number[][] {
+    //     const valueSets = [
+    //         this.getOptionsByIndex(indexSets[0]),
+    //         this.getOptionsByIndex(indexSets[1]),
+    //         this.getOptionsByIndex(indexSets[2])
+    //     ]
+    //     return valueSets
+    // }
+
+    private getInOrderSubsectionSequences(indexes: number[]) {
+        return [
+            indexes.slice(0, 3),
+            indexes.slice(3, 6),
+            indexes.slice(6, 9)
         ]
-        return valueSets
     }
 
-    numbersInSquareParts(section: number): {[key: string]: number[][]} {
+    private getInColumnSubSequences(indexes: number[]) {
+        return [
+            [indexes[0], indexes[3], indexes[6]],
+            [indexes[1], indexes[4], indexes[7]],
+            [indexes[2], indexes[5], indexes[8]],
+        ]
+    }
+
+    private addDataToFindingsForSubSections(findings: { [key: string]: number[] }[], indexSets: number[][], comparisonType: sectionType) {
+        indexSets.forEach((indexes) => {
+            const rowIndexes = this.getIndexes(comparisonType, this.findSectionIndex(comparisonType, indexes[0]))
+            indexes.forEach((index) => {
+                rowIndexes.splice(rowIndexes.indexOf(index), 1)
+            })
+            findings.push({
+                indexes: indexes,
+                compareIndexes: rowIndexes,
+                options: this.getOptionsByIndex(indexes)
+            })
+        })
+    }
+
+    numbersInSquareParts(section: number): {[key: string]: {[key: string]: number[]}[]} {
         const indexes = this.getIndexes('square', section)  
+        const rowSets = this.getInOrderSubsectionSequences(indexes)
+        const rowFindings: { [key: string]: number[] }[] = []
+        this.addDataToFindingsForSubSections(rowFindings, rowSets, 'row')
+        const columnFindings: { [key: string]: number[] }[] = []
+        const columnSets = this.getInColumnSubSequences(indexes)
+        this.addDataToFindingsForSubSections(columnFindings, columnSets, 'column')
         return {
-            rows: this.getOptionsOrderedSubSections(indexes),
-            columns: [
-                this.getOptionsByIndex([indexes[0], indexes[3], indexes[6]]),
-                this.getOptionsByIndex([indexes[1], indexes[4], indexes[7]]),
-                this.getOptionsByIndex([indexes[2], indexes[5], indexes[8]]),
-            ] 
+            rowFindings,
+            columnFindings
         }
     }
 
-    numbersInRowParts(section: number): number[][] {
-        return this.getOptionsOrderedSubSections(this.getIndexes('row', section))
+    numbersInRowParts(section: number): {[key: string]: number[]}[] {
+        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('row', section))
+        // return this.getOptionsOrderedSubSections(indexOrderedSets)
+        return []
     }
 
-    numbersInColumnParts(section: number): number[][] {
-        return this.getOptionsOrderedSubSections(this.getIndexes('column', section))
+    numbersInColumnParts(section: number): {[key: string]: number[]}[] {
+        // const indexOrderedSets = this.getInOrderSubsectionSequences(this.getIndexes('column', section))
+        // return this.getOptionsOrderedSubSections(indexOrderedSets)
+        return []
+    }
+
+    subSectionsToEvaluate(sectionType: string, section: number): {[key: string]: number[]}[] {
+        if (sectionType === "row") {
+
+        } else if (sectionType === "square") {
+
+        } else if (sectionType === "column") {
+
+        }
+        return []
     }
 }
