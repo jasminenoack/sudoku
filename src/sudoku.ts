@@ -402,7 +402,11 @@ export class Sudoku {
         const indexes = []
         for (let i = 0; i < 3; i++) {
             indexes.push(square1 + i)
+        }
+        for (let i = 0; i < 3; i++) {
             indexes.push(square2 + i)
+        }
+        for (let i = 0; i < 3; i++) {
             indexes.push(square3 + i)
         }
         return indexes
@@ -434,7 +438,7 @@ export class Sudoku {
                 values.push(this.value(index))
             }
         })
-        return values
+        return values.sort()
     }
 
     valuesInCurrentSection() {
@@ -571,5 +575,17 @@ export class Sudoku {
         if (!this.step.stepSections.length) {
             this.step.stepType = "endStep"
         }
+    }
+
+    numbersInSquareParts(section: number): {[key: string]: number[][]} {
+        return {}
+    }
+
+    numbersInRowParts(section: number): number[][] {
+        return [[]]
+    }
+
+    numbersInColumnParts(section: number): number[][] {
+        return [[]]
     }
 }

@@ -644,7 +644,11 @@ var Sudoku = (function () {
         var indexes = [];
         for (var i = 0; i < 3; i++) {
             indexes.push(square1 + i);
+        }
+        for (var i = 0; i < 3; i++) {
             indexes.push(square2 + i);
+        }
+        for (var i = 0; i < 3; i++) {
             indexes.push(square3 + i);
         }
         return indexes;
@@ -674,7 +678,7 @@ var Sudoku = (function () {
                 values.push(_this.value(index));
             }
         });
-        return values;
+        return values.sort();
     };
     Sudoku.prototype.valuesInCurrentSection = function () {
         return this.valuesInSection(this.activeType(), this.currentSectionIndex());
@@ -798,6 +802,15 @@ var Sudoku = (function () {
         if (!this.step.stepSections.length) {
             this.step.stepType = "endStep";
         }
+    };
+    Sudoku.prototype.numbersInSquareParts = function (section) {
+        return {};
+    };
+    Sudoku.prototype.numbersInRowParts = function (section) {
+        return [[]];
+    };
+    Sudoku.prototype.numbersInColumnParts = function (section) {
+        return [[]];
     };
     return Sudoku;
 }());

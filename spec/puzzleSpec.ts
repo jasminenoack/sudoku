@@ -13,31 +13,31 @@ describe('sudoku board', () => {
             describe('square', () => {
                 it('indexes for 0', () => {
                     expect(sudoku.squareIndexes(0)).toEqual(
-                        [0, 9, 18, 1, 10, 19, 2, 11, 20]
+                        [0, 1, 2, 9, 10, 11, 18, 19, 20]
                     )
                 })
 
                 it('indexes for 3', () => {
                     expect(sudoku.squareIndexes(3)).toEqual(
-                        [27, 36, 45, 28, 37, 46, 29, 38, 47]
+                        [27, 28, 29, 36, 37, 38, 45, 46, 47]
                     )
                 })
 
                 it('indexes for 4', () => {
                     expect(sudoku.squareIndexes(4)).toEqual(
-                        [30, 39, 48, 31, 40, 49, 32, 41, 50]
+                        [30, 31, 32, 39, 40, 41, 48, 49, 50]
                     )
                 })
 
                 it('indexes for 6', () => {
                     expect(sudoku.squareIndexes(6)).toEqual(
-                        [54, 63, 72, 55, 64, 73, 56, 65, 74]
+                        [54, 55, 56, 63, 64, 65, 72, 73, 74]
                     )
                 })
 
                 it('indexes for 8', () => {
                     expect(sudoku.squareIndexes(8)).toEqual(
-                        [60, 69, 78, 61, 70, 79, 62, 71, 80]
+                        [60, 61, 62, 69, 70, 71, 78, 79, 80]
                     )
                 })
             })
@@ -108,10 +108,10 @@ describe('sudoku board', () => {
 
             it('get indexes', () => {
                 expect(sudoku.getIndexes('square', 0)).toEqual(
-                    [0, 9, 18, 1, 10, 19, 2, 11, 20]
+                    [0, 1, 2, 9, 10, 11, 18, 19, 20]
                 )
                 expect(sudoku.getIndexes('square', 4)).toEqual(
-                    [30, 39, 48, 31, 40, 49, 32, 41, 50]
+                    [30, 31, 32, 39, 40, 41, 48, 49, 50]
                 )
                 expect(sudoku.getIndexes('column', 8)).toEqual(
                     [8, 17, 26, 35, 44, 53, 62, 71, 80]
@@ -164,11 +164,11 @@ describe('sudoku board', () => {
         })
 
         it('returns values in section', () => {
-            expect(sudoku.valuesInSection('row', 0)).toEqual([3, 7, 4, 6, 5])
+            expect(sudoku.valuesInSection('row', 0)).toEqual([3, 4, 5, 6, 7])
         })
 
         it('returns values in current section', () => {
-            expect(sudoku.valuesInCurrentSection()).toEqual([3, 7, 4, 6, 5])
+            expect(sudoku.valuesInCurrentSection()).toEqual([3, 4, 5, 6, 7])
         })
 
         it('finds the index for the current section', () => {
@@ -385,9 +385,9 @@ describe('sudoku board', () => {
                         "73", "75", "77", "79", "80"
                     ],
                     stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                    stepValuesToRemove: [3, 7, 4, 6, 5]
+                    stepValuesToRemove: [3, 4, 5, 6, 7]
                 })
-                expect(sudoku.getToRemove()).toEqual([3, 7, 4, 6, 5])
+                expect(sudoku.getToRemove()).toEqual([3, 4, 5, 6, 7])
             })
 
             it('moves from show to compare on column', () => {
@@ -409,9 +409,9 @@ describe('sudoku board', () => {
                         "73", "75", "77", "79", "80"
                     ],
                     stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                    stepValuesToRemove: [8, 9, 2, 3]
+                    stepValuesToRemove: [2, 3, 8, 9]
                 })
-                expect(sudoku.getToRemove()).toEqual([8, 9, 2, 3])
+                expect(sudoku.getToRemove()).toEqual([2, 3, 8, 9])
             })
 
             it('moves from show to compare on square', () => {
@@ -433,7 +433,7 @@ describe('sudoku board', () => {
                         "73", "75", "77", "79", "80"
                     ],
                     stepValues: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                    stepValuesToRemove: [8, 7, 6, 9, 5]
+                    stepValuesToRemove: [5, 6, 7, 8, 9]
                 })
             })
 
@@ -457,7 +457,7 @@ describe('sudoku board', () => {
                         "73", "75", "77", "79", "80"
                     ],
                     stepValues: [1, 2, 3, 4, 5, 6],
-                    stepValuesToRemove: [6, 5]
+                    stepValuesToRemove: [5, 6]
                 })
             }) 
         })
@@ -1445,6 +1445,72 @@ describe('sudoku board', () => {
             "stepValues": [1],
             "stepValuesToRemove": [],
             "stepSpotsToRemoveFrom": []
+        })
+    })
+
+    describe('numbers in parts', () => {
+        beforeEach(() => {
+            sudoku.blanks = {
+                0: [1, 4],
+                1: [3, 5],
+                2: [3, 6, 8],
+
+                3: [2, 4],
+                4: [1, 9],
+                5: [4, 7],
+
+                6: [2, 4],
+                7: [3, 8],
+                8: [3],
+
+                9: [2, 6],
+                10: [1, 7],
+                11: [1, 9],
+
+                18: [2, 6],
+                19: [1, 2],
+                20: [1, 6],
+
+                27: [3, 4],
+                36: [4],
+                45: [5, 7],
+
+                54: [6, 7],
+                63: [6, 3],
+                72: [4, 5] 
+
+            }
+        })
+
+        it('finds numbers in square parts', () => {
+            expect(sudoku.numbersInSquareParts(0)).toEqual({
+                rows: [
+                    [1, 3, 4, 5, 6, 8],
+                    [1, 2, 6, 7, 9],
+                    [1, 2, 6]
+                ],
+                columns: [
+                    [1, 2, 4],
+                    [1, 3, 5, 8, 9],
+                    [3, 4, 6, 7, 8]
+                ]
+             })
+        })
+
+        it('finds numbers in row parts', () => {
+            expect(sudoku.numbersInRowParts(0)).toEqual([
+                [1, 3, 4, 5, 6, 8],
+                [1, 2, 4, 7, 9],
+                [2, 3, 4, 8]
+            ])
+        })
+
+        it('finds numbers in column parts', () => {
+            expect(sudoku.numbersInColumnParts(0)).toEqual([
+                [1, 2, 4, 6],
+                [3, 4, 5, 7],
+                [3, 4, 5, 6, 7]
+            ])
         })
     })
 })
