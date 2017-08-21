@@ -14,7 +14,6 @@ export class Sudoku extends CombinationStep {
     }
 
     takeStep() {
-        console.log(this.step.stepType)
         if (this.grid.indexOf(0) === -1) {
             return
         }

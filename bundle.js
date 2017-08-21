@@ -177,6 +177,17 @@ exports.hard3 = [
     8, 0, 2, 0, 0, 1, 0, 0, 0,
     0, 1, 0, 0, 0, 5, 0, 0, 0
 ];
+exports.hard4 = [
+    0, 0, 0, 1, 0, 0, 0, 0, 0,
+    0, 3, 4, 0, 0, 0, 7, 8, 0,
+    0, 0, 9, 0, 0, 3, 0, 5, 0,
+    0, 0, 7, 0, 0, 0, 0, 2, 0,
+    0, 0, 8, 0, 3, 0, 0, 0, 6,
+    6, 0, 0, 4, 0, 0, 3, 0, 5,
+    0, 0, 0, 0, 4, 9, 2, 0, 0,
+    8, 0, 2, 0, 0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0, 5, 0, 0, 0,
+];
 
 
 /***/ }),
@@ -321,7 +332,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 30);
+        interval = setInterval(func, 250);
     }
 });
 window.gameUtils = GameUtils;
@@ -359,7 +370,6 @@ var Sudoku = (function (_super) {
         this.setUpBlankStep();
     };
     Sudoku.prototype.takeStep = function () {
-        console.log(this.step.stepType);
         if (this.grid.indexOf(0) === -1) {
             return;
         }
