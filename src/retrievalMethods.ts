@@ -141,4 +141,26 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
     public indexInRemovalSpots(index: number) {
         return this.step.stepSpotsToRemoveFrom && this.step.stepSpotsToRemoveFrom.indexOf(index) !== -1
     }
+
+    public indexesWithSpecialValues(): number[] {
+        let result: { [key: number]: number } = {} 
+        if (this.step.stepSubsectionsToProcess && this.step.stepSubsectionsToProcess.length) {
+            const findings = this.step.stepSubsectionsToProcess
+            if (findings) {
+
+                findings.forEach((finding) => {
+                    finding.indexesToIgnore.forEach((index) => {
+                        result[index] = index;
+                    })
+                })
+
+            }
+        }
+        if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+            Object.keys(this.step.valuesToPlace).forEach((index: string) => {
+                result[+index] = +index
+            })
+        }
+        return (Object as any).values(result)
+    }
 }

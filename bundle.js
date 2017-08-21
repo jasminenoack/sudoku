@@ -408,19 +408,6 @@ var Sudoku = (function (_super) {
         this.notes = [];
         return string;
     };
-    Sudoku.prototype.indexesWithSpecialValues = function () {
-        var findings = this.step.stepSubsectionsToProcess;
-        if (findings) {
-            var result_1 = {};
-            findings.forEach(function (finding) {
-                finding.indexesToIgnore.forEach(function (index) {
-                    result_1[index] = index;
-                });
-            });
-            return Object.values(result_1);
-        }
-        return [];
-    };
     return Sudoku;
 }(subsectionStep_1.SubsectionStep));
 exports.Sudoku = Sudoku;
@@ -687,6 +674,25 @@ var RetrievalMethods = (function (_super) {
     };
     RetrievalMethods.prototype.indexInRemovalSpots = function (index) {
         return this.step.stepSpotsToRemoveFrom && this.step.stepSpotsToRemoveFrom.indexOf(index) !== -1;
+    };
+    RetrievalMethods.prototype.indexesWithSpecialValues = function () {
+        var result = {};
+        if (this.step.stepSubsectionsToProcess && this.step.stepSubsectionsToProcess.length) {
+            var findings = this.step.stepSubsectionsToProcess;
+            if (findings) {
+                findings.forEach(function (finding) {
+                    finding.indexesToIgnore.forEach(function (index) {
+                        result[index] = index;
+                    });
+                });
+            }
+        }
+        if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+            Object.keys(this.step.valuesToPlace).forEach(function (index) {
+                result[+index] = +index;
+            });
+        }
+        return Object.values(result);
     };
     return RetrievalMethods;
 }(sectionIndexMethods_1.SectionIndexMethods));

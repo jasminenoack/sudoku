@@ -59,18 +59,4 @@ export class Sudoku extends SubsectionStep {
 
         return string
     }
-
-    public indexesWithSpecialValues(): number[] {
-        const findings = this.step.stepSubsectionsToProcess
-        if (findings) {
-            let result: {[key: number]: number} = {}
-            findings.forEach((finding) => {
-                finding.indexesToIgnore.forEach((index) => {
-                    result[index] = index;
-                })
-            })
-            return (Object as any).values(result)
-        }
-        return []
-    }
 }
