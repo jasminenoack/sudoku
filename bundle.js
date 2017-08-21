@@ -991,8 +991,6 @@ var PlaceRemoveStep = (function (_super) {
         var value = this.step.valuesToPlace[index];
         var type = this.activeType();
         var types = this.typePattern.slice();
-        var typeIndex = types.indexOf(type);
-        types.splice(typeIndex, 1);
         delete this.step.valuesToPlace[index];
         this.step.stepIndexes.shift();
         this.step.stepValues.shift();
@@ -1077,10 +1075,7 @@ var SingleSectionStep = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     SingleSectionStep.prototype.takeSectionSingle = function () {
-        if (Object.keys(this.step.valuesToPlace).length) {
-            this.placeFromValuesToPlace();
-        }
-        else if (this.activePhase() === "showActive") {
+        if (this.activePhase() === "showActive") {
             // move into the show active for remove row
             this.nextSectionSingle();
             if (this.step.stepType === "sectionSingle") {
@@ -1095,13 +1090,18 @@ var SingleSectionStep = (function (_super) {
             this.setStepValueIndexes();
         }
         if (!this.step.stepSections.length) {
-            this.step.stepType = "subsectionOptionSets";
-            this.setupSubsectionOptions();
+            if (Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace();
+            }
+            else {
+                this.step.stepType = "subsectionOptionSets";
+                this.setupSubsectionOptions();
+            }
         }
     };
     SingleSectionStep.prototype.setUpSectionSingle = function () {
         this.step.stepSections = this.typePattern.slice();
-        this.step.valuesToPlace = {};
+        this.step.valuesToPlace = this.step.valuesToPlace || {};
         this.step.stepPhases = ['showActive'];
         this.step.stepType = "sectionSingle";
         this.setStepValueIndexes();

@@ -2,9 +2,7 @@ import { SearchStep } from './searchStep'
 
 export abstract class SingleSectionStep extends SearchStep {
     takeSectionSingle() {
-        if (Object.keys(this.step.valuesToPlace).length) {
-            this.placeFromValuesToPlace()
-        } else if (this.activePhase() === "showActive") {
+        if (this.activePhase() === "showActive") {
             // move into the show active for remove row
             this.nextSectionSingle()
             if (this.step.stepType === "sectionSingle") {
@@ -20,14 +18,18 @@ export abstract class SingleSectionStep extends SearchStep {
             this.setStepValueIndexes()
         }
         if (!this.step.stepSections.length) {
-            this.step.stepType = "subsectionOptionSets"
-            this.setupSubsectionOptions()
+            if (Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace()
+            } else {
+                this.step.stepType = "subsectionOptionSets"
+                this.setupSubsectionOptions()
+            }
         }
     }
 
     public setUpSectionSingle() {
         this.step.stepSections = this.typePattern.slice()
-        this.step.valuesToPlace = {}
+        this.step.valuesToPlace = this.step.valuesToPlace || {}
         this.step.stepPhases = ['showActive']
         this.step.stepType = "sectionSingle"
         this.setStepValueIndexes()

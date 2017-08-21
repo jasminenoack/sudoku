@@ -1329,95 +1329,40 @@ describe('sudoku board', () => {
 
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
-                    "stepSections":["column","square"],
-                    "stepPhases":["place"],
-                    "stepType": "place",
-                    "stepIndexes":["56"],
-                    "stepValues":[8],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[],
-                    "valuesToPlace": {61: 2}
+                    "stepSections": ["row", "column", "square"],
+                    "stepPhases": ["showActive"],
+                    "stepType": "sectionSingle",
+                    "stepIndexes": [],
+                    "stepValues": [7, 8],
+                    "stepValuesToRemove": [],
+                    "stepSpotsToRemoveFrom": [],
+                    "valuesToPlace": { 56: 8, 61: 2 }
                 })
-                expect(sudoku.blanks[56]).toEqual(undefined)
-                expect(sudoku.value(56)).toEqual(8)
 
                 // switch to show active
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
-                    stepSections: ["column", "square"],
-                    stepPhases: ["showActive", "showCompare"],
-                    stepType: "remove",
-                    "stepIndexes":["56"],
-                    "stepValues":[8],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[11, 29, 74],
-                    "valuesToPlace": {61: 2}
+                    "stepSections": ["row", "column", "square"],
+                    "stepPhases": ["showActive"],
+                    "stepType": "sectionSingle",
+                    "stepIndexes": [],
+                    "stepValues": [8],
+                    "stepValuesToRemove": [],
+                    "stepSpotsToRemoveFrom": [],
+                    "valuesToPlace": { 56: 8, 61: 2, 72: 6 }
                 })
 
                 // switch to show compare
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
-                    stepSections: ["square"],
-                    stepPhases: ["showCompare"],
-                    stepType: "remove",
-                    "stepIndexes":["56"],
-                    "stepValues":[8],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[],
-                    "valuesToPlace": {61: 2}
-                })
-
-                // switch to show active
-                sudoku.takeStep()
-                expect(sudoku.step).toEqual({
-                    stepSections: ["square"],
-                    stepPhases: ["showActive", "showCompare"],
-                    stepType: "remove",
-                    "stepIndexes":["56"],
-                    "stepValues":[8],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[72],
-                    "valuesToPlace": {61: 2}
-                })
-
-                sudoku.takeStep()
-                expect(sudoku.step).toEqual({
-                    "stepSections":["row","column"],
-                    "stepPhases":["place"],
-                    "stepType": "place",
-                    "stepIndexes":["61"],
-                    "stepValues":[2],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[],
-                    "valuesToPlace": { }
-                })
-                expect(sudoku.blanks[61]).toEqual(undefined)
-                expect(sudoku.value(61)).toEqual(2)
-
-                // switch to show active
-                sudoku.takeStep()
-                expect(sudoku.step).toEqual({
-                    stepSections: ["column"],
-                    stepPhases: ["showCompare"],
-                    stepType: "remove",
-                    "stepIndexes":["61"],
-                    "stepValues":[2],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[],
-                    "valuesToPlace": { }
-                })
-
-                // switch to show compare
-                sudoku.takeStep()
-                expect(sudoku.step).toEqual({
-                    stepSections: [],
-                    stepPhases: ["search"],
-                    stepType: "findSingle",
-                    "stepIndexes":[],
-                    "stepValues":[],
-                    "stepValuesToRemove":[],
-                    "stepSpotsToRemoveFrom":[],
-                    "valuesToPlace": { }
+                    "stepSections": ["column", "square"],
+                    "stepPhases": ["showActive"],
+                    "stepType": "sectionSingle",
+                    "stepIndexes": [],
+                    "stepValues": [0,1,2,3,4,5,6,7,8],
+                    "stepValuesToRemove": [],
+                    "stepSpotsToRemoveFrom": [],
+                    "valuesToPlace": { 56: 8, 61: 2, 72: 6 }
                 })
             })
         })

@@ -98,9 +98,6 @@ export abstract class PlaceRemoveStep extends BlankMethods{
         const value = this.step.valuesToPlace[index]
         const type = this.activeType()
         const types = this.typePattern.slice()
-        const typeIndex = types.indexOf(type)
-        types.splice(typeIndex, 1)
-
         delete this.step.valuesToPlace[index]
         this.step.stepIndexes.shift()
         this.step.stepValues.shift()
