@@ -7,6 +7,7 @@ export abstract class SudokuBase {
     public givens: boolean[] = []
     public grid: number[]
     public step: step
+    public notes: string[] = []
 
     constructor(grid: number[]) {
         this.grid = grid.slice()
@@ -23,4 +24,10 @@ export abstract class SudokuBase {
             }
         })
     }
+
+    // bases for methods at higher levels
+    public setUpPlaceStep() {}
+    public setUpSectionSingle() {}
+    public sectionSingleFindActives() {}
+    public resetStepRemove() {}
 }

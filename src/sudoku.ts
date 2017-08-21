@@ -1,13 +1,10 @@
 import { easy1 } from './puzzles'
-import { RetrievalMethods } from './retrievalMethods'
+import { BlankMethods } from './blankMethods'
 import {sectionType, stepPhase, step, stepType}  from './interfaces'
 
-export class Sudoku extends RetrievalMethods {
-    private typePattern: sectionType[] = ['row', 'column', 'square']
-    private blanksStepPhases: stepPhase[] = ["showActive", "showCompare"]
-    private placeSteps: stepPhase[] = ["place"]
+export class Sudoku extends BlankMethods {
     
-    private notes: string[] = []
+    public placeSteps: stepPhase[] = ["place"]
     
     constructor(grid: number[] = easy1) {
         super(grid)
@@ -24,12 +21,7 @@ export class Sudoku extends RetrievalMethods {
             return
         }
         if (this.step.stepType === "setUpBlanks") {
-            if (!this.step.stepIndexes.length) {
-                this.setUpSectionSingle()
-                this.sectionSingleFindActives()
-            } else {
-                this.processBlanksStep()
-            }
+            this.takeStepBlank()
         } else if (this.step.stepType === "place") {
             this.processPlaceStep()
         } else if (this.step.stepType === "remove") {
@@ -53,7 +45,7 @@ export class Sudoku extends RetrievalMethods {
         }
     }
 
-    private optionsToRemoveFrom (value: number, indexes: number[]): number[] {
+    public optionsToRemoveFrom (value: number, indexes: number[]): number[] {
         const locationsToRemove: number[] = []
         indexes.forEach((index: number) => {
             if (this.blanks[index] && this.blanks[index].indexOf(value) !== -1) {
@@ -63,7 +55,7 @@ export class Sudoku extends RetrievalMethods {
         return locationsToRemove
     }
 
-    private processSubSectionProcess() {
+    public processSubSectionProcess() {
         const numberToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove[0]
         const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
         indexesToRemoveFrom.forEach((index) => {
@@ -82,7 +74,7 @@ export class Sudoku extends RetrievalMethods {
         }
     }
 
-    private processSubsectionActive() {
+    public processSubsectionActive() {
         const numbersToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove
         const indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore
         const compare = this.step.stepSubsectionsToProcess[0].indexesToCompare
@@ -110,7 +102,7 @@ export class Sudoku extends RetrievalMethods {
         }
     }
 
-    private setupSubsectionOptions() {
+    public setupSubsectionOptions() {
         this.step.stepSections = this.typePattern.slice()
         this.step.stepPhases = ["processSection"]
         this.step.stepSubsectionsToProcess = []
@@ -291,7 +283,7 @@ export class Sudoku extends RetrievalMethods {
         }
     }
 
-    private setUpSearch() {
+    public setUpSearch() {
         this.step.stepIndexes.shift()
         this.step.stepValues = []
         this.notes.unshift(
@@ -301,94 +293,7 @@ export class Sudoku extends RetrievalMethods {
         this.step.stepType = "findSingle"
     }
 
-    processBlanksStep() {
-        if (this.activePhase() === "showActive") {
-            // show active moves into the process compare phase
-            this.processActive()
-        } else if (this.activePhase() === "showCompare") {
-            // process compare will start to compare and setup removing
-            this.processCompare()
-        }
-    }
-
-    processCompare() {
-        const valueOptions = this.step.stepValues
-        const valuesToRemove = this.getToRemove()
-        const newValues: number[] = []
-        valueOptions.forEach((number) => {
-            if (valuesToRemove.indexOf(number) === -1) {
-                newValues.push(number)
-            }
-        })
-        this.step.stepValues = newValues;
-        this.step.stepSections.shift()
-
-        if (newValues.length === 1) {
-            this.notes.unshift(
-                `<div class="found">Determined there is only 1 option for spot ${this.activeSpot()}: ${newValues[0]}</div>`
-            )
-            this.setValueToCell(this.activeSpot(), newValues[0])
-        } else {
-            if (this.step.stepSections.length) {
-                this.resetBlankStepPhase()
-            } else {
-                this.blanks[this.activeSpot()] = this.step.stepValues
-                this.step.stepIndexes.shift()
-                this.setUpBlankStepDefaults()
-            }
-        }
-    }
-
-    setValueToCell(index: number, value: number) {
-        this.grid[index] = value
-        delete this.blanks[index]
-        this.setUpPlaceStep()
-        // remove index from steps indexes 
-        const indexNum = this.step.stepIndexes.indexOf(index + '')
-        if (indexNum !== -1) {
-            this.step.stepIndexes.splice(indexNum, 1)
-        }
-        // append to beginning of steps indexes
-        this.step.stepIndexes.unshift(index + "")
-        this.step.stepValues = [value]
-    }
-
-    processActive() {
-        const valuesInSection = this.valuesInCurrentSection()
-        const valueOptions = this.step.stepValues
-        const valuesToRemove: number[] = []
-        valuesInSection.forEach((number) => {
-            if (valueOptions.indexOf(number) !== -1) {
-                valuesToRemove.push(number)
-            }
-        })
-        this.step.stepValuesToRemove = valuesToRemove
-        this.step.stepPhases.shift()
-
-        // explain the step
-        if (valuesToRemove.length) {
-            this.notes.unshift(
-                `<div class="remove">Determined that ${valuesToRemove.join(',')} should be removed</div>`
-            )
-        } else {
-            this.notes.unshift(
-                `<div class="no-remove">Determined that no additional values should be removed</div>`
-            )
-        }
-        if (valuesInSection.length) {
-            this.notes.unshift(
-                `<div class="found">Found values: ${valuesInSection.join(',')} in ${this.activeType()} ${this.currentSectionIndex()}.</div>`
-            )
-        } else {
-            this.notes.unshift(
-                `<div class="no-found">Found no values in ${this.activeType()} ${this.currentSectionIndex()}.</div>`
-            )
-        }
-        this.notes.unshift(`<div class="consideration">Values in consideration for spot ${this.activeSpot()}: ${valueOptions.join(',')}</div>`)        
-        this.notes.unshift('') 
-    }
-
-    private setUpPlaceStep() {
+    public setUpPlaceStep() {
         this.step.stepSections = []
         this.step.stepPhases = this.placeSteps.slice()
         this.step.stepType = "place"
@@ -396,17 +301,17 @@ export class Sudoku extends RetrievalMethods {
         this.resetStepTypePattern()
     }
 
-    private setUpRemoveStep() {
+    public setUpRemoveStep() {
         this.step.stepType = "remove"
         this.resetSpotsToRemoveFrom()
         this.resetBlankStepPhase()
     }
 
-    private resetSpotsToRemoveFrom () {
+    public resetSpotsToRemoveFrom () {
         this.step.stepSpotsToRemoveFrom = []
     }
 
-    private setUpBlankStep() {
+    public setUpBlankStep() {
         this.step = {
             stepSections: [],
             stepPhases: [],
@@ -418,31 +323,17 @@ export class Sudoku extends RetrievalMethods {
         this.setUpBlankStepDefaults()
     }
 
-    private setUpBlankStepDefaults() {
-        const numbers: number[] = []
-        for (let i = 1; i <= this.numbers; i++) {
-            numbers.push(i)
-        }
-        this.step.stepValues = numbers
-        this.resetStepTypePattern()
-        this.resetBlankStepPhase()
-        this.step.stepType = "setUpBlanks"
-    }
+    
 
-    private resetStepTypePattern() {
-        this.step.stepSections = this.typePattern.slice()
-    }
+    
 
-    private resetBlankStepPhase() {
-        this.step.stepPhases = this.blanksStepPhases.slice()
-        this.resetStepRemove()
-    }
+    
 
-    private resetStepRemove() {
+    public resetStepRemove() {
         this.step.stepValuesToRemove = []
     }
 
-    private setUpBlanks() {
+    public setUpBlanks() {
         this.blanks = {}
         const grid = this.grid
         const blanks = {}
@@ -486,17 +377,11 @@ export class Sudoku extends RetrievalMethods {
         return string
     }
 
-    
-
-    public getToRemove() {
-        return this.step.stepValuesToRemove
-    }
-
-    private setStepValueIndexes() {
+    public setStepValueIndexes() {
         this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     }
 
-    private setUpSectionSingle() {
+    public setUpSectionSingle() {
         this.step.stepSections = this.typePattern.slice()
         this.step.valuesToPlace = {}
         this.step.stepPhases = ['showActive']
@@ -504,7 +389,7 @@ export class Sudoku extends RetrievalMethods {
         this.setStepValueIndexes()
     }
 
-    private nextSectionSingle() {
+    public nextSectionSingle() {
         this.step.stepValues.shift()
         if (!this.step.stepValues.length) {
             this.step.stepSections.shift()
@@ -516,7 +401,7 @@ export class Sudoku extends RetrievalMethods {
         }
     }
 
-    private getOptionsByIndex(indexes: number[]) {
+    public getOptionsByIndex(indexes: number[]) {
         const values: {[key: number]: number} = {}
         indexes.forEach((index) => {
             const options = this.blanks[index]
@@ -529,7 +414,7 @@ export class Sudoku extends RetrievalMethods {
         return (Object as any).values(values).sort()
     }
 
-    private getInOrderSubsectionSequences(indexes: number[]) {
+    public getInOrderSubsectionSequences(indexes: number[]) {
         return [
             indexes.slice(0, 3),
             indexes.slice(3, 6),
@@ -537,7 +422,7 @@ export class Sudoku extends RetrievalMethods {
         ]
     }
 
-    private getInColumnSubSequences(indexes: number[]) {
+    public getInColumnSubSequences(indexes: number[]) {
         return [
             [indexes[0], indexes[3], indexes[6]],
             [indexes[1], indexes[4], indexes[7]],
@@ -545,7 +430,7 @@ export class Sudoku extends RetrievalMethods {
         ]
     }
 
-    private addDataToFindingsForSubSections(indexSets: number[][], comparisonType: sectionType, findings: { [key: string]: number[] }[] = []) {
+    public addDataToFindingsForSubSections(indexSets: number[][], comparisonType: sectionType, findings: { [key: string]: number[] }[] = []) {
         indexSets.forEach((indexes) => {
             const rowIndexes = this.getIndexes(comparisonType, this.findSectionIndex(comparisonType, indexes[0]))
             indexes.forEach((index) => {
@@ -584,7 +469,7 @@ export class Sudoku extends RetrievalMethods {
         return squareFindings
     }
 
-    private findSubSectionDistribution(findings: { [key: string]: number[] }[]) {
+    public findSubSectionDistribution(findings: { [key: string]: number[] }[]) {
         const dist: {[key: number]: number[]} = {}
 
         findings.forEach((finding: { [key: string]: number[] }, index) => {
@@ -595,7 +480,7 @@ export class Sudoku extends RetrievalMethods {
         return dist
     }
 
-    private translateDistToValuesSpecificToSection(dist: { [key: number]: number[] }) {
+    public translateDistToValuesSpecificToSection(dist: { [key: number]: number[] }) {
         const sections: {[key: string]: number[]} = {
             0: [],
             1: [],
@@ -609,7 +494,7 @@ export class Sudoku extends RetrievalMethods {
         return sections
     }
 
-    private determineValueChangesBasedOnFindings(findings: { [key: string]: number[] }[]): { [key: string]: number[] }[] {
+    public determineValueChangesBasedOnFindings(findings: { [key: string]: number[] }[]): { [key: string]: number[] }[] {
         const dist = this.findSubSectionDistribution(findings)
         const singleBySubsection = this.translateDistToValuesSpecificToSection(dist)
         const output: { [key: string]: number[] }[] = []

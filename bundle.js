@@ -345,16 +345,13 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(0);
-var retrievalMethods_1 = __webpack_require__(6);
+var blankMethods_1 = __webpack_require__(7);
 var Sudoku = (function (_super) {
     __extends(Sudoku, _super);
     function Sudoku(grid) {
         if (grid === void 0) { grid = puzzles_1.easy1; }
         var _this = _super.call(this, grid) || this;
-        _this.typePattern = ['row', 'column', 'square'];
-        _this.blanksStepPhases = ["showActive", "showCompare"];
         _this.placeSteps = ["place"];
-        _this.notes = [];
         _this.setUpNewSection();
         return _this;
     }
@@ -367,13 +364,7 @@ var Sudoku = (function (_super) {
             return;
         }
         if (this.step.stepType === "setUpBlanks") {
-            if (!this.step.stepIndexes.length) {
-                this.setUpSectionSingle();
-                this.sectionSingleFindActives();
-            }
-            else {
-                this.processBlanksStep();
-            }
+            this.takeStepBlank();
         }
         else if (this.step.stepType === "place") {
             this.processPlaceStep();
@@ -623,82 +614,6 @@ var Sudoku = (function (_super) {
         this.step.stepPhases = ["search"];
         this.step.stepType = "findSingle";
     };
-    Sudoku.prototype.processBlanksStep = function () {
-        if (this.activePhase() === "showActive") {
-            // show active moves into the process compare phase
-            this.processActive();
-        }
-        else if (this.activePhase() === "showCompare") {
-            // process compare will start to compare and setup removing
-            this.processCompare();
-        }
-    };
-    Sudoku.prototype.processCompare = function () {
-        var valueOptions = this.step.stepValues;
-        var valuesToRemove = this.getToRemove();
-        var newValues = [];
-        valueOptions.forEach(function (number) {
-            if (valuesToRemove.indexOf(number) === -1) {
-                newValues.push(number);
-            }
-        });
-        this.step.stepValues = newValues;
-        this.step.stepSections.shift();
-        if (newValues.length === 1) {
-            this.notes.unshift("<div class=\"found\">Determined there is only 1 option for spot " + this.activeSpot() + ": " + newValues[0] + "</div>");
-            this.setValueToCell(this.activeSpot(), newValues[0]);
-        }
-        else {
-            if (this.step.stepSections.length) {
-                this.resetBlankStepPhase();
-            }
-            else {
-                this.blanks[this.activeSpot()] = this.step.stepValues;
-                this.step.stepIndexes.shift();
-                this.setUpBlankStepDefaults();
-            }
-        }
-    };
-    Sudoku.prototype.setValueToCell = function (index, value) {
-        this.grid[index] = value;
-        delete this.blanks[index];
-        this.setUpPlaceStep();
-        // remove index from steps indexes 
-        var indexNum = this.step.stepIndexes.indexOf(index + '');
-        if (indexNum !== -1) {
-            this.step.stepIndexes.splice(indexNum, 1);
-        }
-        // append to beginning of steps indexes
-        this.step.stepIndexes.unshift(index + "");
-        this.step.stepValues = [value];
-    };
-    Sudoku.prototype.processActive = function () {
-        var valuesInSection = this.valuesInCurrentSection();
-        var valueOptions = this.step.stepValues;
-        var valuesToRemove = [];
-        valuesInSection.forEach(function (number) {
-            if (valueOptions.indexOf(number) !== -1) {
-                valuesToRemove.push(number);
-            }
-        });
-        this.step.stepValuesToRemove = valuesToRemove;
-        this.step.stepPhases.shift();
-        // explain the step
-        if (valuesToRemove.length) {
-            this.notes.unshift("<div class=\"remove\">Determined that " + valuesToRemove.join(',') + " should be removed</div>");
-        }
-        else {
-            this.notes.unshift("<div class=\"no-remove\">Determined that no additional values should be removed</div>");
-        }
-        if (valuesInSection.length) {
-            this.notes.unshift("<div class=\"found\">Found values: " + valuesInSection.join(',') + " in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
-        }
-        else {
-            this.notes.unshift("<div class=\"no-found\">Found no values in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
-        }
-        this.notes.unshift("<div class=\"consideration\">Values in consideration for spot " + this.activeSpot() + ": " + valueOptions.join(',') + "</div>");
-        this.notes.unshift('');
-    };
     Sudoku.prototype.setUpPlaceStep = function () {
         this.step.stepSections = [];
         this.step.stepPhases = this.placeSteps.slice();
@@ -724,23 +639,6 @@ var Sudoku = (function (_super) {
             stepValuesToRemove: []
         };
         this.setUpBlankStepDefaults();
-    };
-    Sudoku.prototype.setUpBlankStepDefaults = function () {
-        var numbers = [];
-        for (var i = 1; i <= this.numbers; i++) {
-            numbers.push(i);
-        }
-        this.step.stepValues = numbers;
-        this.resetStepTypePattern();
-        this.resetBlankStepPhase();
-        this.step.stepType = "setUpBlanks";
-    };
-    Sudoku.prototype.resetStepTypePattern = function () {
-        this.step.stepSections = this.typePattern.slice();
-    };
-    Sudoku.prototype.resetBlankStepPhase = function () {
-        this.step.stepPhases = this.blanksStepPhases.slice();
-        this.resetStepRemove();
     };
     Sudoku.prototype.resetStepRemove = function () {
         this.step.stepValuesToRemove = [];
@@ -785,9 +683,6 @@ var Sudoku = (function (_super) {
         string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
         this.notes = [];
         return string;
-    };
-    Sudoku.prototype.getToRemove = function () {
-        return this.step.stepValuesToRemove;
     };
     Sudoku.prototype.setStepValueIndexes = function () {
         this.step.stepValues = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -943,7 +838,7 @@ var Sudoku = (function (_super) {
         return [];
     };
     return Sudoku;
-}(retrievalMethods_1.RetrievalMethods));
+}(blankMethods_1.BlankMethods));
 exports.Sudoku = Sudoku;
 
 
@@ -959,6 +854,7 @@ var SudokuBase = (function () {
     function SudokuBase(grid) {
         this.numbers = 9;
         this.givens = [];
+        this.notes = [];
         this.grid = grid.slice();
         this.numbers = Math.sqrt(grid.length);
         this.setGivens();
@@ -974,6 +870,11 @@ var SudokuBase = (function () {
             }
         });
     };
+    // bases for methods at higher levels
+    SudokuBase.prototype.setUpPlaceStep = function () { };
+    SudokuBase.prototype.setUpSectionSingle = function () { };
+    SudokuBase.prototype.sectionSingleFindActives = function () { };
+    SudokuBase.prototype.resetStepRemove = function () { };
     return SudokuBase;
 }());
 exports.SudokuBase = SudokuBase;
@@ -1172,9 +1073,173 @@ var RetrievalMethods = (function (_super) {
     RetrievalMethods.prototype.valuesInCurrentSection = function () {
         return this.valuesInSection(this.activeType(), this.currentSectionIndex());
     };
+    RetrievalMethods.prototype.getToRemove = function () {
+        return this.step.stepValuesToRemove;
+    };
     return RetrievalMethods;
 }(sectionIndexMethods_1.SectionIndexMethods));
 exports.RetrievalMethods = RetrievalMethods;
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var setMethods_1 = __webpack_require__(8);
+var BlankMethods = (function (_super) {
+    __extends(BlankMethods, _super);
+    function BlankMethods() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.blanksStepPhases = ["showActive", "showCompare"];
+        _this.typePattern = ['row', 'column', 'square'];
+        return _this;
+    }
+    BlankMethods.prototype.takeStepBlank = function () {
+        if (!this.step.stepIndexes.length) {
+            this.setUpSectionSingle();
+            this.sectionSingleFindActives();
+        }
+        else {
+            this.processBlanksStep();
+        }
+    };
+    BlankMethods.prototype.processBlanksStep = function () {
+        if (this.activePhase() === "showActive") {
+            // show active moves into the process compare phase
+            this.processActive();
+        }
+        else if (this.activePhase() === "showCompare") {
+            // process compare will start to compare and setup removing
+            this.processCompare();
+        }
+    };
+    BlankMethods.prototype.processActive = function () {
+        var valuesInSection = this.valuesInCurrentSection();
+        var valueOptions = this.step.stepValues;
+        var valuesToRemove = [];
+        valuesInSection.forEach(function (number) {
+            if (valueOptions.indexOf(number) !== -1) {
+                valuesToRemove.push(number);
+            }
+        });
+        this.step.stepValuesToRemove = valuesToRemove;
+        this.step.stepPhases.shift();
+        // explain the step
+        if (valuesToRemove.length) {
+            this.notes.unshift("<div class=\"remove\">Determined that " + valuesToRemove.join(',') + " should be removed</div>");
+        }
+        else {
+            this.notes.unshift("<div class=\"no-remove\">Determined that no additional values should be removed</div>");
+        }
+        if (valuesInSection.length) {
+            this.notes.unshift("<div class=\"found\">Found values: " + valuesInSection.join(',') + " in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
+        }
+        else {
+            this.notes.unshift("<div class=\"no-found\">Found no values in " + this.activeType() + " " + this.currentSectionIndex() + ".</div>");
+        }
+        this.notes.unshift("<div class=\"consideration\">Values in consideration for spot " + this.activeSpot() + ": " + valueOptions.join(',') + "</div>");
+        this.notes.unshift('');
+    };
+    BlankMethods.prototype.processCompare = function () {
+        var valueOptions = this.step.stepValues;
+        var valuesToRemove = this.getToRemove();
+        var newValues = [];
+        valueOptions.forEach(function (number) {
+            if (valuesToRemove.indexOf(number) === -1) {
+                newValues.push(number);
+            }
+        });
+        this.step.stepValues = newValues;
+        this.step.stepSections.shift();
+        if (newValues.length === 1) {
+            this.notes.unshift("<div class=\"found\">Determined there is only 1 option for spot " + this.activeSpot() + ": " + newValues[0] + "</div>");
+            this.setValueToCell(this.activeSpot(), newValues[0]);
+        }
+        else {
+            if (this.step.stepSections.length) {
+                this.resetBlankStepPhase();
+            }
+            else {
+                this.blanks[this.activeSpot()] = this.step.stepValues;
+                this.step.stepIndexes.shift();
+                this.setUpBlankStepDefaults();
+            }
+        }
+    };
+    BlankMethods.prototype.resetBlankStepPhase = function () {
+        this.step.stepPhases = this.blanksStepPhases.slice();
+        this.resetStepRemove();
+    };
+    BlankMethods.prototype.setUpBlankStepDefaults = function () {
+        var numbers = [];
+        for (var i = 1; i <= this.numbers; i++) {
+            numbers.push(i);
+        }
+        this.step.stepValues = numbers;
+        this.resetStepTypePattern();
+        this.resetBlankStepPhase();
+        this.step.stepType = "setUpBlanks";
+    };
+    BlankMethods.prototype.resetStepTypePattern = function () {
+        this.step.stepSections = this.typePattern.slice();
+    };
+    return BlankMethods;
+}(setMethods_1.SetMethods));
+exports.BlankMethods = BlankMethods;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var retrievalMethods_1 = __webpack_require__(6);
+var SetMethods = (function (_super) {
+    __extends(SetMethods, _super);
+    function SetMethods() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SetMethods.prototype.setValueToCell = function (index, value) {
+        this.grid[index] = value;
+        delete this.blanks[index];
+        this.setUpPlaceStep();
+        // remove index from steps indexes 
+        var indexNum = this.step.stepIndexes.indexOf(index + '');
+        if (indexNum !== -1) {
+            this.step.stepIndexes.splice(indexNum, 1);
+        }
+        // append to beginning of steps indexes
+        this.step.stepIndexes.unshift(index + "");
+        this.step.stepValues = [value];
+    };
+    return SetMethods;
+}(retrievalMethods_1.RetrievalMethods));
+exports.SetMethods = SetMethods;
 
 
 /***/ })

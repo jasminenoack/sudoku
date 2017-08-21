@@ -109,4 +109,8 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
     public valuesInCurrentSection() {
         return this.valuesInSection(this.activeType(), this.currentSectionIndex())
     }
+
+    public getToRemove() {
+        return this.step.stepValuesToRemove
+    }
 }
