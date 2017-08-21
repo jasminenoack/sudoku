@@ -14,4 +14,9 @@ export abstract class SetMethods extends RetrievalMethods {
         this.step.stepIndexes.unshift(index + "")
         this.step.stepValues = [value]
     }
+
+    removeFromOptions(options: number[], value: number) {
+        const indexNum = options.indexOf(value)
+        options.splice(indexNum, 1)
+    }
 }

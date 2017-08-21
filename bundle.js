@@ -351,7 +351,6 @@ var Sudoku = (function (_super) {
     function Sudoku(grid) {
         if (grid === void 0) { grid = puzzles_1.easy1; }
         var _this = _super.call(this, grid) || this;
-        _this.placeSteps = ["place"];
         _this.setUpNewSection();
         return _this;
     }
@@ -370,7 +369,7 @@ var Sudoku = (function (_super) {
             this.takePlaceStep();
         }
         else if (this.step.stepType === "remove") {
-            this.processRemoveStep();
+            this.takeRemoveStep();
         }
         else if (this.step.stepType === "findSingle") {
             this.processFindSingle();
@@ -479,14 +478,6 @@ var Sudoku = (function (_super) {
         this.step.stepPhases = ['showActive', 'processSection'];
         this.step.stepSections = [];
     };
-    Sudoku.prototype.processRemoveStep = function () {
-        if (this.activePhase() === "showActive") {
-            this.completeRemoveActive();
-        }
-        else if (this.activePhase() === "showCompare") {
-            this.showRemoveActive();
-        }
-    };
     Sudoku.prototype.processFindSingle = function () {
         var index;
         var blankKeys = Object.keys(this.blanks);
@@ -538,101 +529,12 @@ var Sudoku = (function (_super) {
         });
         this.notes.unshift("<div class=\"section-single\">Looking for single occurrences in " + stepType + " " + stepSection + ".</div>");
     };
-    Sudoku.prototype.showRemoveActive = function () {
-        var _this = this;
-        this.setUpRemoveStep();
-        var indexes = this.getIndexes(this.activeType(), this.currentSectionIndex());
-        var indexesToRemoveFrom = [];
-        indexes.forEach(function (index) {
-            if (_this.blanks[index] && _this.blanks[index].indexOf(_this.value(_this.activeSpot())) !== -1) {
-                indexesToRemoveFrom.push(index);
-            }
-        });
-        this.step.stepSpotsToRemoveFrom = indexesToRemoveFrom;
-        if (indexesToRemoveFrom.length) {
-            this.notes.unshift("<div class=\"remove\">Determined that " + this.value(this.activeSpot()) + " should be removed from indexes: " + indexesToRemoveFrom.join(',') + "</div>");
-        }
-        else {
-            this.step.stepPhases = ["showCompare"];
-            this.notes.unshift("<div class=\"no-remove\">Found no squares that need removal in " + this.activeType() + "</div>");
-            this.step.stepSections.shift();
-        }
-        if (!this.step.stepSections.length) {
-            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
-                this.placeFromValuesToPlace();
-                return;
-            }
-            this.setUpSearch();
-        }
-    };
-    Sudoku.prototype.placeFromValuesToPlace = function () {
-        var index = +Object.keys(this.step.valuesToPlace)[0];
-        var value = this.step.valuesToPlace[index];
-        var type = this.activeType();
-        var types = this.typePattern.slice();
-        var typeIndex = types.indexOf(type);
-        types.splice(typeIndex, 1);
-        delete this.step.valuesToPlace[index];
-        this.step.stepIndexes.shift();
-        this.step.stepValues.shift();
-        this.setValueToCell(index, value);
-        this.step.stepSections = types;
-    };
-    Sudoku.prototype.removeFromOptions = function (options, value) {
-        var indexNum = options.indexOf(value);
-        options.splice(indexNum, 1);
-    };
-    Sudoku.prototype.completeRemoveActive = function () {
-        var _this = this;
-        var value = this.value(this.activeSpot());
-        var indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom;
-        indexesToRemoveFrom.forEach(function (index) {
-            var options = _this.blanks[index];
-            _this.removeFromOptions(options, value);
-        });
-        this.resetSpotsToRemoveFrom();
-        this.step.stepPhases.shift();
-        this.step.stepSections.shift();
-        if (!this.step.stepSections.length) {
-            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
-                this.placeFromValuesToPlace();
-                return;
-            }
-            this.setUpSearch();
-        }
-    };
     Sudoku.prototype.setUpSearch = function () {
         this.step.stepIndexes.shift();
         this.step.stepValues = [];
         this.notes.unshift("Searching for any options with only one value");
         this.step.stepPhases = ["search"];
         this.step.stepType = "findSingle";
-    };
-    Sudoku.prototype.setUpPlaceStep = function () {
-        this.step.stepSections = [];
-        this.step.stepPhases = this.placeSteps.slice();
-        this.step.stepType = "place";
-        this.resetStepRemove();
-        this.resetStepTypePattern();
-    };
-    Sudoku.prototype.setUpRemoveStep = function () {
-        this.step.stepType = "remove";
-        this.resetSpotsToRemoveFrom();
-        this.resetBlankStepPhase();
-    };
-    Sudoku.prototype.resetSpotsToRemoveFrom = function () {
-        this.step.stepSpotsToRemoveFrom = [];
-    };
-    Sudoku.prototype.setUpBlankStep = function () {
-        this.step = {
-            stepSections: [],
-            stepPhases: [],
-            stepType: "setUpBlanks",
-            stepIndexes: Object.keys(this.blanks),
-            stepValues: [],
-            stepValuesToRemove: []
-        };
-        this.setUpBlankStepDefaults();
     };
     Sudoku.prototype.resetStepRemove = function () {
         this.step.stepValuesToRemove = [];
@@ -1191,6 +1093,17 @@ var BlankMethods = (function (_super) {
     BlankMethods.prototype.resetStepTypePattern = function () {
         this.step.stepSections = this.typePattern.slice();
     };
+    BlankMethods.prototype.setUpBlankStep = function () {
+        this.step = {
+            stepSections: [],
+            stepPhases: [],
+            stepType: "setUpBlanks",
+            stepIndexes: Object.keys(this.blanks),
+            stepValues: [],
+            stepValuesToRemove: []
+        };
+        this.setUpBlankStepDefaults();
+    };
     return BlankMethods;
 }(setMethods_1.SetMethods));
 exports.BlankMethods = BlankMethods;
@@ -1232,6 +1145,10 @@ var SetMethods = (function (_super) {
         this.step.stepIndexes.unshift(index + "");
         this.step.stepValues = [value];
     };
+    SetMethods.prototype.removeFromOptions = function (options, value) {
+        var indexNum = options.indexOf(value);
+        options.splice(indexNum, 1);
+    };
     return SetMethods;
 }(retrievalMethods_1.RetrievalMethods));
 exports.SetMethods = SetMethods;
@@ -1259,13 +1176,49 @@ var blankMethods_1 = __webpack_require__(7);
 var PlaceRemoveStep = (function (_super) {
     __extends(PlaceRemoveStep, _super);
     function PlaceRemoveStep() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.placeSteps = ["place"];
+        return _this;
     }
     PlaceRemoveStep.prototype.takePlaceStep = function () {
         if (this.activePhase() === "place") {
             // move into the show active for remove row
             this.showRemoveActive();
         }
+    };
+    PlaceRemoveStep.prototype.takeRemoveStep = function () {
+        if (this.activePhase() === "showActive") {
+            this.completeRemoveActive();
+        }
+        else if (this.activePhase() === "showCompare") {
+            this.showRemoveActive();
+        }
+    };
+    PlaceRemoveStep.prototype.completeRemoveActive = function () {
+        var _this = this;
+        var value = this.value(this.activeSpot());
+        var indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom;
+        indexesToRemoveFrom.forEach(function (index) {
+            var options = _this.blanks[index];
+            _this.removeFromOptions(options, value);
+        });
+        this.resetSpotsToRemoveFrom();
+        this.step.stepPhases.shift();
+        this.step.stepSections.shift();
+        if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace();
+                return;
+            }
+            this.setUpSearch();
+        }
+    };
+    PlaceRemoveStep.prototype.setUpPlaceStep = function () {
+        this.step.stepSections = [];
+        this.step.stepPhases = this.placeSteps.slice();
+        this.step.stepType = "place";
+        this.resetStepRemove();
+        this.resetStepTypePattern();
     };
     PlaceRemoveStep.prototype.showRemoveActive = function () {
         var _this = this;

@@ -1,14 +1,53 @@
 import {BlankMethods} from './blankMethods'
+import {stepPhase} from './interfaces'
 
 export abstract class PlaceRemoveStep extends BlankMethods{
-    takePlaceStep() {
+    public placeSteps: stepPhase[] = ["place"]
+
+    public takePlaceStep() {
         if (this.activePhase() === "place") {
             // move into the show active for remove row
             this.showRemoveActive()
         }
     }
 
-    showRemoveActive() {
+    public takeRemoveStep() {
+        if (this.activePhase() === "showActive") {
+            this.completeRemoveActive()
+        } else if (this.activePhase() === "showCompare") {
+            this.showRemoveActive()
+        }
+    }
+
+    public completeRemoveActive() {
+        const value = this.value(this.activeSpot())
+        const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
+        indexesToRemoveFrom.forEach((index) => {
+            const options = this.blanks[index]
+            this.removeFromOptions(options, value)
+        })
+        this.resetSpotsToRemoveFrom()
+        this.step.stepPhases.shift()
+        this.step.stepSections.shift()
+
+        if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace()
+                return
+            }
+            this.setUpSearch()
+        }
+    }
+
+    public setUpPlaceStep() {
+        this.step.stepSections = []
+        this.step.stepPhases = this.placeSteps.slice()
+        this.step.stepType = "place"
+        this.resetStepRemove()
+        this.resetStepTypePattern()
+    }
+
+    public showRemoveActive() {
         this.setUpRemoveStep()
         const indexes = this.getIndexes(this.activeType(), this.currentSectionIndex())
         const indexesToRemoveFrom: number[] = []

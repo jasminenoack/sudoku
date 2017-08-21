@@ -107,4 +107,17 @@ export abstract class BlankMethods extends SetMethods {
     public resetStepTypePattern() {
         this.step.stepSections = this.typePattern.slice()
     }
+
+    public setUpBlankStep() {
+        this.step = {
+            stepSections: [],
+            stepPhases: [],
+            stepType: "setUpBlanks",
+            stepIndexes: Object.keys(this.blanks),
+            stepValues: [],
+            stepValuesToRemove: []
+        }
+        this.setUpBlankStepDefaults()
+    }
+
 }
