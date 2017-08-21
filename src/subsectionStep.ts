@@ -2,6 +2,8 @@ import { SingleSectionStep } from './singleSectionStep'
 import { sectionType } from './interfaces'
 
 export abstract class SubsectionStep extends SingleSectionStep {
+    public madeChange: boolean = false
+
     public setupSubsectionOptions() {
         this.step.stepSections = this.typePattern.slice()
         this.step.stepPhases = ["processSection"]
@@ -132,6 +134,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
     }
 
     public setupProcessFoundSubsections() {
+        this.madeChange = false
         this.step.stepType = "processFoundSubsections"
         this.step.stepValues = []
         this.step.stepPhases = ['showActive', 'processSection']
@@ -149,6 +152,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
     public processSubSectionProcess() {
         const numberToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove[0]
         const indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom
+        this.madeChange = true
         indexesToRemoveFrom.forEach((index) => {
             const options = this.blanks[index]
             this.removeFromOptions(options, numberToRemove)
@@ -199,7 +203,12 @@ export abstract class SubsectionStep extends SingleSectionStep {
             }
         }
         if (!this.step.stepSubsectionsToProcess.length) {
-            this.setUpSearch()
+            if (this.madeChange) {
+                this.setUpSearch()
+                this.madeChange = false
+            } else {
+                this.step.stepType = "endStep"
+            }
         }
     }
 

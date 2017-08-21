@@ -1152,7 +1152,9 @@ var singleSectionStep_1 = __webpack_require__(12);
 var SubsectionStep = (function (_super) {
     __extends(SubsectionStep, _super);
     function SubsectionStep() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.madeChange = false;
+        return _this;
     }
     SubsectionStep.prototype.setupSubsectionOptions = function () {
         this.step.stepSections = this.typePattern.slice();
@@ -1271,6 +1273,7 @@ var SubsectionStep = (function (_super) {
         return sections;
     };
     SubsectionStep.prototype.setupProcessFoundSubsections = function () {
+        this.madeChange = false;
         this.step.stepType = "processFoundSubsections";
         this.step.stepValues = [];
         this.step.stepPhases = ['showActive', 'processSection'];
@@ -1288,6 +1291,7 @@ var SubsectionStep = (function (_super) {
         var _this = this;
         var numberToRemove = this.step.stepSubsectionsToProcess[0].numbersToRemove[0];
         var indexesToRemoveFrom = this.step.stepSpotsToRemoveFrom;
+        this.madeChange = true;
         indexesToRemoveFrom.forEach(function (index) {
             var options = _this.blanks[index];
             _this.removeFromOptions(options, numberToRemove);
@@ -1335,7 +1339,13 @@ var SubsectionStep = (function (_super) {
             }
         }
         if (!this.step.stepSubsectionsToProcess.length) {
-            this.setUpSearch();
+            if (this.madeChange) {
+                this.setUpSearch();
+                this.madeChange = false;
+            }
+            else {
+                this.step.stepType = "endStep";
+            }
         }
     };
     SubsectionStep.prototype.addDataToFindingsForSubSections = function (indexSets, comparisonType, findings) {
