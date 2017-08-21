@@ -69,7 +69,7 @@ class GameUtils {
             el.classList.add('options')
             const options: number[] = sudoku.getOptions(index)
             let toRemove: number[] = []
-            if (index === sudoku.activeSpot()) {
+            if (index === sudoku.activeSpot() || sudoku.indexInRemovalSpots(index)) {
                 toRemove = sudoku.getToRemove()
             }
             this.addOptionsToEl(el, options, toRemove)

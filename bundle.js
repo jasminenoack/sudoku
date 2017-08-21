@@ -256,7 +256,7 @@ var GameUtils = (function () {
             el.classList.add('options');
             var options = sudoku.getOptions(index);
             var toRemove = [];
-            if (index === sudoku.activeSpot()) {
+            if (index === sudoku.activeSpot() || sudoku.indexInRemovalSpots(index)) {
                 toRemove = sudoku.getToRemove();
             }
             this.addOptionsToEl(el, options, toRemove);
@@ -677,7 +677,13 @@ var RetrievalMethods = (function (_super) {
         return this.valuesInSection(this.activeType(), this.currentSectionIndex());
     };
     RetrievalMethods.prototype.getToRemove = function () {
+        if (this.step.stepType === "processFoundSubsections" && this.step.stepPhases[0] === "processSection") {
+            return [this.step.stepSubsectionsToProcess[0].numbersToRemove[0]];
+        }
         return this.step.stepValuesToRemove;
+    };
+    RetrievalMethods.prototype.indexInRemovalSpots = function (index) {
+        return this.step.stepSpotsToRemoveFrom && this.step.stepSpotsToRemoveFrom.indexOf(index) !== -1;
     };
     return RetrievalMethods;
 }(sectionIndexMethods_1.SectionIndexMethods));

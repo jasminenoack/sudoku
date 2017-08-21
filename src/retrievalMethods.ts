@@ -129,6 +129,13 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
     }
 
     public getToRemove() {
+        if (this.step.stepType === "processFoundSubsections" && this.step.stepPhases[0] === "processSection") {
+            return [this.step.stepSubsectionsToProcess[0].numbersToRemove[0]]
+        }
         return this.step.stepValuesToRemove
+    }
+
+    public indexInRemovalSpots(index: number) {
+        return this.step.stepSpotsToRemoveFrom && this.step.stepSpotsToRemoveFrom.indexOf(index) !== -1
     }
 }
