@@ -1,6 +1,6 @@
 export type sectionType = 'row' | 'column' | 'square'
-export type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle" | "sectionSingle" | "endStep" | "subsectionOptionSets" | "processFoundSubsections"
-export type stepPhase = "showActive" | "showCompare" | "place" | "remove" | "checkSingle" | "search" | "processSection"
+export type stepType = 'setUpBlanks' | "place" | "remove" | "findSingle" | "sectionSingle" | "endStep" | "subsectionOptionSets" | "processFoundSubsections" | "combinationStep"
+export type stepPhase = "showActive" | "showCompare" | "place" | "remove" | "checkSingle" | "search" | "processSection" | "lookingForCombos"
 
 export interface step {
     stepSections: sectionType[],

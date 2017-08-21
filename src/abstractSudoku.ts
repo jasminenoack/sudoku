@@ -32,4 +32,5 @@ export abstract class SudokuBase {
     public resetStepRemove() {}
     public setUpSearch() {}
     public setupSubsectionOptions() {}
+    public setUpCombinationStep() {}
 }

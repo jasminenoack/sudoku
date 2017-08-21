@@ -345,7 +345,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(0);
-var subsectionStep_1 = __webpack_require__(14);
+var combinationStep_1 = __webpack_require__(15);
 var Sudoku = (function (_super) {
     __extends(Sudoku, _super);
     function Sudoku(grid) {
@@ -383,6 +383,9 @@ var Sudoku = (function (_super) {
         else if (this.step.stepType === "processFoundSubsections") {
             this.takeProcessSubsectionStep();
         }
+        else if (this.step.stepType === "combinationStep") {
+            this.takeCombinationStep();
+        }
     };
     Sudoku.prototype.currentStepString = function () {
         var string = '';
@@ -409,7 +412,7 @@ var Sudoku = (function (_super) {
         return string;
     };
     return Sudoku;
-}(subsectionStep_1.SubsectionStep));
+}(combinationStep_1.CombinationStep));
 exports.Sudoku = Sudoku;
 
 
@@ -448,6 +451,7 @@ var SudokuBase = (function () {
     SudokuBase.prototype.resetStepRemove = function () { };
     SudokuBase.prototype.setUpSearch = function () { };
     SudokuBase.prototype.setupSubsectionOptions = function () { };
+    SudokuBase.prototype.setUpCombinationStep = function () { };
     return SudokuBase;
 }());
 exports.SudokuBase = SudokuBase;
@@ -693,6 +697,17 @@ var RetrievalMethods = (function (_super) {
             });
         }
         return Object.values(result);
+    };
+    RetrievalMethods.prototype.indexWithBlanks = function (type, section) {
+        var _this = this;
+        var indexes = this.getIndexes(type, section);
+        var blankIndexes = [];
+        indexes.forEach(function (index) {
+            if (_this.blanks[index]) {
+                blankIndexes.push(index);
+            }
+        });
+        return blankIndexes;
     };
     return RetrievalMethods;
 }(sectionIndexMethods_1.SectionIndexMethods));
@@ -1194,7 +1209,7 @@ var SubsectionStep = (function (_super) {
             this.setupProcessFoundSubsections();
         }
         else if (!this.step.stepSections.length) {
-            this.step.stepType = "endStep";
+            this.setUpCombinationStep();
         }
     };
     SubsectionStep.prototype.numbersInSquareParts = function (section) {
@@ -1359,7 +1374,7 @@ var SubsectionStep = (function (_super) {
                 this.madeChange = false;
             }
             else {
-                this.step.stepType = "endStep";
+                this.setUpCombinationStep();
             }
         }
     };
@@ -1382,6 +1397,62 @@ var SubsectionStep = (function (_super) {
     return SubsectionStep;
 }(singleSectionStep_1.SingleSectionStep));
 exports.SubsectionStep = SubsectionStep;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var subsectionStep_1 = __webpack_require__(14);
+var CombinationStep = (function (_super) {
+    __extends(CombinationStep, _super);
+    function CombinationStep() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CombinationStep.prototype.takeCombinationStep = function () {
+    };
+    CombinationStep.prototype.setUpCombinationStep = function () {
+        this.step.stepType = 'combinationStep';
+        this.step.stepSections = this.typePattern.slice();
+        this.step.stepPhases = ['lookingForCombos'];
+        this.setStepValueIndexes();
+    };
+    CombinationStep.prototype.getCombinations = function (indexes) {
+        var result = [];
+        var maxLength = indexes.length - 1;
+        function findCombinations(options, current) {
+            if (current === void 0) { current = []; }
+            options.forEach(function (number, index) {
+                var currentTest = current.slice();
+                currentTest.push(number);
+                if (currentTest.length > 1) {
+                    result.push(currentTest);
+                }
+                var left = options.slice(index + 1);
+                if (left.length > 0 && currentTest.length < maxLength) {
+                    findCombinations(left, currentTest);
+                }
+            });
+        }
+        findCombinations(indexes);
+        return result;
+    };
+    return CombinationStep;
+}(subsectionStep_1.SubsectionStep));
+exports.CombinationStep = CombinationStep;
 
 
 /***/ })

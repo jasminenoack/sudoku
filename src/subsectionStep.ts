@@ -29,7 +29,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
         if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
             this.setupProcessFoundSubsections()
         } else if (!this.step.stepSections.length) {
-            this.step.stepType = "endStep"
+            this.setUpCombinationStep()
         }
     }
 
@@ -207,7 +207,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
                 this.setUpSearch()
                 this.madeChange = false
             } else {
-                this.step.stepType = "endStep"
+                this.setUpCombinationStep()
             }
         }
     }

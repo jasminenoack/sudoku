@@ -163,4 +163,15 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
         }
         return (Object as any).values(result)
     }
+
+    public indexWithBlanks(type: sectionType, section: number): number[] {
+        const indexes = this.getIndexes(type, section)
+        const blankIndexes: number[] = []
+        indexes.forEach((index) => {
+            if (this.blanks[index]) {
+                blankIndexes.push(index)
+            }
+        })
+        return blankIndexes
+    }
 }

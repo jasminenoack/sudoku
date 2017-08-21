@@ -1,8 +1,8 @@
 import { easy1 } from './puzzles'
-import { SubsectionStep } from './subsectionStep'
+import { CombinationStep } from './combinationStep'
 import {sectionType, stepPhase, step, stepType}  from './interfaces'
 
-export class Sudoku extends SubsectionStep {
+export class Sudoku extends CombinationStep {
     constructor(grid: number[] = easy1) {
         super(grid)
         this.setUpNewSection()
@@ -31,6 +31,8 @@ export class Sudoku extends SubsectionStep {
             this.takeSubsectionOptionsStep()
         } else if (this.step.stepType === "processFoundSubsections") {
             this.takeProcessSubsectionStep()
+        } else if (this.step.stepType === "combinationStep") {
+            this.takeCombinationStep()
         }
     }
 
