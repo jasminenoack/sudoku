@@ -1,5 +1,5 @@
-import { SudokuBase } from './abstractSudoku'
 import {sectionType} from './interfaces'
+import { SudokuBase } from './abstractSudoku'
 
 export abstract class SectionIndexMethods extends SudokuBase {
     squareIndexes(square: number) {

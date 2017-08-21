@@ -1,14 +1,12 @@
 import { easy1 } from './puzzles'
-import { SudokuBase } from './abstractSudoku'
-import { SectionIndexMethods } from './sectionIndexMethods'
+import { RetrievalMethods } from './retrievalMethods'
 import {sectionType, stepPhase, step, stepType}  from './interfaces'
 
-export class Sudoku extends SectionIndexMethods {
-    public blanks: { [key: number]: number[] }
+export class Sudoku extends RetrievalMethods {
     private typePattern: sectionType[] = ['row', 'column', 'square']
     private blanksStepPhases: stepPhase[] = ["showActive", "showCompare"]
     private placeSteps: stepPhase[] = ["place"]
-    public step: step
+    
     private notes: string[] = []
     
     constructor(grid: number[] = easy1) {
@@ -457,38 +455,6 @@ export class Sudoku extends SectionIndexMethods {
         })
     }
 
-    
-
-    isGiven (index: number): boolean {
-        return this.givens[index]
-    }
-
-    value (index: number): number {
-        const value = this.grid[index]
-        if (value) {
-            return value
-        }
-    }
-
-    valuesInSection(type: sectionType, section: number) {
-        const indexes = this.getIndexes(type, section)  
-        return this.valuesByIndex(indexes)
-    }
-
-    private valuesByIndex(indexes: number[]) {
-        let values: number[] = []
-        indexes.forEach((index) => {
-            if (this.value(index)) {
-                values.push(this.value(index))
-            }
-        })
-        return values.sort()
-    }
-
-    valuesInCurrentSection() {
-        return this.valuesInSection(this.activeType(), this.currentSectionIndex())
-    }
-
     check(type: sectionType, section: number, number: number) {
         const values = this.valuesInSection(type, section)
         return values.indexOf(number) !== -1
@@ -520,83 +486,7 @@ export class Sudoku extends SectionIndexMethods {
         return string
     }
 
-    currentSectionIndex() {
-        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
-            return this.step.stepValues[0]
-        }
-        return this.findSectionIndex(this.activeType(), this.activeSpot())
-    }
-
-    findSectionIndex(type: sectionType, index: number): number {
-        if (type === "row") {
-            return Math.floor(index / this.numbers)
-        } else if (type === "column") {
-            return index % this.numbers
-        } else if (type === "square") {
-            const squareRow = Math.floor(index / 27)
-            const squareColumn = Math.floor((index % 9) / 3)
-            return 3 * squareRow + squareColumn
-        }
-    }
-
-    inActiveSection(index: number): boolean {
-        if (this.step.stepType === "processFoundSubsections") {
-            const indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore
-            return indexes.indexOf(index) !== -1
-        }
-        let type = this.activeType()
-        let sectionIndex = this.currentSectionIndex()
-        if (type === "row") {
-            if (this.inRow(index, sectionIndex)) {
-                return true
-            }
-        } else if (type === "column") {
-            if (this.inColumn(index, sectionIndex)) {
-                return true
-            }
-        } else if (type === "square") {
-            if (this.inSquare(index, sectionIndex)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private inRow(index: number, row: number): boolean {
-        let low = row * this.numbers
-        let high = low + this.numbers - 1
-        return index >= low && index <= high
-    }
-
-    private inColumn(index: number, column: number): boolean {
-        return (index - column) % this.numbers === 0
-    }
-
-    private inSquare(index: number, square: number): boolean {
-        const indexes = this.squareIndexes(square)
-        return indexes.indexOf(index) !== -1
-    }
-
-    public activeSpot() {
-        return +this.step.stepIndexes[0]
-    }
-
-    public activeType() {
-        return this.step.stepSections[0]
-    }
-
-    public activePhase() {
-        return this.step.stepPhases[0]
-    }
-
-    public getOptions(index: number): number[] {
-        if (this.activeSpot() === index) {
-            return this.step.stepValues
-        } else if (this.blanks[index]) {
-            return this.blanks[index]
-        }
-        return []
-    }
+    
 
     public getToRemove() {
         return this.step.stepValuesToRemove

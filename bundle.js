@@ -345,7 +345,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(0);
-var sectionIndexMethods_1 = __webpack_require__(5);
+var retrievalMethods_1 = __webpack_require__(6);
 var Sudoku = (function (_super) {
     __extends(Sudoku, _super);
     function Sudoku(grid) {
@@ -758,32 +758,6 @@ var Sudoku = (function (_super) {
             }
         });
     };
-    Sudoku.prototype.isGiven = function (index) {
-        return this.givens[index];
-    };
-    Sudoku.prototype.value = function (index) {
-        var value = this.grid[index];
-        if (value) {
-            return value;
-        }
-    };
-    Sudoku.prototype.valuesInSection = function (type, section) {
-        var indexes = this.getIndexes(type, section);
-        return this.valuesByIndex(indexes);
-    };
-    Sudoku.prototype.valuesByIndex = function (indexes) {
-        var _this = this;
-        var values = [];
-        indexes.forEach(function (index) {
-            if (_this.value(index)) {
-                values.push(_this.value(index));
-            }
-        });
-        return values.sort();
-    };
-    Sudoku.prototype.valuesInCurrentSection = function () {
-        return this.valuesInSection(this.activeType(), this.currentSectionIndex());
-    };
     Sudoku.prototype.check = function (type, section, number) {
         var values = this.valuesInSection(type, section);
         return values.indexOf(number) !== -1;
@@ -811,79 +785,6 @@ var Sudoku = (function (_super) {
         string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
         this.notes = [];
         return string;
-    };
-    Sudoku.prototype.currentSectionIndex = function () {
-        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
-            return this.step.stepValues[0];
-        }
-        return this.findSectionIndex(this.activeType(), this.activeSpot());
-    };
-    Sudoku.prototype.findSectionIndex = function (type, index) {
-        if (type === "row") {
-            return Math.floor(index / this.numbers);
-        }
-        else if (type === "column") {
-            return index % this.numbers;
-        }
-        else if (type === "square") {
-            var squareRow = Math.floor(index / 27);
-            var squareColumn = Math.floor((index % 9) / 3);
-            return 3 * squareRow + squareColumn;
-        }
-    };
-    Sudoku.prototype.inActiveSection = function (index) {
-        if (this.step.stepType === "processFoundSubsections") {
-            var indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore;
-            return indexes.indexOf(index) !== -1;
-        }
-        var type = this.activeType();
-        var sectionIndex = this.currentSectionIndex();
-        if (type === "row") {
-            if (this.inRow(index, sectionIndex)) {
-                return true;
-            }
-        }
-        else if (type === "column") {
-            if (this.inColumn(index, sectionIndex)) {
-                return true;
-            }
-        }
-        else if (type === "square") {
-            if (this.inSquare(index, sectionIndex)) {
-                return true;
-            }
-        }
-        return false;
-    };
-    Sudoku.prototype.inRow = function (index, row) {
-        var low = row * this.numbers;
-        var high = low + this.numbers - 1;
-        return index >= low && index <= high;
-    };
-    Sudoku.prototype.inColumn = function (index, column) {
-        return (index - column) % this.numbers === 0;
-    };
-    Sudoku.prototype.inSquare = function (index, square) {
-        var indexes = this.squareIndexes(square);
-        return indexes.indexOf(index) !== -1;
-    };
-    Sudoku.prototype.activeSpot = function () {
-        return +this.step.stepIndexes[0];
-    };
-    Sudoku.prototype.activeType = function () {
-        return this.step.stepSections[0];
-    };
-    Sudoku.prototype.activePhase = function () {
-        return this.step.stepPhases[0];
-    };
-    Sudoku.prototype.getOptions = function (index) {
-        if (this.activeSpot() === index) {
-            return this.step.stepValues;
-        }
-        else if (this.blanks[index]) {
-            return this.blanks[index];
-        }
-        return [];
     };
     Sudoku.prototype.getToRemove = function () {
         return this.step.stepValuesToRemove;
@@ -1042,7 +943,7 @@ var Sudoku = (function (_super) {
         return [];
     };
     return Sudoku;
-}(sectionIndexMethods_1.SectionIndexMethods));
+}(retrievalMethods_1.RetrievalMethods));
 exports.Sudoku = Sudoku;
 
 
@@ -1147,6 +1048,133 @@ var SectionIndexMethods = (function (_super) {
     return SectionIndexMethods;
 }(abstractSudoku_1.SudokuBase));
 exports.SectionIndexMethods = SectionIndexMethods;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var sectionIndexMethods_1 = __webpack_require__(5);
+var RetrievalMethods = (function (_super) {
+    __extends(RetrievalMethods, _super);
+    function RetrievalMethods() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    RetrievalMethods.prototype.activeSpot = function () {
+        return +this.step.stepIndexes[0];
+    };
+    RetrievalMethods.prototype.activeType = function () {
+        return this.step.stepSections[0];
+    };
+    RetrievalMethods.prototype.activePhase = function () {
+        return this.step.stepPhases[0];
+    };
+    RetrievalMethods.prototype.isGiven = function (index) {
+        return this.givens[index];
+    };
+    RetrievalMethods.prototype.value = function (index) {
+        var value = this.grid[index];
+        if (value) {
+            return value;
+        }
+    };
+    RetrievalMethods.prototype.currentSectionIndex = function () {
+        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
+            return this.step.stepValues[0];
+        }
+        return this.findSectionIndex(this.activeType(), this.activeSpot());
+    };
+    RetrievalMethods.prototype.findSectionIndex = function (type, index) {
+        if (type === "row") {
+            return Math.floor(index / this.numbers);
+        }
+        else if (type === "column") {
+            return index % this.numbers;
+        }
+        else if (type === "square") {
+            var squareRow = Math.floor(index / 27);
+            var squareColumn = Math.floor((index % 9) / 3);
+            return 3 * squareRow + squareColumn;
+        }
+    };
+    RetrievalMethods.prototype.inRow = function (index, row) {
+        var low = row * this.numbers;
+        var high = low + this.numbers - 1;
+        return index >= low && index <= high;
+    };
+    RetrievalMethods.prototype.inColumn = function (index, column) {
+        return (index - column) % this.numbers === 0;
+    };
+    RetrievalMethods.prototype.inSquare = function (index, square) {
+        var indexes = this.squareIndexes(square);
+        return indexes.indexOf(index) !== -1;
+    };
+    RetrievalMethods.prototype.inActiveSection = function (index) {
+        if (this.step.stepType === "processFoundSubsections") {
+            var indexes = this.step.stepSubsectionsToProcess[0].indexesToIgnore;
+            return indexes.indexOf(index) !== -1;
+        }
+        var type = this.activeType();
+        var sectionIndex = this.currentSectionIndex();
+        if (type === "row") {
+            if (this.inRow(index, sectionIndex)) {
+                return true;
+            }
+        }
+        else if (type === "column") {
+            if (this.inColumn(index, sectionIndex)) {
+                return true;
+            }
+        }
+        else if (type === "square") {
+            if (this.inSquare(index, sectionIndex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    RetrievalMethods.prototype.getOptions = function (index) {
+        if (this.activeSpot() === index) {
+            return this.step.stepValues;
+        }
+        else if (this.blanks[index]) {
+            return this.blanks[index];
+        }
+        return [];
+    };
+    RetrievalMethods.prototype.valuesInSection = function (type, section) {
+        var indexes = this.getIndexes(type, section);
+        return this.valuesByIndex(indexes);
+    };
+    RetrievalMethods.prototype.valuesByIndex = function (indexes) {
+        var _this = this;
+        var values = [];
+        indexes.forEach(function (index) {
+            if (_this.value(index)) {
+                values.push(_this.value(index));
+            }
+        });
+        return values.sort();
+    };
+    RetrievalMethods.prototype.valuesInCurrentSection = function () {
+        return this.valuesInSection(this.activeType(), this.currentSectionIndex());
+    };
+    return RetrievalMethods;
+}(sectionIndexMethods_1.SectionIndexMethods));
+exports.RetrievalMethods = RetrievalMethods;
 
 
 /***/ })

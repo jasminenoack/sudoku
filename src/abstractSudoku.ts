@@ -2,9 +2,11 @@ import { sectionType, stepType, stepPhase, step } from './interfaces'
 import { easy1 } from './puzzles'
 
 export abstract class SudokuBase {
+    public blanks: { [key: number]: number[] }
     public numbers: number = 9
     public givens: boolean[] = []
     public grid: number[]
+    public step: step
 
     constructor(grid: number[]) {
         this.grid = grid.slice()
