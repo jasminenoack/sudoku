@@ -2,10 +2,14 @@ import { SubsectionStep } from './subsectionStep'
 
 export abstract class CombinationStep extends SubsectionStep {
     public takeCombinationStep() {
+        debugger
         const section = this.step.stepValues[0]
         const sectionType = this.activeType()
         const indexes = this.indexWithBlanks(sectionType, section)
         const combinations = this.getCombinations(indexes)
+        this.notes.push(
+            `<div>Looking for combinations in ${this.activeType()} ${this.step.stepValues[0]}.</div>`
+        )
         combinations.forEach((combination) => {
             const dist = this.distCombinationOptions(combination)
             const distOptions = Object.keys(dist).length
@@ -28,6 +32,7 @@ export abstract class CombinationStep extends SubsectionStep {
         this.step.stepValues.shift()
         if (!this.step.stepValues.length) {
             this.step.stepSections.shift()
+            this.setStepValueIndexes()
         }
         if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
             this.setupProcessFoundSubsections()

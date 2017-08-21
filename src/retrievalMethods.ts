@@ -26,7 +26,7 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
     }
 
     public currentSectionIndex() {
-        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
+        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets" || this.step.stepType === "combinationStep") {
             return this.step.stepValues[0]
         }
         return this.findSectionIndex(this.activeType(), this.activeSpot())

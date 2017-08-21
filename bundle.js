@@ -178,15 +178,15 @@ exports.hard3 = [
     0, 1, 0, 0, 0, 5, 0, 0, 0
 ];
 exports.hard4 = [
-    0, 0, 0, 1, 0, 0, 0, 0, 0,
-    0, 3, 4, 0, 0, 0, 7, 8, 0,
-    0, 0, 9, 0, 0, 3, 0, 5, 0,
-    0, 0, 7, 0, 0, 0, 0, 2, 0,
-    0, 0, 8, 0, 3, 0, 0, 0, 6,
-    6, 0, 0, 4, 0, 0, 3, 0, 5,
-    0, 0, 0, 0, 4, 9, 2, 0, 0,
-    8, 0, 2, 0, 0, 1, 0, 0, 0,
-    0, 1, 0, 0, 0, 5, 0, 0, 0,
+    0, 0, 0, 0, 3, 7, 6, 0, 0,
+    0, 0, 0, 6, 0, 0, 0, 9, 0,
+    0, 0, 8, 0, 0, 0, 0, 0, 4,
+    0, 9, 0, 0, 0, 0, 0, 0, 1,
+    6, 0, 0, 0, 0, 0, 0, 0, 9,
+    3, 0, 0, 0, 0, 0, 0, 4, 0,
+    7, 0, 0, 0, 0, 0, 8, 0, 0,
+    0, 1, 0, 0, 0, 9, 0, 0, 0,
+    0, 0, 2, 5, 4, 0, 0, 0, 0,
 ];
 
 
@@ -581,7 +581,7 @@ var RetrievalMethods = (function (_super) {
         }
     };
     RetrievalMethods.prototype.currentSectionIndex = function () {
-        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets") {
+        if (this.step.stepType === "sectionSingle" || this.step.stepType === "subsectionOptionSets" || this.step.stepType === "combinationStep") {
             return this.step.stepValues[0];
         }
         return this.findSectionIndex(this.activeType(), this.activeSpot());
@@ -1435,10 +1435,12 @@ var CombinationStep = (function (_super) {
     }
     CombinationStep.prototype.takeCombinationStep = function () {
         var _this = this;
+        debugger;
         var section = this.step.stepValues[0];
         var sectionType = this.activeType();
         var indexes = this.indexWithBlanks(sectionType, section);
         var combinations = this.getCombinations(indexes);
+        this.notes.push("<div>Looking for combinations in " + this.activeType() + " " + this.step.stepValues[0] + ".</div>");
         combinations.forEach(function (combination) {
             var dist = _this.distCombinationOptions(combination);
             var distOptions = Object.keys(dist).length;
@@ -1459,6 +1461,7 @@ var CombinationStep = (function (_super) {
         this.step.stepValues.shift();
         if (!this.step.stepValues.length) {
             this.step.stepSections.shift();
+            this.setStepValueIndexes();
         }
         if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
             this.setupProcessFoundSubsections();
