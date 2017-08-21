@@ -321,7 +321,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 250);
+        interval = setInterval(func, 30);
     }
 });
 window.gameUtils = GameUtils;
@@ -359,6 +359,7 @@ var Sudoku = (function (_super) {
         this.setUpBlankStep();
     };
     Sudoku.prototype.takeStep = function () {
+        console.log(this.step.stepType);
         if (this.grid.indexOf(0) === -1) {
             return;
         }
@@ -1423,6 +1424,48 @@ var CombinationStep = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     CombinationStep.prototype.takeCombinationStep = function () {
+        var _this = this;
+        var section = this.step.stepValues[0];
+        var sectionType = this.activeType();
+        var indexes = this.indexWithBlanks(sectionType, section);
+        var combinations = this.getCombinations(indexes);
+        combinations.forEach(function (combination) {
+            var dist = _this.distCombinationOptions(combination);
+            var distOptions = Object.keys(dist).length;
+            if (distOptions === combination.length) {
+                var indexesToRemoveFrom_1 = indexes.slice();
+                combination.forEach(function (index) {
+                    var numIndex = indexesToRemoveFrom_1.indexOf(index);
+                    indexesToRemoveFrom_1.splice(numIndex, 1);
+                });
+                _this.notes.push("<div class=\"found\">Found a combination in " + combination.join(',') + " of values " + Object.values(dist).join(',') + ".</div>");
+                _this.step.stepSubsectionsToProcess.push({
+                    "indexesToCompare": indexesToRemoveFrom_1,
+                    "indexesToIgnore": combination,
+                    "numbersToRemove": Object.values(dist)
+                });
+            }
+        });
+        this.step.stepValues.shift();
+        if (!this.step.stepValues.length) {
+            this.step.stepSections.shift();
+        }
+        if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
+            this.setupProcessFoundSubsections();
+        }
+        else if (!this.step.stepSections.length) {
+            this.step.stepType = "endStep";
+        }
+    };
+    CombinationStep.prototype.distCombinationOptions = function (indexes) {
+        var _this = this;
+        var result = {};
+        indexes.forEach(function (index) {
+            _this.getOptions(index).forEach(function (option) {
+                result[option] = option;
+            });
+        });
+        return result;
     };
     CombinationStep.prototype.setUpCombinationStep = function () {
         this.step.stepType = 'combinationStep';

@@ -2204,7 +2204,7 @@ describe('sudoku board', () => {
                 "valuesToPlace": {},
                 "stepSubsectionsToProcess": [
                     { 
-                        "indexesToCompare": [18, 19, 20, 23, 24, 25, 26], 
+                        "indexesToCompare": [18, 19, 24, 26], 
                         "indexesToIgnore": [21, 22],
                          "numbersToRemove": [7, 8] 
                     },

@@ -2,7 +2,48 @@ import { SubsectionStep } from './subsectionStep'
 
 export abstract class CombinationStep extends SubsectionStep {
     public takeCombinationStep() {
-        
+        const section = this.step.stepValues[0]
+        const sectionType = this.activeType()
+        const indexes = this.indexWithBlanks(sectionType, section)
+        const combinations = this.getCombinations(indexes)
+        combinations.forEach((combination) => {
+            const dist = this.distCombinationOptions(combination)
+            const distOptions = Object.keys(dist).length
+            if (distOptions === combination.length) {
+                const indexesToRemoveFrom = indexes.slice()
+                combination.forEach((index) => {
+                    const numIndex = indexesToRemoveFrom.indexOf(index)
+                    indexesToRemoveFrom.splice(numIndex, 1)
+                })
+                this.notes.push(
+                    `<div class="found">Found a combination in ${combination.join(',')} of values ${(Object as any).values(dist).join(',')}.</div>`
+                )
+                this.step.stepSubsectionsToProcess.push({
+                    "indexesToCompare": indexesToRemoveFrom,
+                    "indexesToIgnore": combination,
+                    "numbersToRemove": (Object as any).values(dist)
+                })                
+            }
+        })
+        this.step.stepValues.shift()
+        if (!this.step.stepValues.length) {
+            this.step.stepSections.shift()
+        }
+        if (!this.step.stepSections.length && this.step.stepSubsectionsToProcess.length) {
+            this.setupProcessFoundSubsections()
+        } else if (!this.step.stepSections.length) {
+            this.step.stepType = "endStep"
+        }
+    }
+
+    private distCombinationOptions(indexes: number[]): {[key: number]: number} {
+        const result: { [key: number]: number }  = {}
+        indexes.forEach((index) => {
+            this.getOptions(index).forEach((option) => {
+                result[option] = option
+            })
+        })
+        return result
     }
 
     public setUpCombinationStep() {
