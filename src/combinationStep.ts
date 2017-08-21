@@ -2,7 +2,6 @@ import { SubsectionStep } from './subsectionStep'
 
 export abstract class CombinationStep extends SubsectionStep {
     public takeCombinationStep() {
-        debugger
         const section = this.step.stepValues[0]
         const sectionType = this.activeType()
         const indexes = this.indexWithBlanks(sectionType, section)

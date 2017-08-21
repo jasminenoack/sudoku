@@ -1435,7 +1435,6 @@ var CombinationStep = (function (_super) {
     }
     CombinationStep.prototype.takeCombinationStep = function () {
         var _this = this;
-        debugger;
         var section = this.step.stepValues[0];
         var sectionType = this.activeType();
         var indexes = this.indexWithBlanks(sectionType, section);
