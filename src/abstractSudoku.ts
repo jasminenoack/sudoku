@@ -31,4 +31,5 @@ export abstract class SudokuBase {
     public sectionSingleFindActives() {}
     public resetStepRemove() {}
     public setUpSearch() {}
+    public setupSubsectionOptions() {}
 }

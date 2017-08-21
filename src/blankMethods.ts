@@ -88,6 +88,19 @@ export abstract class BlankMethods extends SetMethods {
         }
     }
 
+    public setUpBlanks() {
+        this.blanks = {}
+        const grid = this.grid
+        const blanks = {}
+        const typePattern = this.typePattern
+        const numbers: number[] = []
+        this.grid.forEach((number, index) => {
+            if (number === 0) {
+                this.blanks[index] = []
+            }
+        })
+    }
+
     public resetBlankStepPhase() {
         this.step.stepPhases = this.blanksStepPhases.slice()
         this.resetStepRemove()

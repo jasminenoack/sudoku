@@ -39,6 +39,10 @@ export abstract class PlaceRemoveStep extends BlankMethods{
         }
     }
 
+    public resetStepRemove() {
+        this.step.stepValuesToRemove = []
+    }
+
     public setUpPlaceStep() {
         this.step.stepSections = []
         this.step.stepPhases = this.placeSteps.slice()

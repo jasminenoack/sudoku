@@ -91,6 +91,24 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
         return []
     }
 
+    public check(type: sectionType, section: number, number: number) {
+        const values = this.valuesInSection(type, section)
+        return values.indexOf(number) !== -1
+    }
+
+    public getOptionsByIndex(indexes: number[]) {
+        const values: { [key: number]: number } = {}
+        indexes.forEach((index) => {
+            const options = this.blanks[index]
+            if (options) {
+                options.forEach((option) => {
+                    values[option] = option
+                })
+            }
+        })
+        return (Object as any).values(values).sort()
+    }
+
     public valuesInSection(type: sectionType, section: number) {
         const indexes = this.getIndexes(type, section)
         return this.valuesByIndex(indexes)
