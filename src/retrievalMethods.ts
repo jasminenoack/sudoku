@@ -132,6 +132,9 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
         if (this.step.stepType === "processFoundSubsections" && this.step.stepPhases[0] === "processSection") {
             return [this.step.stepSubsectionsToProcess[0].numbersToRemove[0]]
         }
+        if (this.step.stepType === "remove" && this.step.stepPhases[0] == "showActive") {
+            return [this.value(this.activeSpot())]
+        }
         return this.step.stepValuesToRemove
     }
 
