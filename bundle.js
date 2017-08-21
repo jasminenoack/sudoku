@@ -345,7 +345,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var puzzles_1 = __webpack_require__(0);
-var blankMethods_1 = __webpack_require__(7);
+var placeRemoveStep_1 = __webpack_require__(10);
 var Sudoku = (function (_super) {
     __extends(Sudoku, _super);
     function Sudoku(grid) {
@@ -367,7 +367,7 @@ var Sudoku = (function (_super) {
             this.takeStepBlank();
         }
         else if (this.step.stepType === "place") {
-            this.processPlaceStep();
+            this.takePlaceStep();
         }
         else if (this.step.stepType === "remove") {
             this.processRemoveStep();
@@ -484,12 +484,6 @@ var Sudoku = (function (_super) {
             this.completeRemoveActive();
         }
         else if (this.activePhase() === "showCompare") {
-            this.showRemoveActive();
-        }
-    };
-    Sudoku.prototype.processPlaceStep = function () {
-        if (this.activePhase() === "place") {
-            // move into the show active for remove row
             this.showRemoveActive();
         }
     };
@@ -838,7 +832,7 @@ var Sudoku = (function (_super) {
         return [];
     };
     return Sudoku;
-}(blankMethods_1.BlankMethods));
+}(placeRemoveStep_1.PlaceRemoveStep));
 exports.Sudoku = Sudoku;
 
 
@@ -875,6 +869,7 @@ var SudokuBase = (function () {
     SudokuBase.prototype.setUpSectionSingle = function () { };
     SudokuBase.prototype.sectionSingleFindActives = function () { };
     SudokuBase.prototype.resetStepRemove = function () { };
+    SudokuBase.prototype.setUpSearch = function () { };
     return SudokuBase;
 }());
 exports.SudokuBase = SudokuBase;
@@ -1240,6 +1235,89 @@ var SetMethods = (function (_super) {
     return SetMethods;
 }(retrievalMethods_1.RetrievalMethods));
 exports.SetMethods = SetMethods;
+
+
+/***/ }),
+/* 9 */,
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var blankMethods_1 = __webpack_require__(7);
+var PlaceRemoveStep = (function (_super) {
+    __extends(PlaceRemoveStep, _super);
+    function PlaceRemoveStep() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PlaceRemoveStep.prototype.takePlaceStep = function () {
+        if (this.activePhase() === "place") {
+            // move into the show active for remove row
+            this.showRemoveActive();
+        }
+    };
+    PlaceRemoveStep.prototype.showRemoveActive = function () {
+        var _this = this;
+        this.setUpRemoveStep();
+        var indexes = this.getIndexes(this.activeType(), this.currentSectionIndex());
+        var indexesToRemoveFrom = [];
+        indexes.forEach(function (index) {
+            if (_this.blanks[index] && _this.blanks[index].indexOf(_this.value(_this.activeSpot())) !== -1) {
+                indexesToRemoveFrom.push(index);
+            }
+        });
+        this.step.stepSpotsToRemoveFrom = indexesToRemoveFrom;
+        if (indexesToRemoveFrom.length) {
+            this.notes.unshift("<div class=\"remove\">Determined that " + this.value(this.activeSpot()) + " should be removed from indexes: " + indexesToRemoveFrom.join(',') + "</div>");
+        }
+        else {
+            this.step.stepPhases = ["showCompare"];
+            this.notes.unshift("<div class=\"no-remove\">Found no squares that need removal in " + this.activeType() + "</div>");
+            this.step.stepSections.shift();
+        }
+        if (!this.step.stepSections.length) {
+            if (this.step.valuesToPlace && Object.keys(this.step.valuesToPlace).length) {
+                this.placeFromValuesToPlace();
+                return;
+            }
+            this.setUpSearch();
+        }
+    };
+    PlaceRemoveStep.prototype.setUpRemoveStep = function () {
+        this.step.stepType = "remove";
+        this.resetSpotsToRemoveFrom();
+        this.resetBlankStepPhase();
+    };
+    PlaceRemoveStep.prototype.resetSpotsToRemoveFrom = function () {
+        this.step.stepSpotsToRemoveFrom = [];
+    };
+    PlaceRemoveStep.prototype.placeFromValuesToPlace = function () {
+        var index = +Object.keys(this.step.valuesToPlace)[0];
+        var value = this.step.valuesToPlace[index];
+        var type = this.activeType();
+        var types = this.typePattern.slice();
+        var typeIndex = types.indexOf(type);
+        types.splice(typeIndex, 1);
+        delete this.step.valuesToPlace[index];
+        this.step.stepIndexes.shift();
+        this.step.stepValues.shift();
+        this.setValueToCell(index, value);
+        this.step.stepSections = types;
+    };
+    return PlaceRemoveStep;
+}(blankMethods_1.BlankMethods));
+exports.PlaceRemoveStep = PlaceRemoveStep;
 
 
 /***/ })

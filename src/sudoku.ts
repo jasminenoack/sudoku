@@ -1,8 +1,8 @@
 import { easy1 } from './puzzles'
-import { BlankMethods } from './blankMethods'
+import { PlaceRemoveStep } from './placeRemoveStep'
 import {sectionType, stepPhase, step, stepType}  from './interfaces'
 
-export class Sudoku extends BlankMethods {
+export class Sudoku extends PlaceRemoveStep {
     
     public placeSteps: stepPhase[] = ["place"]
     
@@ -23,7 +23,7 @@ export class Sudoku extends BlankMethods {
         if (this.step.stepType === "setUpBlanks") {
             this.takeStepBlank()
         } else if (this.step.stepType === "place") {
-            this.processPlaceStep()
+            this.takePlaceStep()
         } else if (this.step.stepType === "remove") {
             this.processRemoveStep()
         } else if (this.step.stepType === "findSingle") {
@@ -146,12 +146,7 @@ export class Sudoku extends BlankMethods {
         }
     }
 
-    processPlaceStep() {
-        if (this.activePhase() === "place") {
-            // move into the show active for remove row
-            this.showRemoveActive()
-        }
-    }
+    
 
     processFindSingle() {
         let index
