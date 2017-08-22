@@ -135,7 +135,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 100)
+        interval = setInterval(func, 150)
     }
 });
 
