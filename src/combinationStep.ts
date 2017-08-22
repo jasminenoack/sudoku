@@ -18,14 +18,26 @@ export abstract class CombinationStep extends SubsectionStep {
                     const numIndex = indexesToRemoveFrom.indexOf(index)
                     indexesToRemoveFrom.splice(numIndex, 1)
                 })
+                
+
+                const valuesInDiff = this.seesValueInOptions((Object as any).values(dist), indexesToRemoveFrom)
                 this.notes.push(
                     `<div class="found">Found a combination in ${combination.join(',')} of values ${(Object as any).values(dist).join(',')}.</div>`
                 )
-                this.step.stepSubsectionsToProcess.push({
-                    "indexesToCompare": indexesToRemoveFrom,
-                    "indexesToIgnore": combination,
-                    "numbersToRemove": (Object as any).values(dist)
-                })                
+                if (valuesInDiff) {
+                    this.step.stepSubsectionsToProcess.push({
+                        "indexesToCompare": indexesToRemoveFrom,
+                        "indexesToIgnore": combination,
+                        "numbersToRemove": (Object as any).values(dist)
+                    }) 
+                    this.notes.push(
+                        `<div>Determined that there were values in other cells that could be removed based on combination. Added subsection to tracking.</div>`
+                    )
+                } else {
+                    this.notes.push(
+                        `<div>Determined that combination would not have any effect on the problem. No longer tracking.</div>`
+                    )
+                }                  
             }
         })
         this.step.stepValues.shift()

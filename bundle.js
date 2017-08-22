@@ -423,7 +423,9 @@ var Sudoku = (function (_super) {
         }
         else if (stepType === "processFoundSubsections") {
             string += "<div class=\"step-description o-container o-container--small\">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
-            debugger;
+        }
+        else if (stepType === "combinationStep") {
+            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.\n            </div>";
         }
         else {
             debugger;
@@ -488,12 +490,19 @@ var CombinationStep = (function (_super) {
                     var numIndex = indexesToRemoveFrom_1.indexOf(index);
                     indexesToRemoveFrom_1.splice(numIndex, 1);
                 });
+                var valuesInDiff = _this.seesValueInOptions(Object.values(dist), indexesToRemoveFrom_1);
                 _this.notes.push("<div class=\"found\">Found a combination in " + combination.join(',') + " of values " + Object.values(dist).join(',') + ".</div>");
-                _this.step.stepSubsectionsToProcess.push({
-                    "indexesToCompare": indexesToRemoveFrom_1,
-                    "indexesToIgnore": combination,
-                    "numbersToRemove": Object.values(dist)
-                });
+                if (valuesInDiff) {
+                    _this.step.stepSubsectionsToProcess.push({
+                        "indexesToCompare": indexesToRemoveFrom_1,
+                        "indexesToIgnore": combination,
+                        "numbersToRemove": Object.values(dist)
+                    });
+                    _this.notes.push("<div>Determined that there were values in other cells that could be removed based on combination. Added subsection to tracking.</div>");
+                }
+                else {
+                    _this.notes.push("<div>Determined that combination would not have any effect on the problem. No longer tracking.</div>");
+                }
             }
         });
         this.step.stepValues.shift();

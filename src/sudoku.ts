@@ -74,7 +74,10 @@ export class Sudoku extends CombinationStep {
             string += `<div class="step-description o-container o-container--small">
                 Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.
             </div>`
-            debugger
+        } else if (stepType === "combinationStep") {
+            string += `<div class="step-description o-container o-container--small">
+                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.
+            </div>`
         } else {
             debugger
         }
