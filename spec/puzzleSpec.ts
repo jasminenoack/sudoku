@@ -2220,4 +2220,87 @@ describe('sudoku board', () => {
             expect(sudoku.indexWithBlanks('column', 8)).toEqual([8, 17, 26, 35, 62, 71, 80])
         })
     })
+
+    describe('seesValueInOptions', () => {
+        beforeEach(() => {
+            sudoku.step = {
+                stepSections: [],
+                stepPhases: ['showActive', 'processSection'],
+                stepType: 'processFoundSubsections',
+                stepIndexes: [],
+                stepValues: [],
+                stepValuesToRemove: [],
+                stepSpotsToRemoveFrom: [],
+                valuesToPlace: {},
+                stepSubsectionsToProcess: [
+                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [7] }
+                ]
+            }
+            sudoku.blanks = {
+                0: [2, 5, 7],
+                1: [2, 5, 6, 7, 8],
+                2: [5, 6],
+                4: [5, 7, 8, 9],
+                6: [6, 9],
+                7: [3, 6, 9],
+                8: [2, 3, 9],
+                9: [1, 5],
+                12: [6, 9],
+                13: [5, 6, 9],
+                17: [1, 9],
+                18: [1, 2, 7],
+                19: [2, 6, 7, 8],
+                21: [7, 8],
+                22: [7, 8],
+                24: [1, 4, 6],
+                26: [1, 2, 4],
+                28: [4, 5, 9],
+                30: [5, 9],
+                33: [4, 8, 9],
+                35: [4, 8, 9],
+                36: [2, 4, 5, 9],
+                37: [2, 4, 5, 9],
+                39: [2, 5, 9],
+                42: [1, 4, 9],
+                43: [1, 4, 9],
+                46: [2, 9],
+                49: [2, 9],
+                54: [5, 7],
+                55: [5, 6, 7],
+                56: [3, 5, 6],
+                57: [3, 6, 7, 8],
+                61: [1, 3, 6],
+                62: [1, 3, 7, 8],
+                64: [4, 6, 7, 9],
+                66: [3, 6, 7],
+                67: [6, 7],
+                70: [3, 4, 6, 9],
+                71: [3, 4, 7, 9],
+                72: [4, 7, 9],
+                74: [3, 6],
+                75: [2, 3, 6, 7, 8],
+                76: [2, 6, 7, 8],
+                78: [4, 6, 8, 9],
+                79: [3, 4, 6, 9],
+                80: [3, 4, 7, 8, 9]
+            }
+            sudoku.grid = [0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 3, 4, 0, 0, 2, 7, 8, 0, 0, 0, 9, 0, 0, 3, 0, 5, 0, 3, 0, 7, 0, 1, 6, 0, 2, 0, 0, 0, 8, 0, 3, 7, 0, 0, 6, 6, 0, 1, 4, 0, 8, 3, 7, 5, 0, 0, 0, 0, 4, 9, 2, 0, 0, 8, 0, 2, 0, 0, 1, 5, 0, 0, 0, 1, 0, 0, 0, 5, 0, 0, 0]
+        })
+
+        it('handles non blank spots', () => {
+            expect(sudoku.seesValueInOptions([1, 3, 4], [73, 77])).toBeFalsy()
+        })
+
+        it('handles blanks without number', () => {
+            expect(sudoku.seesValueInOptions([1, 3, 4], [67, 76])).toBeFalsy()
+        })
+
+        it('handles blanks with number', () => {
+            expect(sudoku.seesValueInOptions([1, 3, 4], [71, 72])).toBeTruthy()
+        })
+
+        it('handles blanks with one number', () => {
+            expect(sudoku.seesValueInOptions([1, 3, 4], [24])).toBeTruthy()
+        })
+    })
 })

@@ -1351,7 +1351,15 @@ var RetrievalMethods = (function (_super) {
         });
         return Object.values(values).sort();
     };
-    RetrievalMethods.prototype.seesValueInOptions = function (values, options) {
+    RetrievalMethods.prototype.seesValueInOptions = function (values, indexes) {
+        var allOptions = this.getOptionsByIndex(indexes);
+        for (var i = 0; i < values.length; i++) {
+            var value = values[i];
+            if (allOptions.indexOf(value) !== -1) {
+                return true;
+            }
+        }
+        return false;
     };
     RetrievalMethods.prototype.valuesInSection = function (type, section) {
         var indexes = this.getIndexes(type, section);
