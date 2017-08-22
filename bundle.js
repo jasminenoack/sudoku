@@ -330,7 +330,7 @@ auto.addEventListener('click', function () {
     else {
         GameUtils.step();
         var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 50);
+        interval = setInterval(func, 250);
     }
 });
 window.gameUtils = GameUtils;
