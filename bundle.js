@@ -362,18 +362,6 @@ var Sudoku = (function (_super) {
         var _this = _super.call(this, grid) || this;
         _this.setUpNewSection();
         return _this;
-        // this.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
-        // this.step = {
-        //     "stepSections": ["square"],
-        //     "stepPhases": ["showActive"],
-        //     "stepType": "sectionSingle",
-        //     "stepIndexes": [],
-        //     "stepValues": [8],
-        //     "stepValuesToRemove": [],
-        //     "stepSpotsToRemoveFrom": [],
-        //     "valuesToPlace": {}
-        // }
-        // this.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
     }
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
@@ -431,6 +419,10 @@ var Sudoku = (function (_super) {
             string += "<div class=\"step-description o-container o-container--small\">\n                Phase 5: Once we have determined the options for all the blank spots we can check if in any given row, column or square there is only one cell that could hold a particular number. This step checks for these cells in all rows, columns, and squares and flags these spots.\n            </div>";
         }
         else if (stepType === "subsectionOptionSets") {
+            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 6: Next we attempt to find numbers that only exist in a subsection. For example, in a given row there are 3 subsections each in a different square. If there is a number that appears only in one of these subsections it must be placed in that subsection. Therefore, no spot in the other containing section(a square here) not in the subsection can contain the number. In this section we track any subsection that we find that also appears to affect the puzzle(the number also exists in a spot it would be removed from based on the subsection). \n            </div>";
+        }
+        else if (stepType === "processFoundSubsections") {
+            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
             debugger;
         }
         else {
@@ -444,12 +436,12 @@ var Sudoku = (function (_super) {
         else if (this.step.stepType === "remove") {
             this.notes.unshift("<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div>");
         }
-        if (!this.notes.length) {
+        string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
+        string += "</div>";
+        if (string === "<div class='notes'></div>") {
             string += "<div>Thinking!!!</div>";
         }
-        string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
         this.notes = [];
-        string += "</div>";
         return string;
     };
     return Sudoku;
@@ -589,11 +581,7 @@ var SubsectionStep = (function (_super) {
         this.setStepValueIndexes();
     };
     SubsectionStep.prototype.takeSubsectionOptionsStep = function () {
-        var _this = this;
         var findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0]);
-        findings.forEach(function (finding) {
-            _this.notes.push("<div class=\"found\">Found values: " + finding.numbersToRemove + " only in indexes " + finding.indexesToIgnore + " in " + _this.activeType() + " " + _this.step.stepValues[0] + " they are listed for processing.</div>");
-        });
         this.step.stepSubsectionsToProcess = this.step.stepSubsectionsToProcess.concat(findings);
         this.notes.push("<div class=\"found\">Has " + this.step.stepSubsectionsToProcess.length + " listed to process.</div>");
         this.step.stepValues.shift();
@@ -645,6 +633,7 @@ var SubsectionStep = (function (_super) {
     };
     SubsectionStep.prototype.subSectionsToEvaluate = function (sectionType, section) {
         var output;
+        this.notes.push("<div>Looking for subsections in " + sectionType + " " + section + ".</div>");
         if (sectionType === "row") {
             var findings = this.numbersInRowParts(section);
             output = this.determineValueChangesBasedOnFindings(findings);
@@ -741,6 +730,9 @@ var SubsectionStep = (function (_super) {
         }
         if (!this.step.stepSubsectionsToProcess.length) {
             this.setUpSearch();
+        }
+        else {
+            this.notes.push("<div class=\"processing\">Considering subsection " + this.step.stepSubsectionsToProcess[0].indexesToIgnore + " with values " + this.step.stepSubsectionsToProcess[0].numbersToRemove[0] + ".</div>");
         }
     };
     SubsectionStep.prototype.optionsToRemoveFrom = function (value, indexes) {

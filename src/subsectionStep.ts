@@ -13,11 +13,6 @@ export abstract class SubsectionStep extends SingleSectionStep {
 
     public takeSubsectionOptionsStep() {
         const findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0])
-        findings.forEach((finding) => {
-            this.notes.push(
-                `<div class="found">Found values: ${finding.numbersToRemove} only in indexes ${finding.indexesToIgnore} in ${this.activeType()} ${this.step.stepValues[0]} they are listed for processing.</div>`
-            )
-        })
         this.step.stepSubsectionsToProcess = this.step.stepSubsectionsToProcess.concat(findings)
         this.notes.push(`<div class="found">Has ${this.step.stepSubsectionsToProcess.length} listed to process.</div>`)
 
@@ -75,6 +70,9 @@ export abstract class SubsectionStep extends SingleSectionStep {
 
     public subSectionsToEvaluate(sectionType: string, section: number): { [key: string]: number[] }[] {
         let output
+        this.notes.push(
+            `<div>Looking for subsections in ${sectionType} ${section}.</div>`
+        )
         if (sectionType === "row") {
             const findings = this.numbersInRowParts(section)
             output = this.determineValueChangesBasedOnFindings(findings)
@@ -179,6 +177,10 @@ export abstract class SubsectionStep extends SingleSectionStep {
         }
         if (!this.step.stepSubsectionsToProcess.length) {
             this.setUpSearch()
+        } else {
+            this.notes.push(
+                `<div class="processing">Considering subsection ${this.step.stepSubsectionsToProcess[0].indexesToIgnore} with values ${this.step.stepSubsectionsToProcess[0].numbersToRemove[0]}.</div>`
+            )
         }
     }
 
