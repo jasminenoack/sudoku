@@ -397,6 +397,9 @@ var Sudoku = (function (_super) {
         }
     };
     Sudoku.prototype.currentStepString = function () {
+        if (this.grid.indexOf(0) === -1) {
+            return '<div class="step- description o- container o- container--small">I\'m Done.</div>';
+        }
         var string = '';
         if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
             return string;
