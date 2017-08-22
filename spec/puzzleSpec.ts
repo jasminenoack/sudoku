@@ -1413,12 +1413,14 @@ describe('sudoku board', () => {
                 9: [2, 6],
                 10: [1, 7],
                 11: [1, 9],
+                13: [7],
 
                 18: [2, 6],
                 19: [1, 2],
                 20: [1, 6],
 
                 27: [3, 4],
+                28: [5],
                 36: [4],
                 45: [5, 7],
 
@@ -1526,11 +1528,6 @@ describe('sudoku board', () => {
                     indexesToIgnore: [1, 10, 19],
                     numbersToRemove: [5, 7],
                 },
-                {
-                    indexesToCompare: [ 29, 38, 47, 56, 65, 74],
-                    indexesToIgnore: [2, 11, 20],
-                    numbersToRemove: [8, 9],
-                },
             ])
         })
 
@@ -1582,7 +1579,7 @@ describe('sudoku board', () => {
         })
     })
 
-    describe('step steps with value diff', () => {
+    describe('subsection step', () => {
         beforeEach(() => {
             sudoku.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
             sudoku.step = { 
@@ -1625,13 +1622,7 @@ describe('sudoku board', () => {
                 "stepValuesToRemove": [],
                 "stepSpotsToRemoveFrom": [],
                 "valuesToPlace": {},
-                "stepSubsectionsToProcess": [
-                    {
-                        indexesToCompare: [12, 13, 14, 21, 22, 23],
-                        indexesToIgnore: [3, 4, 5],
-                        numbersToRemove: [7],
-                    },
-                ]
+                "stepSubsectionsToProcess": []
             })
             sudoku.takeStep()
             sudoku.takeStep()
@@ -1655,29 +1646,9 @@ describe('sudoku board', () => {
                 "valuesToPlace": {},
                 "stepSubsectionsToProcess": [
                     {
-                        indexesToCompare: [12, 13, 14, 21, 22, 23],
-                        indexesToIgnore: [3, 4, 5],
-                        numbersToRemove: [7]
-                    }, {
-                        indexesToCompare: [3, 4, 5, 21, 22, 23],
-                        indexesToIgnore: [12, 13, 14],
-                        numbersToRemove: [9]
-                    }, {
-                        indexesToCompare: [36, 37, 38, 45, 46, 47],
-                        indexesToIgnore: [27, 28, 29],
-                        numbersToRemove: [8]
-                    }, {
                         indexesToCompare: [69, 70, 71, 78, 79, 80],
                         indexesToIgnore: [60, 61, 62],
                         numbersToRemove: [4]
-                    }, {
-                        indexesToCompare: [28, 29, 37, 38, 46, 47],
-                        indexesToIgnore: [27, 36, 45],
-                        numbersToRemove: [7]
-                    }, {
-                        indexesToCompare: [27, 29, 36, 38, 45, 47],
-                        indexesToIgnore: [28, 37, 46],
-                        numbersToRemove: [6]
                     }
                 ] 
             })
@@ -1766,7 +1737,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
         })
@@ -1809,7 +1779,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
             sudoku.takeStep()
@@ -1847,7 +1816,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
             sudoku.takeStep()
@@ -1884,7 +1852,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
             sudoku.takeStep()
@@ -1921,7 +1888,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
 
@@ -1960,7 +1926,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
 
@@ -1996,7 +1961,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
 
@@ -2031,7 +1995,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
 
@@ -2066,7 +2029,6 @@ describe('sudoku board', () => {
                     { "indexesToCompare": [5, 14, 23, 59, 68, 77], "indexesToIgnore": [32, 41, 50], "numbersToRemove": [2] },
                     { "indexesToCompare": [8, 17, 26, 62, 71, 80], "indexesToIgnore": [35, 44, 53], "numbersToRemove": [6] },
                     { "indexesToCompare": [66, 67, 68, 69, 70, 71], "indexesToIgnore": [63, 64, 65], "numbersToRemove": [4, 9] },
-                    { indexesToCompare: [8, 17, 26, 35, 44, 53], indexesToIgnore: [62, 71, 80], numbersToRemove: [5] }
                 ]
             })
         })

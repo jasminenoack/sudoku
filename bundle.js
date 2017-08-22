@@ -362,6 +362,18 @@ var Sudoku = (function (_super) {
         var _this = _super.call(this, grid) || this;
         _this.setUpNewSection();
         return _this;
+        // this.blanks = { 1: [3, 4], 4: [3, 7], 5: [1, 3, 7], 6: [1, 4], 10: [5, 8], 12: [5, 9], 14: [5, 8, 9], 18: [3, 4, 8], 19: [3, 4, 5, 8], 22: [3, 5], 23: [1, 3, 5, 8], 26: [1, 4], 27: [3, 4, 7, 8, 9], 28: [3, 4, 5, 6, 8, 9], 29: [3, 4, 5], 31: [3, 5, 6, 7], 32: [3, 5, 7], 34: [4, 9], 35: [3, 4, 6, 7, 9], 36: [3, 7], 37: [1, 3, 6], 38: [1, 2, 3], 41: [2, 3, 7], 44: [1, 3, 6, 7], 45: [3, 4, 7, 9], 46: [1, 3, 4, 5, 6, 9], 47: [1, 2, 3, 4, 5], 49: [3, 5, 6, 7], 50: [2, 3, 5, 7], 51: [1, 3, 4, 7], 52: [1, 4, 9], 53: [1, 3, 4, 6, 7, 9], 57: [3, 9], 60: [3, 4], 62: [3, 4, 9], 63: [3, 4, 9], 64: [1, 3, 4, 9], 65: [1, 3, 4], 66: [3, 5, 7, 9], 68: [3, 5, 7, 9], 71: [1, 3, 4, 5, 7, 9], 74: [1, 3], 75: [3, 5, 7, 9], 78: [1, 3, 7], 79: [1, 9], 80: [1, 3, 5, 7, 9] }
+        // this.step = {
+        //     "stepSections": ["square"],
+        //     "stepPhases": ["showActive"],
+        //     "stepType": "sectionSingle",
+        //     "stepIndexes": [],
+        //     "stepValues": [8],
+        //     "stepValuesToRemove": [],
+        //     "stepSpotsToRemoveFrom": [],
+        //     "valuesToPlace": {}
+        // }
+        // this.grid = [2, 0, 9, 6, 0, 0, 0, 5, 8, 1, 0, 7, 0, 4, 0, 6, 3, 2, 0, 0, 6, 2, 0, 0, 9, 7, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 4, 9, 0, 5, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 5, 7, 8, 0, 1, 6, 0, 2, 0, 0, 0, 0, 0, 2, 0, 8, 6, 0, 6, 2, 0, 0, 8, 4, 0, 0, 0]
     }
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
@@ -650,17 +662,25 @@ var SubsectionStep = (function (_super) {
         return output;
     };
     SubsectionStep.prototype.determineValueChangesBasedOnFindings = function (findings) {
+        var _this = this;
         var dist = this.findSubSectionDistribution(findings);
         var singleBySubsection = this.translateDistToValuesSpecificToSection(dist);
         var output = [];
         Object.keys(singleBySubsection).forEach(function (subsection) {
             if (singleBySubsection[subsection].length > 0) {
-                // const valuesInDiff = this.getOptionsByIndex(findings[+subsection].compareIndexes)
-                output.push({
-                    indexesToCompare: findings[+subsection].compareIndexes,
-                    indexesToIgnore: findings[+subsection].indexes,
-                    numbersToRemove: singleBySubsection[subsection],
-                });
+                var valuesInDiff = _this.seesValueInOptions(singleBySubsection[subsection], findings[+subsection].compareIndexes);
+                _this.notes.push("<div>Found a subsection in indexes " + findings[+subsection].indexes.join(',') + " with values " + singleBySubsection[subsection].join(',') + ".</div>");
+                if (valuesInDiff) {
+                    output.push({
+                        indexesToCompare: findings[+subsection].compareIndexes,
+                        indexesToIgnore: findings[+subsection].indexes,
+                        numbersToRemove: singleBySubsection[subsection],
+                    });
+                    _this.notes.push("<div>Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>");
+                }
+                else {
+                    _this.notes.push("<div>Determined that subsection would not have any effect on the problem. No longer tracking.</div>");
+                }
             }
         });
         return output;

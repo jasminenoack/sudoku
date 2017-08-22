@@ -98,12 +98,24 @@ export abstract class SubsectionStep extends SingleSectionStep {
         const output: { [key: string]: number[] }[] = []
         Object.keys(singleBySubsection).forEach((subsection) => {
             if (singleBySubsection[subsection].length > 0) {
-                // const valuesInDiff = this.getOptionsByIndex(findings[+subsection].compareIndexes)
-                output.push({
-                    indexesToCompare: findings[+subsection].compareIndexes,
-                    indexesToIgnore: findings[+subsection].indexes,
-                    numbersToRemove: singleBySubsection[subsection],
-                })
+                const valuesInDiff = this.seesValueInOptions(singleBySubsection[subsection], findings[+subsection].compareIndexes)
+                this.notes.push(
+                    `<div>Found a subsection in indexes ${findings[+subsection].indexes.join(',')} with values ${singleBySubsection[subsection].join(',')}.</div>`
+                )
+                if (valuesInDiff) {
+                    output.push({
+                        indexesToCompare: findings[+subsection].compareIndexes,
+                        indexesToIgnore: findings[+subsection].indexes,
+                        numbersToRemove: singleBySubsection[subsection],
+                    })
+                    this.notes.push(
+                        `<div>Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>`
+                    )
+                } else {
+                    this.notes.push(
+                        `<div>Determined that subsection would not have any effect on the problem. No longer tracking.</div>`
+                    )
+                }
             }
         })
         return output
