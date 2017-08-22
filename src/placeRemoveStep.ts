@@ -7,7 +7,8 @@ export abstract class PlaceRemoveStep extends BlankMethods{
     public takePlaceStep() {
         if (this.activePhase() === "place") {
             // move into the show active for remove row
-            this.showRemoveActive()
+            this.setUpRemoveStep()
+            this.step.stepPhases.shift()
         }
     }
 
@@ -69,9 +70,6 @@ export abstract class PlaceRemoveStep extends BlankMethods{
             )
         } else {
             this.step.stepPhases = ["showCompare"]
-            this.notes.unshift(
-                `<div class="no-remove">Found no squares that need removal in ${this.activeType()}</div>`
-            )
             this.step.stepSections.shift()
         }
         if (!this.step.stepSections.length) {

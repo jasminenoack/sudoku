@@ -98,6 +98,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
         const output: { [key: string]: number[] }[] = []
         Object.keys(singleBySubsection).forEach((subsection) => {
             if (singleBySubsection[subsection].length > 0) {
+                // const valuesInDiff = this.getOptionsByIndex(findings[+subsection].compareIndexes)
                 output.push({
                     indexesToCompare: findings[+subsection].compareIndexes,
                     indexesToIgnore: findings[+subsection].indexes,

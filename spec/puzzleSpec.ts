@@ -650,6 +650,7 @@ describe('sudoku board', () => {
                 sudoku.takeStep()
                 // switch to show active
                 sudoku.takeStep()
+                sudoku.takeStep()
                 expect(sudoku.step).toEqual({
                     stepSections: ["column", "square"],
                     stepPhases: ["showCompare"],
@@ -742,6 +743,7 @@ describe('sudoku board', () => {
                 // switch to place
                 sudoku.takeStep()
                 // switch to show active
+                sudoku.takeStep()
                 sudoku.takeStep()
                 expect(sudoku.step).toEqual({
                     stepSections: ["row", "column", "square"],

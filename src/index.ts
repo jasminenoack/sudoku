@@ -115,11 +115,9 @@ class GameUtils {
 
     private static addStepString(sudoku: Sudoku) {
         const stepEl = document.getElementById("step")
-        const div = document.createElement('div')
         const string = sudoku.currentStepString()
         if (string){
-            div.innerHTML = string
-            stepEl.insertBefore(div, stepEl.firstChild);
+            stepEl.innerHTML = string
         }
     }
 }
@@ -137,7 +135,7 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 250)
+        interval = setInterval(func, 50)
     }
 });
 

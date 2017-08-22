@@ -109,6 +109,10 @@ export abstract class RetrievalMethods extends SectionIndexMethods {
         return (Object as any).values(values).sort()
     }
 
+    public seesValueInOptions(values: number[], options: number[]) {
+
+    }
+
     public valuesInSection(type: sectionType, section: number) {
         const indexes = this.getIndexes(type, section)
         return this.valuesByIndex(indexes)
