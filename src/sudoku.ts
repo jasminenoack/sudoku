@@ -42,8 +42,6 @@ export class Sudoku extends CombinationStep {
             return string
         }
 
-        console.log(this.step.stepType)
-
         const stepType = this.step.stepType
         if (stepType === 'setUpBlanks') {
             string += `<div class="step-description o-container o-container--small">

@@ -401,7 +401,6 @@ var Sudoku = (function (_super) {
         if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
             return string;
         }
-        console.log(this.step.stepType);
         var stepType = this.step.stepType;
         if (stepType === 'setUpBlanks') {
             string += "<div class=\"step-description o-container o-container--small\">\n                Phase 1: We first determine what numbers are possible for each blank spot.\n                To do this we compare the spot to the row, column, and square that contains it. Based each of these we can remove all the numbers that already exist in the corresponding section.\n            </div>";
