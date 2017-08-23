@@ -8,13 +8,17 @@ export class Sudoku extends CombinationStep {
         this.setUpNewSection()
     }
 
+    done() {
+        return this.grid.indexOf(0) === -1
+    }
+
     setUpNewSection() {
         this.setUpBlanks()
         this.setUpBlankStep()
     }
 
     takeStep() {
-        if (this.grid.indexOf(0) === -1) {
+        if (this.done()) {
             return
         }
         if (this.step.stepType === "setUpBlanks") {

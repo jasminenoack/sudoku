@@ -473,8 +473,18 @@ auto.addEventListener('click', function () {
     }
     else {
         GameUtils.step();
-        var func = GameUtils.step.bind(GameUtils);
-        interval = setInterval(func, 150);
+        var func_1 = GameUtils.step.bind(GameUtils);
+        interval = setInterval(function () {
+            func_1();
+            if (GameUtils.sudoku.step.stepType === "endStep") {
+                clearInterval(interval);
+                return;
+            }
+            else if (GameUtils.sudoku.done()) {
+                clearInterval(interval);
+                return;
+            }
+        }, 50);
     }
 });
 window.gameUtils = GameUtils;
@@ -507,12 +517,15 @@ var Sudoku = (function (_super) {
         _this.setUpNewSection();
         return _this;
     }
+    Sudoku.prototype.done = function () {
+        return this.grid.indexOf(0) === -1;
+    };
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
         this.setUpBlankStep();
     };
     Sudoku.prototype.takeStep = function () {
-        if (this.grid.indexOf(0) === -1) {
+        if (this.done()) {
             return;
         }
         if (this.step.stepType === "setUpBlanks") {

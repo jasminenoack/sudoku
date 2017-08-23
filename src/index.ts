@@ -1,5 +1,6 @@
 import {Sudoku} from './sudoku';
 import * as boards from '../src/puzzles'
+import {Guess} from './guess'
 
 const numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
@@ -136,7 +137,16 @@ auto.addEventListener('click', () => {
     } else {
         GameUtils.step()
         let func = GameUtils.step.bind(GameUtils)
-        interval = setInterval(func, 150)
+        interval = setInterval(() => {
+            func()
+            if (GameUtils.sudoku.step.stepType === "endStep") {
+                clearInterval(interval)
+                return
+            } else if (GameUtils.sudoku.done()) {
+                clearInterval(interval)
+                return
+            }
+        }, 50)
     }
 });
 
