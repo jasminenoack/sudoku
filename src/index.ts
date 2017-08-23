@@ -63,6 +63,7 @@ class GameUtils {
 
         const number: number = sudoku.value(index)
         if (number) {
+            el.classList.add(numberClasses[number - 1])
             el.innerHTML = number + ''
             el.classList.remove('options')
         } else {
