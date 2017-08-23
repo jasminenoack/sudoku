@@ -342,10 +342,17 @@ exports.mirror = [
 Object.defineProperty(exports, "__esModule", { value: true });
 var sudoku_1 = __webpack_require__(2);
 var boards = __webpack_require__(0);
+var guess_1 = __webpack_require__(13);
 var numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
 ];
 var interval;
+function clear() {
+    if (interval) {
+        clearInterval(interval);
+    }
+    interval = null;
+}
 var GameUtils = (function () {
     function GameUtils() {
     }
@@ -371,7 +378,8 @@ var GameUtils = (function () {
         if (id === void 0) { id = "board"; }
         var grid = boards[boardChoice];
         var sudoku = new sudoku_1.Sudoku(grid);
-        this.sudoku = sudoku;
+        this.currentBoard = sudoku;
+        this.baseBoard = sudoku;
         this.drawBoard(id, sudoku);
     };
     GameUtils.updateSpot = function (el, index, sudoku) {
@@ -393,6 +401,12 @@ var GameUtils = (function () {
         }
         else {
             el.classList.remove('current-node');
+        }
+        if (sudoku.isGuess(index)) {
+            el.classList.add('guess');
+        }
+        else {
+            el.classList.remove('guess');
         }
         var indexesFlagged = sudoku.indexesWithSpecialValues();
         if (indexesFlagged.indexOf(index) !== -1) {
@@ -440,10 +454,10 @@ var GameUtils = (function () {
     };
     GameUtils.step = function () {
         var _this = this;
-        this.sudoku.takeStep();
+        this.currentBoard.takeStep();
         var boardEl = document.getElementById("board");
         var spots = document.getElementsByClassName('spot');
-        var sudoku = this.sudoku;
+        var sudoku = this.currentBoard;
         var grid = sudoku.grid;
         var row = this.createRow();
         grid.forEach(function (number, index) {
@@ -451,6 +465,33 @@ var GameUtils = (function () {
             _this.updateSpot(el, index, sudoku);
         });
         this.addStepString(sudoku);
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            clear();
+            GameUtils.takeAGuess();
+            GameUtils.getNewBoard("previous-boards");
+        }
+        else if (GameUtils.currentBoard.failed()) {
+            GameUtils.failures++;
+            clear();
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("failed");
+            }
+            else {
+                GameUtils.dupBoardEl("failed");
+                GameUtils.finish();
+            }
+        }
+        else if (GameUtils.currentBoard.done()) {
+            GameUtils.solutions++;
+            clear();
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("solutions");
+            }
+            else {
+                GameUtils.dupBoardEl("solutions");
+                GameUtils.finish();
+            }
+        }
     };
     GameUtils.addStepString = function (sudoku) {
         var stepEl = document.getElementById("step");
@@ -459,6 +500,47 @@ var GameUtils = (function () {
             stepEl.innerHTML = string;
         }
     };
+    GameUtils.dupBoardEl = function (dupLocation) {
+        var solutionCount = document.getElementById('solution-count');
+        solutionCount.innerText = this.solutions + '';
+        var failureCount = document.getElementById('failure-count');
+        failureCount.innerText = this.failures + '';
+        var guessCount = document.getElementById('guess-count');
+        guessCount.innerText = this.guesses + '';
+        var boardEl = document.getElementById("board");
+        var newBoardEl = boardEl.cloneNode(true);
+        newBoardEl.id = "";
+        boardEl.innerHTML = "";
+        var previousDiv = document.getElementById(dupLocation);
+        var wrapper = document.createElement('div');
+        previousDiv.insertBefore(newBoardEl, previousDiv.firstChild);
+    };
+    GameUtils.getNewBoard = function (dupLocation) {
+        // current board
+        var current = this.currentBoard;
+        // dup board
+        this.dupBoardEl(dupLocation);
+        // use existing board
+        var newBoard;
+        if (this.guessBoards.length) {
+            newBoard = this.guessBoards.shift();
+            GameUtils.drawBoard("board", newBoard);
+            GameUtils.currentBoard = newBoard;
+        }
+    };
+    GameUtils.takeAGuess = function () {
+        this.guesses++;
+        var newBoards = guess_1.Guess.newGuessBoards(GameUtils.currentBoard);
+        this.guessBoards = newBoards.concat(this.guessBoards);
+    };
+    GameUtils.finish = function () {
+        var element = document.getElementById("current-display");
+        element.remove();
+    };
+    GameUtils.guessBoards = [];
+    GameUtils.solutions = 0;
+    GameUtils.guesses = 0;
+    GameUtils.failures = 0;
     return GameUtils;
 }());
 var step = document.getElementById('take-step');
@@ -476,15 +558,7 @@ auto.addEventListener('click', function () {
         var func_1 = GameUtils.step.bind(GameUtils);
         interval = setInterval(function () {
             func_1();
-            if (GameUtils.sudoku.step.stepType === "endStep") {
-                clearInterval(interval);
-                return;
-            }
-            else if (GameUtils.sudoku.done()) {
-                clearInterval(interval);
-                return;
-            }
-        }, 50);
+        }, 100);
     }
 });
 window.gameUtils = GameUtils;
@@ -511,14 +585,28 @@ var puzzles_1 = __webpack_require__(0);
 var combinationStep_1 = __webpack_require__(3);
 var Sudoku = (function (_super) {
     __extends(Sudoku, _super);
-    function Sudoku(grid) {
+    function Sudoku(grid, guess) {
         if (grid === void 0) { grid = puzzles_1.easy1; }
+        if (guess === void 0) { guess = false; }
         var _this = _super.call(this, grid) || this;
+        _this.guess = guess;
         _this.setUpNewSection();
         return _this;
     }
     Sudoku.prototype.done = function () {
         return this.grid.indexOf(0) === -1;
+    };
+    Sudoku.prototype.failed = function () {
+        if (this.step.stepIndexes.length) {
+            return false;
+        }
+        var values = Object.values(this.blanks);
+        for (var i = 0; i < values.length; i++) {
+            if (!values[i].length) {
+                return true;
+            }
+        }
+        return false;
     };
     Sudoku.prototype.setUpNewSection = function () {
         this.setUpBlanks();
@@ -555,7 +643,7 @@ var Sudoku = (function (_super) {
     };
     Sudoku.prototype.currentStepString = function () {
         if (this.grid.indexOf(0) === -1) {
-            return '<div class="step- description o- container o- container--small">I\'m Done.</div>';
+            return '<div class="step- description o- container ">I\'m Done.</div>';
         }
         var string = '';
         if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
@@ -563,28 +651,28 @@ var Sudoku = (function (_super) {
         }
         var stepType = this.step.stepType;
         if (stepType === 'setUpBlanks') {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 1: We first determine what numbers are possible for each blank spot.\n                To do this we compare the spot to the row, column, and square that contains it. Based each of these we can remove all the numbers that already exist in the corresponding section.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 1: We first determine what numbers are possible for each blank spot.\n                To do this we compare the spot to the row, column, and square that contains it. Based each of these we can remove all the numbers that already exist in the corresponding section.\n            </div>";
         }
         else if (stepType === "place") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 2: Once we have logically determined there is only one option for a location we can place a number in that location.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 2: Once we have logically determined there is only one option for a location we can place a number in that location.\n            </div>";
         }
         else if (stepType === "remove") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 3: After a number has been placed we need to remove it from the options for any square in the same row, column, or square as it is no longer valid there.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 3: After a number has been placed we need to remove it from the options for any square in the same row, column, or square as it is no longer valid there.\n            </div>";
         }
         else if (stepType === "findSingle") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 4: Once we have removed a number from the options for blank locations for the row, column, and square we can then look for locations that now only have one option. These locations can now be placed to help us to remove additional options and bring the puzzle closer to solved. \n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 4: Once we have removed a number from the options for blank locations for the row, column, and square we can then look for locations that now only have one option. These locations can now be placed to help us to remove additional options and bring the puzzle closer to solved. \n            </div>";
         }
         else if (stepType === "sectionSingle") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 5: Once we have determined the options for all the blank spots we can check if in any given row, column or square there is only one cell that could hold a particular number. This step checks for these cells in all rows, columns, and squares and flags these spots.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 5: Once we have determined the options for all the blank spots we can check if in any given row, column or square there is only one cell that could hold a particular number. This step checks for these cells in all rows, columns, and squares and flags these spots.\n            </div>";
         }
         else if (stepType === "subsectionOptionSets") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 6: Next we attempt to find numbers that only exist in a subsection. For example, in a given row there are 3 subsections each in a different square. If there is a number that appears only in one of these subsections it must be placed in that subsection. Therefore, no spot in the other containing section(a square here) not in the subsection can contain the number. In this section we track any subsection that we find that also appears to affect the puzzle(the number also exists in a spot it would be removed from based on the subsection). \n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 6: Next we attempt to find numbers that only exist in a subsection. For example, in a given row there are 3 subsections each in a different square. If there is a number that appears only in one of these subsections it must be placed in that subsection. Therefore, no spot in the other containing section(a square here) not in the subsection can contain the number. In this section we track any subsection that we find that also appears to affect the puzzle(the number also exists in a spot it would be removed from based on the subsection). \n            </div>";
         }
         else if (stepType === "processFoundSubsections") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
         }
         else if (stepType === "combinationStep") {
-            string += "<div class=\"step-description o-container o-container--small\">\n                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.\n            </div>";
+            string += "<div class=\"step-description o-container \">\n                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.\n            </div>";
         }
         else {
             debugger;
@@ -751,7 +839,6 @@ var SubsectionStep = (function (_super) {
     SubsectionStep.prototype.takeSubsectionOptionsStep = function () {
         var findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0]);
         this.step.stepSubsectionsToProcess = this.step.stepSubsectionsToProcess.concat(findings);
-        this.notes.push("<div class=\"found\">Has " + this.step.stepSubsectionsToProcess.length + " listed to process.</div>");
         this.step.stepValues.shift();
         if (!this.step.stepValues.length) {
             this.step.stepSections.shift();
@@ -826,17 +913,17 @@ var SubsectionStep = (function (_super) {
         Object.keys(singleBySubsection).forEach(function (subsection) {
             if (singleBySubsection[subsection].length > 0) {
                 var valuesInDiff = _this.seesValueInOptions(singleBySubsection[subsection], findings[+subsection].compareIndexes);
-                _this.notes.push("<div>Found a subsection in indexes " + findings[+subsection].indexes.join(',') + " with values " + singleBySubsection[subsection].join(',') + ".</div>");
+                _this.notes.push("<div>Found a subsection in indexes " + findings[+subsection].indexes.join(',') + " with values " + singleBySubsection[subsection].join(',') + ".");
                 if (valuesInDiff) {
                     output.push({
                         indexesToCompare: findings[+subsection].compareIndexes,
                         indexesToIgnore: findings[+subsection].indexes,
                         numbersToRemove: singleBySubsection[subsection],
                     });
-                    _this.notes.push("<div>Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>");
+                    _this.notes.push("Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>");
                 }
                 else {
-                    _this.notes.push("<div>Determined that subsection would not have any effect on the problem. No longer tracking.</div>");
+                    _this.notes.push("Determined that subsection would not have any effect on the problem. No longer tracking.</div>");
                 }
             }
         });
@@ -1430,8 +1517,14 @@ var sectionIndexMethods_1 = __webpack_require__(11);
 var RetrievalMethods = (function (_super) {
     __extends(RetrievalMethods, _super);
     function RetrievalMethods() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        // list of indexes that are guesses
+        _this.guesses = [];
+        return _this;
     }
+    RetrievalMethods.prototype.isGuess = function (index) {
+        return this.guesses.indexOf(index) !== -1;
+    };
     RetrievalMethods.prototype.activeSpot = function () {
         return +this.step.stepIndexes[0];
     };
@@ -1714,6 +1807,43 @@ var SudokuBase = (function () {
     return SudokuBase;
 }());
 exports.SudokuBase = SudokuBase;
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var sudoku_1 = __webpack_require__(2);
+var Guess = (function () {
+    function Guess() {
+    }
+    Guess.newGuessBoards = function (sudoku) {
+        var newBoards = [];
+        var oldBlanks = sudoku.blanks;
+        var firstBlank = +Object.keys(oldBlanks)[0];
+        var blankOptions = oldBlanks[firstBlank];
+        var guess = {};
+        this.guesses.push(guess);
+        var guesses = sudoku.guesses.slice();
+        guesses.push(firstBlank);
+        guess[firstBlank] = oldBlanks[firstBlank];
+        blankOptions.forEach(function (option) {
+            var newBoard = new sudoku_1.Sudoku(sudoku.grid.slice(), true);
+            newBoard.step.stepIndexes = [];
+            newBoard.blanks = JSON.parse(JSON.stringify(sudoku.blanks));
+            newBoard.setValueToCell(firstBlank, option);
+            newBoard.guesses = guesses.slice();
+            newBoards.push(newBoard);
+        });
+        return newBoards;
+    };
+    Guess.guesses = [];
+    return Guess;
+}());
+exports.Guess = Guess;
 
 
 /***/ })

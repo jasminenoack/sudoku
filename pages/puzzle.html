@@ -13,12 +13,33 @@
     <h1 class="c-heading">Solve Example: <span id="puzzle-name"></span></h1>
     <a href="../index.html">Index</a>
     <div class="o-container o-container--medium">
-        <div>
-            <button id="take-step" class="c-button c-button--info">Step</button>
-            <button id="auto-step" class="c-button c-button--info">Auto</button>
+        <div id="current-display">
+            <div>
+                <button id="take-step" class="c-button c-button--info">Step</button>
+                <button id="auto-step" class="c-button c-button--info">Auto</button>
+            </div>
+            <div id="board" class="board"></div>
+            <div id="step"></div>
         </div>
-        <div id="board"></div>
-        <div id="step"></div>
+
+        <div class="clear">
+            <div class="main-container">
+                <div class="fixer-container">
+                    <div class="old-boards">
+                         <div>Solutions Found: <span id="solution-count">0</span></div>
+                        <div id="solutions"></div> 
+                    </div>
+                    <div class="old-boards">
+                         <div>Boards Failed: <span id="failure-count">0</span></div>
+                        <div id="failed"></div> 
+                    </div>
+                    <div class="old-boards">
+                         <div>Guessed From: <span id="guess-count">0</span></div>
+                        <div id="previous-boards"></div> 
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="../bundle.js"></script>
 

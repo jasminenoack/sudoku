@@ -2,6 +2,13 @@ import { SectionIndexMethods } from './sectionIndexMethods'
 import {sectionType} from './interfaces'
 
 export abstract class RetrievalMethods extends SectionIndexMethods {
+    // list of indexes that are guesses
+    public guesses: number[] = []
+
+    public isGuess(index: number): boolean {
+        return this.guesses.indexOf(index) !== -1
+    }
+
     public activeSpot() {
         return +this.step.stepIndexes[0]
     }

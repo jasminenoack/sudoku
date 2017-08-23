@@ -8,8 +8,20 @@ const numberClasses = [
 
 let interval: any
 
+function clear() {
+    if (interval) {
+        clearInterval(interval)
+    }
+    interval = null
+}
+
 class GameUtils {
-    public static sudoku: Sudoku
+    public static currentBoard: Sudoku
+    public static guessBoards: Sudoku[] = []
+    public static baseBoard: Sudoku
+    public static solutions = 0
+    public static guesses = 0
+    public static failures = 0
 
     public static drawBoard (id: string, sudoku: Sudoku) {
         const boardEl: HTMLElement = document.getElementById(id)
@@ -31,7 +43,8 @@ class GameUtils {
     public static setUp(boardChoice: string = "easy1", id: string = "board") {
         const grid: number[] = (boards as any)[boardChoice]
         const sudoku: Sudoku = new Sudoku(grid)
-        this.sudoku = sudoku
+        this.currentBoard = sudoku
+        this.baseBoard = sudoku
         this.drawBoard(id, sudoku)
     }
 
@@ -53,6 +66,12 @@ class GameUtils {
             el.classList.add('current-node')
         } else {
             el.classList.remove('current-node')
+        }
+
+        if (sudoku.isGuess(index)) {
+            el.classList.add('guess')
+        } else {
+            el.classList.remove('guess')
         }
 
         const indexesFlagged =  sudoku.indexesWithSpecialValues()
@@ -102,10 +121,10 @@ class GameUtils {
     }
 
     public static step() {
-        this.sudoku.takeStep()
+        this.currentBoard.takeStep()
         const boardEl = document.getElementById("board")
         const spots = document.getElementsByClassName('spot')
-        const sudoku = this.sudoku
+        const sudoku = this.currentBoard
         const grid = sudoku.grid
         let row = this.createRow()
         grid.forEach((number, index) => {
@@ -113,6 +132,30 @@ class GameUtils {
             this.updateSpot(el as HTMLElement, index, sudoku)
         })
         this.addStepString(sudoku)
+
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            clear()
+            GameUtils.takeAGuess()
+            GameUtils.getNewBoard("previous-boards")
+        } else if (GameUtils.currentBoard.failed()) {
+            GameUtils.failures++
+            clear()
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("failed")
+            } else {
+                GameUtils.dupBoardEl("failed")
+                GameUtils.finish()
+            }
+        } else if (GameUtils.currentBoard.done()) {
+            GameUtils.solutions++
+            clear()
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("solutions")
+            } else {
+                GameUtils.dupBoardEl("solutions")
+                GameUtils.finish()
+            }
+        }
     }
 
     private static addStepString(sudoku: Sudoku) {
@@ -122,12 +165,54 @@ class GameUtils {
             stepEl.innerHTML = string
         }
     }
+
+    public static dupBoardEl(dupLocation: string) {
+        const solutionCount = document.getElementById('solution-count')
+        solutionCount.innerText = this.solutions + ''
+        const failureCount = document.getElementById('failure-count')
+        failureCount.innerText = this.failures + ''
+        const guessCount = document.getElementById('guess-count')
+        guessCount.innerText = this.guesses + ''
+
+        const boardEl = document.getElementById("board")
+        const newBoardEl = boardEl.cloneNode(true);
+        (newBoardEl as HTMLElement).id = ""
+        boardEl.innerHTML = ""
+        const previousDiv = document.getElementById(dupLocation)
+        const wrapper = document.createElement('div')
+        previousDiv.insertBefore(newBoardEl, previousDiv.firstChild)
+    }
+
+    public static getNewBoard(dupLocation: string) {
+        // current board
+        const current = this.currentBoard
+        // dup board
+        this.dupBoardEl(dupLocation)
+        // use existing board
+        let newBoard 
+        if (this.guessBoards.length) {
+            newBoard = this.guessBoards.shift()
+            GameUtils.drawBoard("board", newBoard)
+            GameUtils.currentBoard = newBoard
+        }
+    }
+
+    public static takeAGuess() {
+        this.guesses++
+        const newBoards = Guess.newGuessBoards(GameUtils.currentBoard)
+        this.guessBoards = newBoards.concat(this.guessBoards)
+    }
+
+    public static finish() {
+        const element = document.getElementById("current-display")
+        element.remove()
+    }
 }
 
 const step = document.getElementById('take-step');
 step.addEventListener('click', () => {
     GameUtils.step()
-});
+}); 
 
 const auto = document.getElementById('auto-step');
 auto.addEventListener('click', () => {
@@ -139,14 +224,7 @@ auto.addEventListener('click', () => {
         let func = GameUtils.step.bind(GameUtils)
         interval = setInterval(() => {
             func()
-            if (GameUtils.sudoku.step.stepType === "endStep") {
-                clearInterval(interval)
-                return
-            } else if (GameUtils.sudoku.done()) {
-                clearInterval(interval)
-                return
-            }
-        }, 50)
+        }, 100)
     }
 });
 

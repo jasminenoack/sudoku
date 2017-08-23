@@ -14,7 +14,6 @@ export abstract class SubsectionStep extends SingleSectionStep {
     public takeSubsectionOptionsStep() {
         const findings = this.subSectionsToEvaluate(this.step.stepSections[0], this.step.stepValues[0])
         this.step.stepSubsectionsToProcess = this.step.stepSubsectionsToProcess.concat(findings)
-        this.notes.push(`<div class="found">Has ${this.step.stepSubsectionsToProcess.length} listed to process.</div>`)
 
         this.step.stepValues.shift()
         if (!this.step.stepValues.length) {
@@ -98,7 +97,7 @@ export abstract class SubsectionStep extends SingleSectionStep {
             if (singleBySubsection[subsection].length > 0) {
                 const valuesInDiff = this.seesValueInOptions(singleBySubsection[subsection], findings[+subsection].compareIndexes)
                 this.notes.push(
-                    `<div>Found a subsection in indexes ${findings[+subsection].indexes.join(',')} with values ${singleBySubsection[subsection].join(',')}.</div>`
+                    `<div>Found a subsection in indexes ${findings[+subsection].indexes.join(',')} with values ${singleBySubsection[subsection].join(',')}.`
                 )
                 if (valuesInDiff) {
                     output.push({
@@ -107,11 +106,11 @@ export abstract class SubsectionStep extends SingleSectionStep {
                         numbersToRemove: singleBySubsection[subsection],
                     })
                     this.notes.push(
-                        `<div>Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>`
+                        `Determined that there were values in other cells that could be removed based on subsection. Added subsection to tracking.</div>`
                     )
                 } else {
                     this.notes.push(
-                        `<div>Determined that subsection would not have any effect on the problem. No longer tracking.</div>`
+                        `Determined that subsection would not have any effect on the problem. No longer tracking.</div>`
                     )
                 }
             }
