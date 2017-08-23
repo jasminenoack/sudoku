@@ -121,6 +121,26 @@ class GameUtils {
     }
 
     public static step() {
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            GameUtils.takeAGuess()
+            GameUtils.getNewBoard("previous-boards")
+        } else if (GameUtils.currentBoard.failed()) {
+            GameUtils.failures++
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("failed")
+            } else {
+                GameUtils.dupBoardEl("failed")
+                GameUtils.finish()
+            }
+        } else if (GameUtils.currentBoard.done()) {
+            GameUtils.solutions++
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("solutions")
+            } else {
+                GameUtils.dupBoardEl("solutions")
+                GameUtils.finish()
+            }
+        }
         this.currentBoard.takeStep()
         const boardEl = document.getElementById("board")
         const spots = document.getElementsByClassName('spot')
@@ -132,30 +152,6 @@ class GameUtils {
             this.updateSpot(el as HTMLElement, index, sudoku)
         })
         this.addStepString(sudoku)
-
-        if (GameUtils.currentBoard.step.stepType === "endStep") {
-            clear()
-            GameUtils.takeAGuess()
-            GameUtils.getNewBoard("previous-boards")
-        } else if (GameUtils.currentBoard.failed()) {
-            GameUtils.failures++
-            clear()
-            if (GameUtils.guessBoards.length) {
-                GameUtils.getNewBoard("failed")
-            } else {
-                GameUtils.dupBoardEl("failed")
-                GameUtils.finish()
-            }
-        } else if (GameUtils.currentBoard.done()) {
-            GameUtils.solutions++
-            clear()
-            if (GameUtils.guessBoards.length) {
-                GameUtils.getNewBoard("solutions")
-            } else {
-                GameUtils.dupBoardEl("solutions")
-                GameUtils.finish()
-            }
-        }
     }
 
     private static addStepString(sudoku: Sudoku) {
@@ -204,6 +200,7 @@ class GameUtils {
     }
 
     public static finish() {
+        clear()
         const element = document.getElementById("current-display")
         element.remove()
     }

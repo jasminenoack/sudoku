@@ -331,6 +331,50 @@ exports.mirror = [
     0, 3, 0, 0, 5, 0, 0, 2, 0,
     6, 0, 0, 2, 0, 0, 0, 0, 3,
 ];
+exports.empty = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+exports.center = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 1, 2, 3, 0, 0, 0,
+    0, 0, 0, 4, 5, 6, 0, 0, 0,
+    0, 0, 0, 7, 8, 9, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+exports.oneNum = [
+    1, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 0, 0,
+    0, 1, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 1, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 1, 0,
+    0, 0, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 1,
+];
+exports.oneEach = [
+    1, 0, 0, 2, 0, 0, 3, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    4, 0, 0, 5, 0, 0, 6, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    7, 0, 0, 8, 0, 0, 9, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
 
 
 /***/ }),
@@ -454,6 +498,30 @@ var GameUtils = (function () {
     };
     GameUtils.step = function () {
         var _this = this;
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            GameUtils.takeAGuess();
+            GameUtils.getNewBoard("previous-boards");
+        }
+        else if (GameUtils.currentBoard.failed()) {
+            GameUtils.failures++;
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("failed");
+            }
+            else {
+                GameUtils.dupBoardEl("failed");
+                GameUtils.finish();
+            }
+        }
+        else if (GameUtils.currentBoard.done()) {
+            GameUtils.solutions++;
+            if (GameUtils.guessBoards.length) {
+                GameUtils.getNewBoard("solutions");
+            }
+            else {
+                GameUtils.dupBoardEl("solutions");
+                GameUtils.finish();
+            }
+        }
         this.currentBoard.takeStep();
         var boardEl = document.getElementById("board");
         var spots = document.getElementsByClassName('spot');
@@ -465,33 +533,6 @@ var GameUtils = (function () {
             _this.updateSpot(el, index, sudoku);
         });
         this.addStepString(sudoku);
-        if (GameUtils.currentBoard.step.stepType === "endStep") {
-            clear();
-            GameUtils.takeAGuess();
-            GameUtils.getNewBoard("previous-boards");
-        }
-        else if (GameUtils.currentBoard.failed()) {
-            GameUtils.failures++;
-            clear();
-            if (GameUtils.guessBoards.length) {
-                GameUtils.getNewBoard("failed");
-            }
-            else {
-                GameUtils.dupBoardEl("failed");
-                GameUtils.finish();
-            }
-        }
-        else if (GameUtils.currentBoard.done()) {
-            GameUtils.solutions++;
-            clear();
-            if (GameUtils.guessBoards.length) {
-                GameUtils.getNewBoard("solutions");
-            }
-            else {
-                GameUtils.dupBoardEl("solutions");
-                GameUtils.finish();
-            }
-        }
     };
     GameUtils.addStepString = function (sudoku) {
         var stepEl = document.getElementById("step");
@@ -534,6 +575,7 @@ var GameUtils = (function () {
         this.guessBoards = newBoards.concat(this.guessBoards);
     };
     GameUtils.finish = function () {
+        clear();
         var element = document.getElementById("current-display");
         element.remove();
     };
