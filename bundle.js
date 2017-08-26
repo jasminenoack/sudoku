@@ -533,6 +533,15 @@ var GameUtils = (function () {
             _this.updateSpot(el, index, sudoku);
         });
         this.addStepString(sudoku);
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            clear();
+        }
+        else if (GameUtils.currentBoard.failed()) {
+            clear();
+        }
+        else if (GameUtils.currentBoard.done()) {
+            clear();
+        }
     };
     GameUtils.addStepString = function (sudoku) {
         var stepEl = document.getElementById("step");

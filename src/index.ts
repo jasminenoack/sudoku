@@ -152,6 +152,13 @@ class GameUtils {
             this.updateSpot(el as HTMLElement, index, sudoku)
         })
         this.addStepString(sudoku)
+        if (GameUtils.currentBoard.step.stepType === "endStep") {
+            clear()
+        } else if (GameUtils.currentBoard.failed()) {
+            clear()
+        } else if (GameUtils.currentBoard.done()) {
+            clear()
+        }
     }
 
     private static addStepString(sudoku: Sudoku) {
