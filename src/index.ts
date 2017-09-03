@@ -121,6 +121,10 @@ class GameUtils {
     }
 
     public static step() {
+        let boardEl = document.getElementById("board")
+        if (!boardEl) {
+            return
+        }
         if (GameUtils.currentBoard.step.stepType === "endStep") {
             GameUtils.takeAGuess()
             GameUtils.getNewBoard("previous-boards")
@@ -141,9 +145,14 @@ class GameUtils {
                 GameUtils.finish()
             }
         }
+
+        boardEl = document.getElementById("board")
+        if (!boardEl) {
+            return
+        }
+
         this.currentBoard.takeStep()
-        const boardEl = document.getElementById("board")
-        const spots = document.getElementsByClassName('spot')
+        const spots = boardEl.getElementsByClassName('spot')
         const sudoku = this.currentBoard
         const grid = sudoku.grid
         let row = this.createRow()

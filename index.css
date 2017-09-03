@@ -20,6 +20,7 @@ div.board {
     box-sizing: border-box;
     display: inline-block;
     width: 365px;
+    margin: 10px;
 }
 
 .clear:after {

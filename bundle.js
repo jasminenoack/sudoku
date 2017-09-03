@@ -60,11 +60,145 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var puzzles_1 = __webpack_require__(1);
+var combinationStep_1 = __webpack_require__(3);
+var Sudoku = (function (_super) {
+    __extends(Sudoku, _super);
+    function Sudoku(grid, guess) {
+        if (grid === void 0) { grid = puzzles_1.easy1; }
+        if (guess === void 0) { guess = false; }
+        var _this = _super.call(this, grid) || this;
+        _this.guess = guess;
+        _this.setUpNewSection();
+        return _this;
+    }
+    Sudoku.prototype.done = function () {
+        return this.grid.indexOf(0) === -1;
+    };
+    Sudoku.prototype.failed = function () {
+        if (this.step.stepIndexes.length) {
+            return false;
+        }
+        var values = Object.values(this.blanks);
+        for (var i = 0; i < values.length; i++) {
+            if (!values[i].length) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Sudoku.prototype.setUpNewSection = function () {
+        this.setUpBlanks();
+        this.setUpBlankStep();
+    };
+    Sudoku.prototype.takeStep = function () {
+        if (this.done()) {
+            return;
+        }
+        if (this.step.stepType === "setUpBlanks") {
+            this.takeStepBlank();
+        }
+        else if (this.step.stepType === "place") {
+            this.takePlaceStep();
+        }
+        else if (this.step.stepType === "remove") {
+            this.takeRemoveStep();
+        }
+        else if (this.step.stepType === "findSingle") {
+            this.takeSearchStep();
+        }
+        else if (this.step.stepType === "sectionSingle") {
+            this.takeSectionSingle();
+        }
+        else if (this.step.stepType === "subsectionOptionSets") {
+            this.takeSubsectionOptionsStep();
+        }
+        else if (this.step.stepType === "processFoundSubsections") {
+            this.takeProcessSubsectionStep();
+        }
+        else if (this.step.stepType === "combinationStep") {
+            this.takeCombinationStep();
+        }
+    };
+    Sudoku.prototype.currentStepString = function () {
+        if (this.grid.indexOf(0) === -1) {
+            return '<div class="step- description o- container ">I\'m Done.</div>';
+        }
+        var string = '';
+        if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
+            return string;
+        }
+        var stepType = this.step.stepType;
+        if (stepType === 'setUpBlanks') {
+            string += "<div class=\"step-description o-container \">\n                Phase 1: We first determine what numbers are possible for each blank spot.\n                To do this we compare the spot to the row, column, and square that contains it. Based each of these we can remove all the numbers that already exist in the corresponding section.\n            </div>";
+        }
+        else if (stepType === "place") {
+            string += "<div class=\"step-description o-container \">\n                Phase 2: Once we have logically determined there is only one option for a location we can place a number in that location.\n            </div>";
+        }
+        else if (stepType === "remove") {
+            string += "<div class=\"step-description o-container \">\n                Phase 3: After a number has been placed we need to remove it from the options for any square in the same row, column, or square as it is no longer valid there.\n            </div>";
+        }
+        else if (stepType === "findSingle") {
+            string += "<div class=\"step-description o-container \">\n                Phase 4: Once we have removed a number from the options for blank locations for the row, column, and square we can then look for locations that now only have one option. These locations can now be placed to help us to remove additional options and bring the puzzle closer to solved. \n            </div>";
+        }
+        else if (stepType === "sectionSingle") {
+            string += "<div class=\"step-description o-container \">\n                Phase 5: Once we have determined the options for all the blank spots we can check if in any given row, column or square there is only one cell that could hold a particular number. This step checks for these cells in all rows, columns, and squares and flags these spots.\n            </div>";
+        }
+        else if (stepType === "subsectionOptionSets") {
+            string += "<div class=\"step-description o-container \">\n                Phase 6: Next we attempt to find numbers that only exist in a subsection. For example, in a given row there are 3 subsections each in a different square. If there is a number that appears only in one of these subsections it must be placed in that subsection. Therefore, no spot in the other containing section(a square here) not in the subsection can contain the number. In this section we track any subsection that we find that also appears to affect the puzzle(the number also exists in a spot it would be removed from based on the subsection). \n            </div>";
+        }
+        else if (stepType === "processFoundSubsections") {
+            string += "<div class=\"step-description o-container \">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
+        }
+        else if (stepType === "combinationStep") {
+            string += "<div class=\"step-description o-container \">\n                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.\n            </div>";
+        }
+        else {
+            debugger;
+        }
+        string += "<div class='notes'>";
+        var sectionIndex = this.currentSectionIndex();
+        if (this.step.stepType === "setUpBlanks" && this.activeSpot() >= 0) {
+            this.notes.unshift("<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> ");
+        }
+        else if (this.step.stepType === "remove") {
+            this.notes.unshift("<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div>");
+        }
+        string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
+        string += "</div>";
+        if (string === "<div class='notes'></div>") {
+            string += "<div>Thinking!!!</div>";
+        }
+        this.notes = [];
+        return string;
+    };
+    return Sudoku;
+}(combinationStep_1.CombinationStep));
+exports.Sudoku = Sudoku;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -375,17 +509,28 @@ exports.oneEach = [
     0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
+exports.insane1 = [
+    0, 0, 4, 0, 0, 0, 3, 0, 0,
+    0, 5, 0, 7, 0, 0, 6, 0, 0,
+    0, 0, 0, 5, 0, 0, 0, 2, 4,
+    8, 0, 0, 0, 0, 3, 0, 5, 0,
+    0, 0, 5, 4, 0, 1, 8, 0, 0,
+    0, 1, 0, 8, 0, 0, 0, 0, 3,
+    4, 2, 0, 0, 0, 5, 0, 0, 0,
+    0, 0, 8, 0, 0, 7, 0, 3, 0,
+    0, 0, 9, 0, 0, 0, 2, 0, 0
+];
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var sudoku_1 = __webpack_require__(2);
-var boards = __webpack_require__(0);
+var sudoku_1 = __webpack_require__(0);
+var boards = __webpack_require__(1);
 var guess_1 = __webpack_require__(13);
 var numberClasses = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
@@ -498,6 +643,10 @@ var GameUtils = (function () {
     };
     GameUtils.step = function () {
         var _this = this;
+        var boardEl = document.getElementById("board");
+        if (!boardEl) {
+            return;
+        }
         if (GameUtils.currentBoard.step.stepType === "endStep") {
             GameUtils.takeAGuess();
             GameUtils.getNewBoard("previous-boards");
@@ -522,9 +671,12 @@ var GameUtils = (function () {
                 GameUtils.finish();
             }
         }
+        boardEl = document.getElementById("board");
+        if (!boardEl) {
+            return;
+        }
         this.currentBoard.takeStep();
-        var boardEl = document.getElementById("board");
-        var spots = document.getElementsByClassName('spot');
+        var spots = boardEl.getElementsByClassName('spot');
         var sudoku = this.currentBoard;
         var grid = sudoku.grid;
         var row = this.createRow();
@@ -613,140 +765,6 @@ auto.addEventListener('click', function () {
     }
 });
 window.gameUtils = GameUtils;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var puzzles_1 = __webpack_require__(0);
-var combinationStep_1 = __webpack_require__(3);
-var Sudoku = (function (_super) {
-    __extends(Sudoku, _super);
-    function Sudoku(grid, guess) {
-        if (grid === void 0) { grid = puzzles_1.easy1; }
-        if (guess === void 0) { guess = false; }
-        var _this = _super.call(this, grid) || this;
-        _this.guess = guess;
-        _this.setUpNewSection();
-        return _this;
-    }
-    Sudoku.prototype.done = function () {
-        return this.grid.indexOf(0) === -1;
-    };
-    Sudoku.prototype.failed = function () {
-        if (this.step.stepIndexes.length) {
-            return false;
-        }
-        var values = Object.values(this.blanks);
-        for (var i = 0; i < values.length; i++) {
-            if (!values[i].length) {
-                return true;
-            }
-        }
-        return false;
-    };
-    Sudoku.prototype.setUpNewSection = function () {
-        this.setUpBlanks();
-        this.setUpBlankStep();
-    };
-    Sudoku.prototype.takeStep = function () {
-        if (this.done()) {
-            return;
-        }
-        if (this.step.stepType === "setUpBlanks") {
-            this.takeStepBlank();
-        }
-        else if (this.step.stepType === "place") {
-            this.takePlaceStep();
-        }
-        else if (this.step.stepType === "remove") {
-            this.takeRemoveStep();
-        }
-        else if (this.step.stepType === "findSingle") {
-            this.takeSearchStep();
-        }
-        else if (this.step.stepType === "sectionSingle") {
-            this.takeSectionSingle();
-        }
-        else if (this.step.stepType === "subsectionOptionSets") {
-            this.takeSubsectionOptionsStep();
-        }
-        else if (this.step.stepType === "processFoundSubsections") {
-            this.takeProcessSubsectionStep();
-        }
-        else if (this.step.stepType === "combinationStep") {
-            this.takeCombinationStep();
-        }
-    };
-    Sudoku.prototype.currentStepString = function () {
-        if (this.grid.indexOf(0) === -1) {
-            return '<div class="step- description o- container ">I\'m Done.</div>';
-        }
-        var string = '';
-        if (this.step.stepType === "endStep" || this.grid.indexOf(0) === -1) {
-            return string;
-        }
-        var stepType = this.step.stepType;
-        if (stepType === 'setUpBlanks') {
-            string += "<div class=\"step-description o-container \">\n                Phase 1: We first determine what numbers are possible for each blank spot.\n                To do this we compare the spot to the row, column, and square that contains it. Based each of these we can remove all the numbers that already exist in the corresponding section.\n            </div>";
-        }
-        else if (stepType === "place") {
-            string += "<div class=\"step-description o-container \">\n                Phase 2: Once we have logically determined there is only one option for a location we can place a number in that location.\n            </div>";
-        }
-        else if (stepType === "remove") {
-            string += "<div class=\"step-description o-container \">\n                Phase 3: After a number has been placed we need to remove it from the options for any square in the same row, column, or square as it is no longer valid there.\n            </div>";
-        }
-        else if (stepType === "findSingle") {
-            string += "<div class=\"step-description o-container \">\n                Phase 4: Once we have removed a number from the options for blank locations for the row, column, and square we can then look for locations that now only have one option. These locations can now be placed to help us to remove additional options and bring the puzzle closer to solved. \n            </div>";
-        }
-        else if (stepType === "sectionSingle") {
-            string += "<div class=\"step-description o-container \">\n                Phase 5: Once we have determined the options for all the blank spots we can check if in any given row, column or square there is only one cell that could hold a particular number. This step checks for these cells in all rows, columns, and squares and flags these spots.\n            </div>";
-        }
-        else if (stepType === "subsectionOptionSets") {
-            string += "<div class=\"step-description o-container \">\n                Phase 6: Next we attempt to find numbers that only exist in a subsection. For example, in a given row there are 3 subsections each in a different square. If there is a number that appears only in one of these subsections it must be placed in that subsection. Therefore, no spot in the other containing section(a square here) not in the subsection can contain the number. In this section we track any subsection that we find that also appears to affect the puzzle(the number also exists in a spot it would be removed from based on the subsection). \n            </div>";
-        }
-        else if (stepType === "processFoundSubsections") {
-            string += "<div class=\"step-description o-container \">\n                Phase 7: Next we process subsections that have been found in other steps based on these we can remove a value from indexes outside of a given subsection.\n            </div>";
-        }
-        else if (stepType === "combinationStep") {
-            string += "<div class=\"step-description o-container \">\n                Phase 8: Next we are looking for subsections that are combinations. Basically, we want to find a set of cells in a row, column or square which hold the same number of values as cells. This means that these cells are the locations of these values and no other cells in the section can contain these values. Similar to phase 6 we only track these if we expect them to have an effect on the puzzle.\n            </div>";
-        }
-        else {
-            debugger;
-        }
-        string += "<div class='notes'>";
-        var sectionIndex = this.currentSectionIndex();
-        if (this.step.stepType === "setUpBlanks" && this.activeSpot() >= 0) {
-            this.notes.unshift("<div class=\"current-step\">Comparing spot @ " + this.activeSpot() + " with " + this.activeType() + " " + sectionIndex + ".</div> ");
-        }
-        else if (this.step.stepType === "remove") {
-            this.notes.unshift("<div class=\"remove-note\">Removing " + this.value(this.activeSpot()) + "s from " + this.activeType() + " " + sectionIndex + ".</div>");
-        }
-        string += "<div class=\"step-text\">" + this.notes.join("") + "</div>";
-        string += "</div>";
-        if (string === "<div class='notes'></div>") {
-            string += "<div>Thinking!!!</div>";
-        }
-        this.notes = [];
-        return string;
-    };
-    return Sudoku;
-}(combinationStep_1.CombinationStep));
-exports.Sudoku = Sudoku;
 
 
 /***/ }),
@@ -1867,7 +1885,7 @@ exports.SudokuBase = SudokuBase;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var sudoku_1 = __webpack_require__(2);
+var sudoku_1 = __webpack_require__(0);
 var Guess = (function () {
     function Guess() {
     }
